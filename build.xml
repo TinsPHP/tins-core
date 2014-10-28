@@ -1,0 +1,30 @@
+<!--
+  This file is part of the TSPHP project published under the Apache License 2.0
+  For the full copyright and license information, please have a look at LICENSE in the
+  root folder or visit the project's website http://tsphp.ch/wiki/display/TSPHP/License
+  -->
+
+<project name="core" default="common.build" basedir=".">
+
+    <property environment="env"/>
+    <import file="${basedir}/ant/build-common.xml" as="common"/>
+    <import file="${basedir}/ant/copyTinsCommon.xml" as="cpt"/>
+    <import file="${basedir}/ant/copyQA.xml" as="copy"/>
+
+    <!-- ================================================================== -->
+    <!-- Specialised Target: cp.QA don't copy header.txt -->
+    <!-- ================================================================== -->
+    <target name="cp.QA" depends="cp.QA.saveHeaderTxt, copy.cp.QA, cp.QA.restoreHeaderTxt"/>
+    <target name="cp.QA.saveHeaderTxt">
+        <copy file="${libdev}/checkstyle/cfg/header.txt" tofile="${libdev}/b_header.txt"/>
+    </target>
+
+    <target name="cp.QA.restoreHeaderTxt">
+        <copy overwrite="true"
+              file="${libdev}/b_header.txt" tofile="${libdev}/checkstyle/cfg/header.txt"/>
+        <delete file="${libdev}/b_header.txt"/>
+    </target>
+
+    <target name="cp.all" depends="cpt.common"/>
+
+</project>
