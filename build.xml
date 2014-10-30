@@ -9,7 +9,9 @@
     <property environment="env"/>
     <import file="${basedir}/ant/build-common.xml" as="common"/>
     <import file="${basedir}/ant/copyTinsCommon.xml" as="cpt"/>
+    <import file="${basedir}/ant/copyTinsSymbols.xml" as="cpt"/>
     <import file="${basedir}/ant/copyQA.xml" as="copy"/>
+
 
     <!-- ================================================================== -->
     <!-- Specialised Target: cp.QA don't copy header.txt -->
@@ -25,6 +27,6 @@
         <delete file="${libdev}/b_header.txt"/>
     </target>
 
-    <target name="cp.all" depends="cpt.common"/>
+    <target name="cp.all" depends="cpt.common, cpt.symbols"/>
 
 </project>

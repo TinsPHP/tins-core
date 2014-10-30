@@ -1,7 +1,7 @@
 # TinsPHP - core
 
 This repository contains the core component of [TinsPHP](https://github.com/TinsPHP).  
-It describes the available built-in primitive types, functions/classes and interfaces as well as operator overloads, implicit and explicit casts etc. The core component is used by [TinsPHP's inference engine](https://github.com/tinsphp/tins-inference-engine).
+It describes the available built-in primitive types, functions/classes and interfaces as well as operator overloads, implicit and explicit casts etc. The core component is used by [TinsPHP's inference engine](https://github.com/TinsPHP/tins-inference-engine "inference engine component").
 
 Please visit the [project's website](http://tsphp.ch/tins) for more information on the project.
 Use the project's [issue tracking system](http://tsphp.ch/tins/jira) (JIRA) to report bugs or submit feature requests.
