@@ -6,8 +6,23 @@
 
 package ch.tsphp.tinsphp.core;
 
+import ch.tsphp.common.IAstHelper;
 import ch.tsphp.tinsphp.common.ICore;
+import ch.tsphp.tinsphp.common.scopes.IGlobalNamespaceScope;
+import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 
 public class Core implements ICore
 {
+    private final ISymbolFactory symbolFactory;
+    private final IAstHelper astHelper;
+    private final IGlobalNamespaceScope globalDefaultNamespace;
+
+    public Core(ISymbolFactory theSymbolFactory, IAstHelper theAstHelper,
+            IGlobalNamespaceScope theGlobalDefaultNamespace) {
+
+        symbolFactory = theSymbolFactory;
+        astHelper = theAstHelper;
+        globalDefaultNamespace = theGlobalDefaultNamespace;
+
+    }
 }

@@ -6,13 +6,18 @@
 
 package ch.tsphp.tinsphp.common.test;
 
+import ch.tsphp.common.IAstHelper;
+import ch.tsphp.tinsphp.common.scopes.IGlobalNamespaceScope;
+import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.core.Core;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
 
 public class CoreTest
 {
     @Test
-    public void dummyTest(){
-        new Core();
+    public void dummyTest() {
+        new Core(mock(ISymbolFactory.class), mock(IAstHelper.class), mock(IGlobalNamespaceScope.class));
     }
 }
