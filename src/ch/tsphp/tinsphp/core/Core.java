@@ -19,7 +19,9 @@ public class Core implements ICore
     private final IGlobalNamespaceScope globalDefaultNamespace;
     private INullTypeSymbol nullTypeSymbol;
 
-    public Core(ISymbolFactory theSymbolFactory, IAstHelper theAstHelper,
+    public Core(
+            ISymbolFactory theSymbolFactory,
+            IAstHelper theAstHelper,
             IGlobalNamespaceScope theGlobalDefaultNamespace) {
 
         symbolFactory = theSymbolFactory;
