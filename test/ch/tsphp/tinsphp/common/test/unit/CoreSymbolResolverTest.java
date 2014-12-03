@@ -4,7 +4,7 @@
  * root folder or visit the project's website http://tsphp.ch/wiki/display/TINS/License
  */
 
-package ch.tsphp.tinsphp.common.test;
+package ch.tsphp.tinsphp.common.test.unit;
 
 import ch.tsphp.common.IScope;
 import ch.tsphp.common.ITSPHPAst;

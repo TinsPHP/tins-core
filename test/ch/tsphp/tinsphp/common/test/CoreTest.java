@@ -8,7 +8,6 @@ package ch.tsphp.tinsphp.common.test;
 
 import ch.tsphp.common.IAstHelper;
 import ch.tsphp.tinsphp.common.ICore;
-import ch.tsphp.tinsphp.common.scopes.IGlobalNamespaceScope;
 import ch.tsphp.tinsphp.common.symbols.INullTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.core.Core;
@@ -34,13 +33,12 @@ public class CoreTest
     }
 
     private ICore createCore(ISymbolFactory theSymbolFactory) {
-        return createCore(theSymbolFactory, mock(IAstHelper.class), mock(IGlobalNamespaceScope.class));
+        return createCore(theSymbolFactory, mock(IAstHelper.class));
     }
 
     protected ICore createCore(
             ISymbolFactory theSymbolFactory,
-            IAstHelper theAstHelper,
-            IGlobalNamespaceScope theGlobalDefaultNamespace) {
-        return new Core(theSymbolFactory, theAstHelper, theGlobalDefaultNamespace);
+            IAstHelper theAstHelper) {
+        return new Core(theSymbolFactory, theAstHelper);
     }
 }

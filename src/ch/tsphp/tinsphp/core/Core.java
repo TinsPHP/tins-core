@@ -7,33 +7,49 @@
 package ch.tsphp.tinsphp.core;
 
 import ch.tsphp.common.IAstHelper;
+import ch.tsphp.common.symbols.ISymbol;
+import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.ICore;
-import ch.tsphp.tinsphp.common.scopes.IGlobalNamespaceScope;
 import ch.tsphp.tinsphp.common.symbols.INullTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
+import ch.tsphp.tinsphp.common.symbols.resolver.ISymbolResolver;
+import ch.tsphp.tinsphp.common.symbols.resolver.ITypeSymbolResolver;
+import ch.tsphp.tinsphp.core.gen.BuiltInTypesProvider;
+import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Core implements ICore
 {
-    private final ISymbolFactory symbolFactory;
-    private final IAstHelper astHelper;
-    private final IGlobalNamespaceScope globalDefaultNamespace;
-    private INullTypeSymbol nullTypeSymbol;
+    private final INullTypeSymbol nullTypeSymbol;
+    private final ITypeSymbolResolver coreTypeSymbolResolver;
+    private final ISymbolResolver coreSymbolResolver;
 
-    public Core(
-            ISymbolFactory theSymbolFactory,
-            IAstHelper theAstHelper,
-            IGlobalNamespaceScope theGlobalDefaultNamespace) {
+    public Core(ISymbolFactory symbolFactory, IAstHelper astHelper) {
 
-        symbolFactory = theSymbolFactory;
-        astHelper = theAstHelper;
-        globalDefaultNamespace = theGlobalDefaultNamespace;
+        ITypeProvider primitiveTypeProvider = new PrimitiveTypeProvider(symbolFactory);
+        Map<String, ITypeSymbol> primitiveTypes = primitiveTypeProvider.getTypes();
+        nullTypeSymbol = (INullTypeSymbol) primitiveTypes.get(PrimitiveTypeNames.TYPE_NAME_NULL);
 
-        defineBuiltInTypes();
+        ITypeProvider builtInTypeProvider = new BuiltInTypesProvider(
+                new TypeGeneratorHelper(astHelper, symbolFactory),
+                symbolFactory,
+                primitiveTypes
+        );
+
+        coreTypeSymbolResolver = new CoreTypeSymbolResolver(primitiveTypeProvider, builtInTypeProvider);
+        coreSymbolResolver = new CoreSymbolResolver(new HashMap<String, ISymbol>(), new HashMap<String, ISymbol>());
     }
 
-    private void defineBuiltInTypes() {
-        nullTypeSymbol = symbolFactory.createNullTypeSymbol();
-        globalDefaultNamespace.define(nullTypeSymbol);
+    @Override
+    public ISymbolResolver getCoreSymbolResolver() {
+        return coreSymbolResolver;
+    }
+
+    @Override
+    public ITypeSymbolResolver getCoreTypeSymbolResolver() {
+        return coreTypeSymbolResolver;
     }
 
     @Override
