@@ -13,7 +13,6 @@ import ch.tsphp.common.LowerCaseStringMap;
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.tinsphp.common.scopes.INamespaceScope;
 import ch.tsphp.tinsphp.common.symbols.resolver.ISymbolResolver;
-import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 
 import java.util.Map;
 
@@ -22,7 +21,6 @@ public class CoreSymbolResolver implements ISymbolResolver
     private final Map<String, ISymbol> symbols;
     private final ILowerCaseStringMap<ISymbol> symbolsCaseInsensitive;
     private final Map<String, ISymbol> superGlobals;
-    private final ILowerCaseStringMap<ISymbol> superGlobalsCaseInsensitive;
 
     public CoreSymbolResolver(Map<String, ISymbol> predefinedSymbols, Map<String, ISymbol> predefinedSuperGlobals) {
         symbols = predefinedSymbols;
@@ -30,19 +28,16 @@ public class CoreSymbolResolver implements ISymbolResolver
 
         symbolsCaseInsensitive = new LowerCaseStringMap<>();
         symbolsCaseInsensitive.putAll(predefinedSymbols);
-        superGlobalsCaseInsensitive = new LowerCaseStringMap<>();
-        superGlobalsCaseInsensitive.putAll(predefinedSuperGlobals);
     }
 
     @Override
     public ISymbol resolveIdentifierFromItsScope(ITSPHPAst identifier) {
         ISymbol symbol = null;
         IScope scope = identifier.getScope();
+        //core supports only symbols which are defined at namespace level such as classes etc.
         if (scope instanceof INamespaceScope) {
             String typeName = scope.getScopeName() + identifier.getText();
             symbol = symbols.get(typeName);
-        } else if (identifier.getType() == TokenTypes.VariableId) {
-            symbol = superGlobals.get(identifier.getText());
         }
         return symbol;
     }
@@ -54,8 +49,6 @@ public class CoreSymbolResolver implements ISymbolResolver
         if (scope instanceof INamespaceScope) {
             String typeName = scope.getScopeName() + identifier.getText();
             symbol = symbolsCaseInsensitive.get(typeName);
-        } else if (identifier.getType() == TokenTypes.VariableId) {
-            symbol = superGlobalsCaseInsensitive.get(identifier.getText());
         }
         return symbol;
     }
@@ -94,4 +87,10 @@ public class CoreSymbolResolver implements ISymbolResolver
         return namespaceScope;
     }
     //Warning! end code duplication - same as in ScopeHelper in inference engine component
+
+    @Override
+    public ISymbol resolveIdentifierFromSuperGlobalScope(ITSPHPAst identifier) {
+        return superGlobals.get(identifier.getText());
+    }
+
 }
