@@ -7,13 +7,10 @@
 package ch.tsphp.tinsphp.core;
 
 import ch.tsphp.common.symbols.ITypeSymbol;
-import ch.tsphp.tinsphp.common.symbols.IClassTypeSymbol;
-import ch.tsphp.tinsphp.common.symbols.IMethodSymbol;
 
-public interface ITypeGeneratorHelper
+import java.util.Map;
+
+public interface ITypeSymbolProvider
 {
-    IClassTypeSymbol createClass(String className);
-
-    IMethodSymbol defineMethodWithoutParameters(
-            IClassTypeSymbol classTypeSymbol, String methodName, ITypeSymbol returnType);
+    Map<String, ITypeSymbol> getTypes();
 }

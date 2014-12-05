@@ -6,11 +6,11 @@
 
 package ch.tsphp.tinsphp.core;
 
-import ch.tsphp.common.symbols.ITypeSymbol;
+import ch.tsphp.common.symbols.ISymbol;
 
 import java.util.Map;
 
-public interface ITypeProvider
+public interface ISymbolProvider
 {
-    Map<String, ITypeSymbol> getTypes();
+    Map<String, ISymbol> getSymbols();
 }

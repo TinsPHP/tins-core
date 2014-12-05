@@ -18,26 +18,28 @@ import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PrimitiveTypeProvider implements ITypeProvider
+public class PrimitiveTypeProvider implements ITypeSymbolProvider
 {
 
     private ISymbolFactory symbolFactory;
-    private ITypeSymbol mixedTypeSymbol;
-    private Map<String, ITypeSymbol> types;
 
     public PrimitiveTypeProvider(ISymbolFactory theSymbolFactory) {
         symbolFactory = theSymbolFactory;
-        mixedTypeSymbol = symbolFactory.getMixedTypeSymbol();
-
-        createTypes();
     }
 
-    private void createTypes() {
-        types = new HashMap<>();
+    @Override
+    public Map<String, ITypeSymbol> getTypes() {
+        Map<String, ITypeSymbol> types = new HashMap<>();
 
+        IPseudoTypeSymbol mixedTypeSymbol = symbolFactory.createPseudoTypeSymbol("mixed");
+        symbolFactory.setMixedTypeSymbol(mixedTypeSymbol);
+        IPseudoTypeSymbol scalarTypeSymbol = symbolFactory.createPseudoTypeSymbol("scalar", mixedTypeSymbol);
+        IPseudoTypeSymbol numTypeSymbol = symbolFactory.createPseudoTypeSymbol("num", scalarTypeSymbol);
         INullTypeSymbol nullTypeSymbol = symbolFactory.createNullTypeSymbol();
-
-        IPseudoTypeSymbol scalarTypeSymbol = symbolFactory.createPseudoTypeSymbol("scalar");
+        types.put(PrimitiveTypeNames.MIXED, mixedTypeSymbol);
+        types.put(PrimitiveTypeNames.SCALAR, scalarTypeSymbol);
+        types.put(PrimitiveTypeNames.NUM, numTypeSymbol);
+        types.put(PrimitiveTypeNames.NULL, nullTypeSymbol);
 
         IScalarTypeSymbol boolTypeSymbol = symbolFactory.createScalarTypeSymbol(
                 "bool", scalarTypeSymbol, TokenTypes.Bool, "false");
@@ -46,8 +48,6 @@ public class PrimitiveTypeProvider implements ITypeProvider
                 "true", boolTypeSymbol, TokenTypes.Bool, "true");
         IScalarTypeSymbol falseTypeSymbol = symbolFactory.createScalarTypeSymbol(
                 "false", boolTypeSymbol, TokenTypes.Bool, "false");
-
-        IPseudoTypeSymbol numTypeSymbol = symbolFactory.createPseudoTypeSymbol("num");
 
         IScalarTypeSymbol intTypeSymbol = symbolFactory.createScalarTypeSymbol(
                 "int", numTypeSymbol, TokenTypes.Int, "0");
@@ -58,27 +58,22 @@ public class PrimitiveTypeProvider implements ITypeProvider
         IScalarTypeSymbol stringTypeSymbol = symbolFactory.createScalarTypeSymbol(
                 "string", scalarTypeSymbol, TokenTypes.String, "''");
 
-        types.put(PrimitiveTypeNames.TYPE_NAME_NULL, nullTypeSymbol);
-        types.put(PrimitiveTypeNames.TYPE_NAME_TRUE, trueTypeSymbol);
-        types.put(PrimitiveTypeNames.TYPE_NAME_FALSE, falseTypeSymbol);
-        types.put(PrimitiveTypeNames.TYPE_NAME_BOOL, boolTypeSymbol);
-        types.put(PrimitiveTypeNames.TYPE_NAME_INT, intTypeSymbol);
-        types.put(PrimitiveTypeNames.TYPE_NAME_FLOAT, floatTypeSymbol);
-        types.put(PrimitiveTypeNames.TYPE_NAME_NUM, numTypeSymbol);
-        types.put(PrimitiveTypeNames.TYPE_NAME_STRING, stringTypeSymbol);
-        types.put(PrimitiveTypeNames.TYPE_NAME_SCALAR, scalarTypeSymbol);
+        types.put(PrimitiveTypeNames.TRUE, trueTypeSymbol);
+        types.put(PrimitiveTypeNames.FALSE, falseTypeSymbol);
+        types.put(PrimitiveTypeNames.BOOL, boolTypeSymbol);
+        types.put(PrimitiveTypeNames.INT, intTypeSymbol);
+        types.put(PrimitiveTypeNames.FLOAT, floatTypeSymbol);
+        types.put(PrimitiveTypeNames.STRING, stringTypeSymbol);
+
 
         IArrayTypeSymbol arrayTypeSymbol = symbolFactory.createArrayTypeSymbol(
-                "array", stringTypeSymbol, mixedTypeSymbol);
-
+                "array", scalarTypeSymbol, mixedTypeSymbol);
         IPseudoTypeSymbol resourceTypeSymbol = symbolFactory.createPseudoTypeSymbol("resource");
 
-        types.put(PrimitiveTypeNames.TYPE_NAME_ARRAY, arrayTypeSymbol);
-        types.put(PrimitiveTypeNames.TYPE_NAME_RESOURCE, resourceTypeSymbol);
-    }
+        types.put(PrimitiveTypeNames.ARRAY, arrayTypeSymbol);
+        types.put(PrimitiveTypeNames.RESOURCE, resourceTypeSymbol);
 
-    @Override
-    public Map<String, ITypeSymbol> getTypes() {
+
         return types;
     }
 

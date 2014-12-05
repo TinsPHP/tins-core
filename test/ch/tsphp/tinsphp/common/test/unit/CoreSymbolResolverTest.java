@@ -13,7 +13,6 @@ import ch.tsphp.tinsphp.common.scopes.IConditionalScope;
 import ch.tsphp.tinsphp.common.scopes.INamespaceScope;
 import ch.tsphp.tinsphp.common.symbols.resolver.ISymbolResolver;
 import ch.tsphp.tinsphp.core.CoreSymbolResolver;
-import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 import org.junit.Test;
 import org.mockito.exceptions.base.MockitoAssertionError;
 
@@ -117,64 +116,6 @@ public class CoreSymbolResolverTest
     }
 
     @Test
-    public void resolveIdentifierFromItsScope_ExistingVariable_UsesSuperGlobalsAndReturnsVariable() {
-        ITSPHPAst ast = mock(ITSPHPAst.class);
-        when(ast.getType()).thenReturn(TokenTypes.VariableId);
-        String identifier = "Dummy";
-        when(ast.getText()).thenReturn(identifier);
-        IScope scope = mock(IScope.class);
-        when(ast.getScope()).thenReturn(scope);
-        Map<String, ISymbol> superGlobals = spy(new HashMap<String, ISymbol>());
-        ISymbol symbol = mock(ISymbol.class);
-        superGlobals.put(identifier, symbol);
-
-        ISymbolResolver resolver = createSymbolResolverOnlySuperGlobals(superGlobals);
-        ISymbol result = resolver.resolveIdentifierFromItsScope(ast);
-
-        verify(ast).getScope();
-        verify(superGlobals).get(identifier);
-        assertThat(result, is(symbol));
-    }
-
-    @Test
-    public void resolveIdentifierFromItsScope_ExistingVariableWrongCase_UsesSuperGlobalsAndReturnsNull() {
-        ITSPHPAst ast = mock(ITSPHPAst.class);
-        when(ast.getType()).thenReturn(TokenTypes.VariableId);
-        String identifier = "Dummy";
-        when(ast.getText()).thenReturn(identifier);
-        IScope scope = mock(IScope.class);
-        when(ast.getScope()).thenReturn(scope);
-        Map<String, ISymbol> superGlobals = spy(new HashMap<String, ISymbol>());
-        ISymbol symbol = mock(ISymbol.class);
-        superGlobals.put("dummy", symbol);
-
-        ISymbolResolver resolver = createSymbolResolverOnlySuperGlobals(superGlobals);
-        ISymbol result = resolver.resolveIdentifierFromItsScope(ast);
-
-        verify(ast).getScope();
-        verify(superGlobals).get(identifier);
-        assertThat(result, is(nullValue()));
-    }
-
-    @Test
-    public void resolveIdentifierFromItsScope_NonExistingVariable_UsesSuperGlobalsAndReturnsNull() {
-        ITSPHPAst ast = mock(ITSPHPAst.class);
-        when(ast.getType()).thenReturn(TokenTypes.VariableId);
-        String identifier = "Dummy";
-        when(ast.getText()).thenReturn(identifier);
-        IScope scope = mock(IScope.class);
-        when(ast.getScope()).thenReturn(scope);
-        Map<String, ISymbol> superGlobals = spy(new HashMap<String, ISymbol>());
-
-        ISymbolResolver resolver = createSymbolResolverOnlySuperGlobals(superGlobals);
-        ISymbol result = resolver.resolveIdentifierFromItsScope(ast);
-
-        verify(ast).getScope();
-        verify(superGlobals).get(identifier);
-        assertThat(result, is(nullValue()));
-    }
-
-    @Test
     public void resolveIdentifierFromItsScopeCaseInsensitive_NonExistingNotInNamespace_DoesNotResolveAndReturnsNull() {
         ITSPHPAst ast = mock(ITSPHPAst.class);
         IScope scope = mock(IScope.class);
@@ -264,65 +205,6 @@ public class CoreSymbolResolverTest
     }
 
     @Test
-    public void resolveIdentifierFromItsScopeCaseInsensitive_ExistingVariable_UsesSuperGlobalsAndReturnsVariable() {
-        ITSPHPAst ast = mock(ITSPHPAst.class);
-        when(ast.getType()).thenReturn(TokenTypes.VariableId);
-        String identifier = "Dummy";
-        when(ast.getText()).thenReturn(identifier);
-        IScope scope = mock(IScope.class);
-        when(ast.getScope()).thenReturn(scope);
-        Map<String, ISymbol> superGlobals = spy(new HashMap<String, ISymbol>());
-        ISymbol symbol = mock(ISymbol.class);
-        superGlobals.put(identifier, symbol);
-
-        ISymbolResolver resolver = createSymbolResolverOnlySuperGlobals(superGlobals);
-        ISymbol result = resolver.resolveIdentifierFromItsScopeCaseInsensitive(ast);
-
-        verify(ast).getScope();
-        verify(ast).getText();
-        assertThat(result, is(symbol));
-    }
-
-    @Test
-    public void
-    resolveIdentifierFromItsScopeCaseInsensitive_ExistingVariableWrongCase_UsesSuperGlobalsAndReturnsSymbol() {
-        ITSPHPAst ast = mock(ITSPHPAst.class);
-        when(ast.getType()).thenReturn(TokenTypes.VariableId);
-        String identifier = "Dummy";
-        when(ast.getText()).thenReturn(identifier);
-        IScope scope = mock(IScope.class);
-        when(ast.getScope()).thenReturn(scope);
-        Map<String, ISymbol> superGlobals = spy(new HashMap<String, ISymbol>());
-        ISymbol symbol = mock(ISymbol.class);
-        superGlobals.put("dummy", symbol);
-
-        ISymbolResolver resolver = createSymbolResolverOnlySuperGlobals(superGlobals);
-        ISymbol result = resolver.resolveIdentifierFromItsScopeCaseInsensitive(ast);
-
-        verify(ast).getScope();
-        verify(ast).getText();
-        assertThat(result, is(symbol));
-    }
-
-    @Test
-    public void resolveIdentifierFromItsScopeCaseInsensitive_NonExistingVariable_UsesSuperGlobalsAndReturnsNull() {
-        ITSPHPAst ast = mock(ITSPHPAst.class);
-        when(ast.getType()).thenReturn(TokenTypes.VariableId);
-        String identifier = "Dummy";
-        when(ast.getText()).thenReturn(identifier);
-        IScope scope = mock(IScope.class);
-        when(ast.getScope()).thenReturn(scope);
-        Map<String, ISymbol> superGlobals = spy(new HashMap<String, ISymbol>());
-
-        ISymbolResolver resolver = createSymbolResolverOnlySuperGlobals(superGlobals);
-        ISymbol result = resolver.resolveIdentifierFromItsScopeCaseInsensitive(ast);
-
-        verify(ast).getScope();
-        verify(ast).getText();
-        assertThat(result, is(nullValue()));
-    }
-
-    @Test
     public void resolveIdentifierFromFallback_NonExisting_DelegatesToSymbolsAndReturnsNull() {
         ITSPHPAst ast = mock(ITSPHPAst.class);
         String identifier = "Dummy";
@@ -393,7 +275,7 @@ public class CoreSymbolResolverTest
         when(scope.getScopeName()).thenReturn(scopeName);
         Map<String, ISymbol> predefinedSymbols = spy(new HashMap<String, ISymbol>());
         ISymbol symbol = mock(ISymbol.class);
-        predefinedSymbols.put(scopeName+identifier, symbol);
+        predefinedSymbols.put(scopeName + identifier, symbol);
 
         ISymbolResolver resolver = createSymbolResolverOnlyPredefined(predefinedSymbols);
         ISymbol result = resolver.resolveIdentifierFromItsNamespaceScope(ast);
@@ -475,6 +357,45 @@ public class CoreSymbolResolverTest
 
         verify(conditionalScope1).getEnclosingScope();
         verify(conditionalScope2).getEnclosingScope();
+        assertThat(result, is(nullValue()));
+    }
+
+    @Test
+    public void resolveIdentifierFromSuperGlobalScope_Existing_ReturnsSymbol(){
+        ITSPHPAst ast = mock(ITSPHPAst.class);
+        when(ast.getText()).thenReturn("dummy");
+        HashMap<String, ISymbol> symbols = new HashMap<>();
+        ISymbol symbol = mock(ISymbol.class);
+        symbols.put("dummy", symbol);
+
+        ISymbolResolver resolver = createSymbolResolverOnlySuperGlobals(symbols);
+        ISymbol result = resolver.resolveIdentifierFromSuperGlobalScope(ast);
+
+        assertThat(result, is(symbol));
+    }
+
+    @Test
+    public void resolveIdentifierFromSuperGlobalScope_ExistingWrongCase_ReturnsNull(){
+        ITSPHPAst ast = mock(ITSPHPAst.class);
+        when(ast.getText()).thenReturn("DUMMY");
+        HashMap<String, ISymbol> symbols = new HashMap<>();
+        ISymbol symbol = mock(ISymbol.class);
+        symbols.put("dummy", symbol);
+
+        ISymbolResolver resolver = createSymbolResolverOnlySuperGlobals(symbols);
+        ISymbol result = resolver.resolveIdentifierFromSuperGlobalScope(ast);
+
+        assertThat(result, is(nullValue()));
+    }
+
+    @Test
+    public void resolveIdentifierFromSuperGlobalScope_NonExisting_ReturnNull(){
+        ITSPHPAst ast = mock(ITSPHPAst.class);
+        when(ast.getText()).thenReturn("nonExisting");
+
+        ISymbolResolver resolver = createSymbolResolverOnlySuperGlobals(new HashMap<String, ISymbol>());
+        ISymbol result = resolver.resolveIdentifierFromSuperGlobalScope(ast);
+
         assertThat(result, is(nullValue()));
     }
 
