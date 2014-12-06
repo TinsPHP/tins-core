@@ -10,6 +10,7 @@ import ch.tsphp.common.IAstHelper;
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.ICore;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
+import ch.tsphp.tinsphp.common.test.integration.testutils.ATest;
 import ch.tsphp.tinsphp.core.Core;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
 import org.junit.Test;

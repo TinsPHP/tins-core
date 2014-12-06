@@ -20,14 +20,15 @@ import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BuiltInSymbolProvider implements ISymbolProvider
+public class BuiltInSymbolsProvider implements ISymbolProvider
 {
 
     private final IGeneratorHelper generatorHelper;
     private final ISymbolFactory symbolFactory;
     private final Map<String, ITypeSymbol> primitiveTypes;
+    private Map<String, ISymbol> builtInSymbols;
 
-    public BuiltInSymbolProvider(
+    public BuiltInSymbolsProvider(
             IGeneratorHelper theGeneratorHelper,
             ISymbolFactory theSymbolFactory,
             Map<String, ITypeSymbol> thePrimitiveType) {
@@ -36,9 +37,16 @@ public class BuiltInSymbolProvider implements ISymbolProvider
         primitiveTypes = thePrimitiveType;
     }
 
-
     @Override
     public Map<String, ISymbol> getSymbols() {
+        if (builtInSymbols == null) {
+            builtInSymbols = createSymbols();
+        }
+
+        return builtInSymbols;
+    }
+
+    private Map<String, ISymbol> createSymbols() {
         Map<String, ISymbol> symbols = new HashMap<>();
         IUnionTypeSymbol unionTypeSymbol;
         IMethodSymbol methodSymbol;
@@ -64,8 +72,7 @@ public class BuiltInSymbolProvider implements ISymbolProvider
         IClassTypeSymbol _errorException = generatorHelper.createClass("ErrorException");
         _errorException.setParent(_exception);
         _errorException.addParentTypeSymbol(_exception);
-        symbols.put("\\ErrorException", _exception);
-
+        symbols.put("\\ErrorException", _errorException);
         return symbols;
     }
 }

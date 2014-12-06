@@ -11,27 +11,30 @@ import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IPseudoTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.core.ITypeSymbolProvider;
-import ch.tsphp.tinsphp.core.PrimitiveTypeProvider;
+import ch.tsphp.tinsphp.core.PrimitiveTypesProvider;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.everyItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsIn.isIn;
 import static org.hamcrest.collection.IsMapContaining.hasKey;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class PrimitiveTypeProviderTest
+public class PrimitiveTypesProviderTest
 {
 
     @Test
     public void getTypes_Standard_ContainsAllTypesAccordingToPrimitiveTypeNames() {
         //no arrange necessary
 
-        ITypeSymbolProvider typeSymbolProvider = createPrimitiveTypeProvider(mock(ISymbolFactory.class));
+        ITypeSymbolProvider typeSymbolProvider = createPrimitiveTypesProvider(mock(ISymbolFactory.class));
         Map<String, ITypeSymbol> result = typeSymbolProvider.getTypes();
 
         assertThat(result, hasKey(PrimitiveTypeNames.NULL));
@@ -49,20 +52,33 @@ public class PrimitiveTypeProviderTest
     }
 
     @Test
-    public void GetTypes_Standard_HasSetMixedTypeSymbol() {
+    public void getTypes_Standard_HasSetMixedTypeSymbolForSymbolFactory() {
         ISymbolFactory symbolFactory = mock(ISymbolFactory.class);
         IPseudoTypeSymbol typeSymbol = mock(IPseudoTypeSymbol.class);
         when(symbolFactory.createPseudoTypeSymbol("mixed")).thenReturn(typeSymbol);
 
-        ITypeSymbolProvider typeSymbolProvider = createPrimitiveTypeProvider(symbolFactory);
+        ITypeSymbolProvider typeSymbolProvider = createPrimitiveTypesProvider(symbolFactory);
         Map<String, ITypeSymbol> result = typeSymbolProvider.getTypes();
 
         verify(symbolFactory).setMixedTypeSymbol(typeSymbol);
-        assertThat(result.get(PrimitiveTypeNames.MIXED), is((ISymbol)typeSymbol));
+        assertThat(result.get(PrimitiveTypeNames.MIXED), is((ISymbol) typeSymbol));
     }
 
-    protected PrimitiveTypeProvider createPrimitiveTypeProvider(ISymbolFactory symbolFactory) {
-        return new PrimitiveTypeProvider(symbolFactory);
+    @Test
+    public void getTypes_SecondCall_DoesNotNeedToRecompute() {
+        //no arrange necessary
+
+        ITypeSymbolProvider typeSymbolProvider = createPrimitiveTypesProvider(mock(ISymbolFactory.class));
+        Map<String, ITypeSymbol> result1 = typeSymbolProvider.getTypes();
+        Map<String, ITypeSymbol> backup = new HashMap<>(result1);
+        Map<String, ITypeSymbol> result2 = typeSymbolProvider.getTypes();
+
+        assertThat(result1, is(result2));
+        assertThat(result2.entrySet(), everyItem(isIn(backup.entrySet())));
+    }
+
+    protected PrimitiveTypesProvider createPrimitiveTypesProvider(ISymbolFactory symbolFactory) {
+        return new PrimitiveTypesProvider(symbolFactory);
     }
 
 }

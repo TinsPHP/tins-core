@@ -9,9 +9,10 @@ package ch.tsphp.tinsphp.common.test.unit;
 import ch.tsphp.common.IScope;
 import ch.tsphp.common.ITSPHPAst;
 import ch.tsphp.common.symbols.ISymbol;
+import ch.tsphp.tinsphp.common.resolving.ISymbolResolver;
 import ch.tsphp.tinsphp.common.scopes.IConditionalScope;
 import ch.tsphp.tinsphp.common.scopes.INamespaceScope;
-import ch.tsphp.tinsphp.common.symbols.resolver.ISymbolResolver;
+
 import ch.tsphp.tinsphp.core.CoreSymbolResolver;
 import org.junit.Test;
 import org.mockito.exceptions.base.MockitoAssertionError;

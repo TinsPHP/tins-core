@@ -4,7 +4,7 @@
  * root folder or visit the project's website http://tsphp.ch/wiki/display/TINS/License
  */
 
-package ch.tsphp.tinsphp.common.test.integration;
+package ch.tsphp.tinsphp.common.test.integration.testutils;
 
 import ch.tsphp.common.AstHelper;
 import ch.tsphp.common.IAstHelper;
@@ -15,7 +15,7 @@ import ch.tsphp.tinsphp.common.symbols.IModifierHelper;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.core.GeneratorHelper;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
-import ch.tsphp.tinsphp.core.PrimitiveTypeProvider;
+import ch.tsphp.tinsphp.core.PrimitiveTypesProvider;
 import ch.tsphp.tinsphp.symbols.ModifierHelper;
 import ch.tsphp.tinsphp.symbols.SymbolFactory;
 import org.junit.Ignore;
@@ -38,7 +38,7 @@ public abstract class ATest
         scopeHelper = createScopeHelper();
         modifierHelper = createModifierHelper();
         symbolFactory = createSymbolFactory(scopeHelper, modifierHelper);
-        primitiveTypes = new PrimitiveTypeProvider(symbolFactory).getTypes();
+        primitiveTypes = new PrimitiveTypesProvider(symbolFactory).getTypes();
     }
 
     protected IModifierHelper createModifierHelper() {

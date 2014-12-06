@@ -18,12 +18,12 @@ import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PrimitiveTypeProvider implements ITypeSymbolProvider
+public class PrimitiveTypesProvider implements ITypeSymbolProvider
 {
 
     private ISymbolFactory symbolFactory;
 
-    public PrimitiveTypeProvider(ISymbolFactory theSymbolFactory) {
+    public PrimitiveTypesProvider(ISymbolFactory theSymbolFactory) {
         symbolFactory = theSymbolFactory;
     }
 

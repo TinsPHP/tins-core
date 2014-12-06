@@ -12,6 +12,7 @@ import ch.tsphp.tinsphp.common.symbols.IClassTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IMethodSymbol;
 import ch.tsphp.tinsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IVariableSymbol;
+import ch.tsphp.tinsphp.common.test.integration.testutils.ATest;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
 import ch.tsphp.tinsphp.symbols.gen.TokenTypes;

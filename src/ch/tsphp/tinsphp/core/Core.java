@@ -8,10 +8,11 @@ package ch.tsphp.tinsphp.core;
 
 import ch.tsphp.common.IAstHelper;
 import ch.tsphp.common.symbols.ITypeSymbol;
+import ch.tsphp.tinsphp.common.IConversionMethod;
 import ch.tsphp.tinsphp.common.ICore;
+import ch.tsphp.tinsphp.common.resolving.ISymbolResolver;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
-import ch.tsphp.tinsphp.common.symbols.resolver.ISymbolResolver;
-import ch.tsphp.tinsphp.core.gen.BuiltInSymbolProvider;
+import ch.tsphp.tinsphp.core.gen.BuiltInSymbolsProvider;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
 
 import java.util.Map;
@@ -20,21 +21,37 @@ public class Core implements ICore
 {
     private final ISymbolResolver coreSymbolResolver;
     private final Map<String, ITypeSymbol> primitiveTypes;
+    private final Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> implicitConversions;
+    private final Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> explicitConversions;
 
     public Core(ISymbolFactory symbolFactory, IAstHelper astHelper) {
-        primitiveTypes = new PrimitiveTypeProvider(symbolFactory).getTypes();
+        primitiveTypes = new PrimitiveTypesProvider(symbolFactory).getTypes();
 
         symbolFactory.setMixedTypeSymbol(primitiveTypes.get(PrimitiveTypeNames.MIXED));
 
         IGeneratorHelper generatorHelper = new GeneratorHelper(astHelper, symbolFactory, primitiveTypes);
 
-        ISymbolProvider builtInSymbolProvider = new BuiltInSymbolProvider(
+        ISymbolProvider builtInSymbolProvider = new BuiltInSymbolsProvider(
                 generatorHelper, symbolFactory, primitiveTypes);
-        ISymbolProvider superGlobalSymbolResolver = new BuiltInSuperGlobalsProvider(
+        ISymbolProvider superGlobalSymbolResolver = new BuiltInSuperGlobalSymbolsProvider(
                 generatorHelper, symbolFactory, primitiveTypes);
 
         coreSymbolResolver = new CoreSymbolResolver(
                 builtInSymbolProvider.getSymbols(), superGlobalSymbolResolver.getSymbols());
+
+        IConversionsProvider conversionProvider = new ConversionsProvider(primitiveTypes);
+        implicitConversions = conversionProvider.getImplicitConversions();
+        explicitConversions = conversionProvider.getExplicitConversions();
+    }
+
+    @Override
+    public Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> getImplicitConversions() {
+        return implicitConversions;
+    }
+
+    @Override
+    public Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> getExplicitConversions() {
+        return explicitConversions;
     }
 
     @Override

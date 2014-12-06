@@ -15,14 +15,15 @@ import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BuiltInSuperGlobalsProvider implements ISymbolProvider
+public class BuiltInSuperGlobalSymbolsProvider implements ISymbolProvider
 {
 
     private final IGeneratorHelper generatorHelper;
     private final ISymbolFactory symbolFactory;
     private final Map<String, ITypeSymbol> primitiveTypes;
+    private Map<String, ISymbol> builtInSuperGlobals;
 
-    public BuiltInSuperGlobalsProvider(
+    public BuiltInSuperGlobalSymbolsProvider(
             IGeneratorHelper theGeneratorHelper,
             ISymbolFactory theSymbolFactory,
             Map<String, ITypeSymbol> thePrimitiveType) {
@@ -33,6 +34,14 @@ public class BuiltInSuperGlobalsProvider implements ISymbolProvider
 
     @Override
     public Map<String, ISymbol> getSymbols() {
+        if (builtInSuperGlobals == null) {
+            builtInSuperGlobals = createSymbols();
+        }
+
+        return builtInSuperGlobals;
+    }
+
+    private Map<String, ISymbol> createSymbols() {
         Map<String, ISymbol> superGlobals = new HashMap<>();
 
         //CHECKSTYLE:OFF:LocalVariableName
