@@ -34,6 +34,7 @@ public class ConversionsProviderTest extends ATest
 
         assertThat(result1, is(result2));
         assertThat(result2.entrySet(), everyItem(isIn(backup.entrySet())));
+        assertThat(result2.size(), is(backup.size()));
     }
 
     @Test
@@ -47,6 +48,7 @@ public class ConversionsProviderTest extends ATest
 
         assertThat(result1, is(result2));
         assertThat(result2.entrySet(), everyItem(isIn(backup.entrySet())));
+        assertThat(result2.size(), is(backup.size()));
     }
 
     protected IConversionsProvider createConversionsProvider() {

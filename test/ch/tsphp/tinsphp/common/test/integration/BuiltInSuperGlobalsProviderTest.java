@@ -46,6 +46,7 @@ public class BuiltInSuperGlobalsProviderTest extends ATest
 
         assertThat(result1, is(result2));
         assertThat(result2.entrySet(), everyItem(isIn(backup.entrySet())));
+        assertThat(result2.size(), is(backup.size()));
     }
 
     private ISymbolProvider createBuiltInSuperGlobalSymbolsProvider() {

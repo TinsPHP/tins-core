@@ -63,8 +63,19 @@ public class GeneratorHelper implements IGeneratorHelper
     }
 
     @Override
+    public IVariableSymbol createParameter(IMethodSymbol function, String name, ITypeSymbol typeSymbol) {
+        ITSPHPAst typeModifier = astHelper.createAst(TokenTypes.TYPE_MODIFIER, "tMod");
+        ITSPHPAst identifier = astHelper.createAst(TokenTypes.Identifier, name);
+        IVariableSymbol variableSymbol = symbolFactory.createVariableSymbol(typeModifier, identifier);
+        variableSymbol.setType(typeSymbol);
+        function.addParameter(variableSymbol);
+        return variableSymbol;
+    }
+
+    @Override
     public IVariableSymbol createConstant(String name, ITypeSymbol typeSymbol) {
         ITSPHPAst typeModifier = astHelper.createAst(TokenTypes.TYPE_MODIFIER, "tMod");
+        typeModifier.addChild(astHelper.createAst(TokenTypes.Final, "final"));
         ITSPHPAst identifier = astHelper.createAst(TokenTypes.Identifier, name);
         IVariableSymbol constant = symbolFactory.createVariableSymbol(typeModifier, identifier);
         constant.setType(typeSymbol);

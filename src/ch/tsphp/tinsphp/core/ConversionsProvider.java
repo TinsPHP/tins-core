@@ -34,6 +34,7 @@ public class ConversionsProvider implements IConversionsProvider
     }
 
     private Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> createImplicitConversions() {
+        ITypeSymbol nullTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.NULL);
         ITypeSymbol boolTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.BOOL);
         ITypeSymbol intTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.INT);
         ITypeSymbol floatTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.FLOAT);
@@ -43,6 +44,11 @@ public class ConversionsProvider implements IConversionsProvider
         ITypeSymbol mixedTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.MIXED);
 
         ITypeSymbol[][] castings = new ITypeSymbol[][]{
+                {nullTypeSymbol, boolTypeSymbol},
+                {nullTypeSymbol, intTypeSymbol},
+                {nullTypeSymbol, floatTypeSymbol},
+                {nullTypeSymbol, stringTypeSymbol},
+                {nullTypeSymbol, arrayTypeSymbol},
                 //bool
                 {boolTypeSymbol, intTypeSymbol},
                 {boolTypeSymbol, floatTypeSymbol},

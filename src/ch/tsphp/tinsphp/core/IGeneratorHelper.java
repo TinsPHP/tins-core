@@ -21,6 +21,8 @@ public interface IGeneratorHelper
 
     IMethodSymbol createFunction(String name, ITypeSymbol returnType);
 
+    IVariableSymbol createParameter(IMethodSymbol function, String name, ITypeSymbol typeSymbol);
+
     IVariableSymbol createConstant(String name, ITypeSymbol typeSymbol);
 
     IUnionTypeSymbol createUnionTypeSymbolFromPrimitives(String... types);

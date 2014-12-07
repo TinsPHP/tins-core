@@ -44,10 +44,10 @@ public class PrimitiveTypesProvider implements ITypeSymbolProvider
         IScalarTypeSymbol boolTypeSymbol = symbolFactory.createScalarTypeSymbol(
                 "bool", scalarTypeSymbol, TokenTypes.Bool, "false");
 
-        IScalarTypeSymbol trueTypeSymbol = symbolFactory.createScalarTypeSymbol(
-                "true", boolTypeSymbol, TokenTypes.Bool, "true");
         IScalarTypeSymbol falseTypeSymbol = symbolFactory.createScalarTypeSymbol(
                 "false", boolTypeSymbol, TokenTypes.Bool, "false");
+        IScalarTypeSymbol trueTypeSymbol = symbolFactory.createScalarTypeSymbol(
+                "true", boolTypeSymbol, TokenTypes.Bool, "true");
 
         IScalarTypeSymbol intTypeSymbol = symbolFactory.createScalarTypeSymbol(
                 "int", numTypeSymbol, TokenTypes.Int, "0");
@@ -58,8 +58,8 @@ public class PrimitiveTypesProvider implements ITypeSymbolProvider
         IScalarTypeSymbol stringTypeSymbol = symbolFactory.createScalarTypeSymbol(
                 "string", scalarTypeSymbol, TokenTypes.String, "''");
 
-        types.put(PrimitiveTypeNames.TRUE, trueTypeSymbol);
         types.put(PrimitiveTypeNames.FALSE, falseTypeSymbol);
+        types.put(PrimitiveTypeNames.TRUE, trueTypeSymbol);
         types.put(PrimitiveTypeNames.BOOL, boolTypeSymbol);
         types.put(PrimitiveTypeNames.INT, intTypeSymbol);
         types.put(PrimitiveTypeNames.FLOAT, floatTypeSymbol);
