@@ -10,6 +10,7 @@ import ch.tsphp.common.AstHelper;
 import ch.tsphp.common.IAstHelper;
 import ch.tsphp.common.TSPHPAstAdaptor;
 import ch.tsphp.common.symbols.ITypeSymbol;
+import ch.tsphp.tinsphp.common.inference.constraints.IOverloadResolver;
 import ch.tsphp.tinsphp.common.scopes.IScopeHelper;
 import ch.tsphp.tinsphp.common.symbols.IModifierHelper;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
@@ -18,6 +19,7 @@ import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.PrimitiveTypesProvider;
 import ch.tsphp.tinsphp.symbols.ModifierHelper;
 import ch.tsphp.tinsphp.symbols.SymbolFactory;
+import ch.tsphp.tinsphp.symbols.utils.OverloadResolver;
 import org.junit.Ignore;
 
 import java.util.Map;
@@ -30,6 +32,7 @@ public abstract class ATest
     protected IAstHelper astHelper;
     protected IScopeHelper scopeHelper;
     protected IModifierHelper modifierHelper;
+    protected IOverloadResolver overloadResolver;
     protected ISymbolFactory symbolFactory;
     protected Map<String, ITypeSymbol> primitiveTypes;
 
@@ -37,20 +40,26 @@ public abstract class ATest
         astHelper = createAstHelper();
         scopeHelper = createScopeHelper();
         modifierHelper = createModifierHelper();
-        symbolFactory = createSymbolFactory(scopeHelper, modifierHelper);
+        overloadResolver = createOverloadResolver();
+        symbolFactory = createSymbolFactory(scopeHelper, modifierHelper, overloadResolver);
         primitiveTypes = new PrimitiveTypesProvider(symbolFactory).getTypes();
-    }
-
-    protected IModifierHelper createModifierHelper() {
-        return new ModifierHelper();
     }
 
     protected IScopeHelper createScopeHelper() {
         return mock(IScopeHelper.class);
     }
 
-    protected ISymbolFactory createSymbolFactory(IScopeHelper scopeHelper, IModifierHelper modifierHelper) {
-        return new SymbolFactory(scopeHelper, modifierHelper);
+    protected IModifierHelper createModifierHelper() {
+        return new ModifierHelper();
+    }
+
+    protected IOverloadResolver createOverloadResolver(){
+        return new OverloadResolver();
+    }
+
+    protected ISymbolFactory createSymbolFactory(
+            IScopeHelper scopeHelper, IModifierHelper modifierHelper, IOverloadResolver overloadResolver) {
+        return new SymbolFactory(scopeHelper, modifierHelper, overloadResolver);
     }
 
     protected IAstHelper createAstHelper() {
