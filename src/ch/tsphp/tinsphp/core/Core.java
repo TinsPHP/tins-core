@@ -11,12 +11,11 @@ import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.IConversionMethod;
 import ch.tsphp.tinsphp.common.ICore;
 import ch.tsphp.tinsphp.common.resolving.ISymbolResolver;
-import ch.tsphp.tinsphp.common.symbols.IMethodSymbol;
+import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.core.gen.BuiltInSymbolsProvider;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
 
-import java.util.List;
 import java.util.Map;
 
 public class Core implements ICore
@@ -25,7 +24,7 @@ public class Core implements ICore
     private final Map<String, ITypeSymbol> primitiveTypes;
     private final Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> implicitConversions;
     private final Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> explicitConversions;
-    private final Map<Integer, List<IMethodSymbol>> operators;
+    private final Map<Integer, IOverloadSymbol> operators;
 
     public Core(ISymbolFactory symbolFactory, IAstHelper astHelper) {
         primitiveTypes = new PrimitiveTypesProvider(symbolFactory).getTypes();
@@ -46,12 +45,12 @@ public class Core implements ICore
         implicitConversions = conversionProvider.getImplicitConversions();
         explicitConversions = conversionProvider.getExplicitConversions();
 
-        IOperatorsProvider operatorsProvider = new OperatorProvider(generatorHelper, primitiveTypes);
+        IOperatorsProvider operatorsProvider = new OperatorProvider(symbolFactory, primitiveTypes);
         operators = operatorsProvider.getOperators();
     }
 
     @Override
-    public Map<Integer, List<IMethodSymbol>> getOperators() {
+    public Map<Integer, IOverloadSymbol> getOperators() {
         return operators;
     }
 

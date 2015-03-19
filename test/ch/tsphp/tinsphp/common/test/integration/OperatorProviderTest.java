@@ -7,7 +7,7 @@
 package ch.tsphp.tinsphp.common.test.integration;
 
 import ch.tsphp.common.symbols.ITypeSymbol;
-import ch.tsphp.tinsphp.common.symbols.IMethodSymbol;
+import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
 import ch.tsphp.tinsphp.common.test.integration.testutils.ATest;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.IOperatorsProvider;
@@ -15,7 +15,6 @@ import ch.tsphp.tinsphp.core.OperatorProvider;
 import org.junit.Test;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.everyItem;
@@ -30,9 +29,9 @@ public class OperatorProviderTest extends ATest
         //no arrange necessary
 
         IOperatorsProvider provider = createOperatorProvider();
-        Map<Integer, List<IMethodSymbol>> result1 = provider.getOperators();
-        Map<Integer, List<IMethodSymbol>> backup = new HashMap<>(result1);
-        Map<Integer, List<IMethodSymbol>> result2 = provider.getOperators();
+        Map<Integer, IOverloadSymbol> result1 = provider.getOperators();
+        Map<Integer, IOverloadSymbol> backup = new HashMap<>(result1);
+        Map<Integer, IOverloadSymbol> result2 = provider.getOperators();
 
         assertThat(result1, is(result2));
         assertThat(result2.entrySet(), everyItem(isIn(backup.entrySet())));
@@ -48,6 +47,6 @@ public class OperatorProviderTest extends ATest
     protected IOperatorsProvider createOperatorProvider(
             IGeneratorHelper theGeneratorHelper,
             Map<String, ITypeSymbol> thePrimitiveType) {
-        return new OperatorProvider(theGeneratorHelper, thePrimitiveType);
+        return new OperatorProvider(symbolFactory, thePrimitiveType);
     }
 }

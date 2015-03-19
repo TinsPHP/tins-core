@@ -8,15 +8,16 @@ package ch.tsphp.tinsphp.core.gen;
 
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.ITypeSymbol;
-import ch.tsphp.tinsphp.common.symbols.IClassTypeSymbol;
-import ch.tsphp.tinsphp.common.symbols.IMethodSymbol;
-import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.common.symbols.IUnionTypeSymbol;
+import ch.tsphp.tinsphp.common.symbols.IClassTypeSymbol;
+import ch.tsphp.tinsphp.common.symbols.IFunctionTypeSymbol;
+import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.IVariableSymbol;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.ISymbolProvider;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,14 +50,16 @@ public class BuiltInSymbolsProvider implements ISymbolProvider
     private Map<String, ISymbol> createSymbols() {
         Map<String, ISymbol> symbols = new HashMap<>();
         IUnionTypeSymbol unionTypeSymbol;
-        IMethodSymbol methodSymbol;
+        IFunctionTypeSymbol function;
         IVariableSymbol constant;
 
         unionTypeSymbol = generatorHelper.createUnionTypeSymbolFromPrimitives(
                 PrimitiveTypeNames.INT,
                 PrimitiveTypeNames.FALSE);
-        methodSymbol = generatorHelper.createFunction("strpos", unionTypeSymbol);
-        symbols.put("\\strpos()", methodSymbol);
+        function = symbolFactory.createConstantFunctionTypeSymbol(
+                "strpos", Arrays.asList("$haystack, $needle"), unionTypeSymbol);
+
+        symbols.put("\\strpos()", function);
 
         constant = generatorHelper.createConstant("E_ALL#", primitiveTypes.get(PrimitiveTypeNames.INT));
         symbols.put("\\E_ALL#", constant);

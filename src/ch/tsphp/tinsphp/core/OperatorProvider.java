@@ -7,32 +7,35 @@
 package ch.tsphp.tinsphp.core;
 
 import ch.tsphp.common.symbols.ITypeSymbol;
-import ch.tsphp.tinsphp.common.symbols.IMethodSymbol;
-import ch.tsphp.tinsphp.common.symbols.IVariableSymbol;
+import ch.tsphp.tinsphp.common.symbols.IFunctionTypeSymbol;
+import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
+import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
+import ch.tsphp.tinsphp.common.utils.Pair;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
+import ch.tsphp.tinsphp.symbols.constraints.TypeConstraint;
 import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
-import ch.tsphp.tinsphp.symbols.utils.TypeHelper;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import static ch.tsphp.tinsphp.common.utils.Pair.pair;
 
 public class OperatorProvider implements IOperatorsProvider
 {
-    private final IGeneratorHelper generatorHelper;
+    private final ISymbolFactory symbolFactory;
     private final Map<String, ITypeSymbol> primitiveTypes;
-    private Map<Integer, List<IMethodSymbol>> builtInOperators;
+    private Map<Integer, IOverloadSymbol> builtInOperators;
 
     public OperatorProvider(
-            IGeneratorHelper theGeneratorHelper,
+            ISymbolFactory theSymbolFactory,
             Map<String, ITypeSymbol> thePrimitiveType) {
-        generatorHelper = theGeneratorHelper;
+        symbolFactory = theSymbolFactory;
         primitiveTypes = thePrimitiveType;
     }
 
     @Override
-    public Map<Integer, List<IMethodSymbol>> getOperators() {
+    public Map<Integer, IOverloadSymbol> getOperators() {
         if (builtInOperators == null) {
             createOperators();
         }
@@ -50,90 +53,93 @@ public class OperatorProvider implements IOperatorsProvider
     }
 
     private void addOperatorLists() {
-        int[] operatorTypes = new int[]{
+        @SuppressWarnings("unchecked")
+        Pair<String, Integer>[] operatorTypes = new Pair[]{
                 //binary operators
-                TokenTypes.LogicOrWeak, TokenTypes.LogicXorWeak,
-                TokenTypes.LogicAndWeak,
-                TokenTypes.Assign, TokenTypes.PlusAssign, TokenTypes.MinusAssign,
-                TokenTypes.MultiplyAssign, TokenTypes.DivideAssign,
-                TokenTypes.BitwiseAndAssign, TokenTypes.BitwiseOrAssign,
-                TokenTypes.BitwiseXorAssign,
-                TokenTypes.ModuloAssign, TokenTypes.DotAssign,
-                TokenTypes.ShiftLeftAssign, TokenTypes.ShiftRightAssign,
-                TokenTypes.LogicOr, TokenTypes.LogicAnd,
-                TokenTypes.BitwiseOr, TokenTypes.BitwiseAnd, TokenTypes.BitwiseXor,
-                TokenTypes.Equal, TokenTypes.Identical, TokenTypes.NotEqual,
-                TokenTypes.NotIdentical,
-                TokenTypes.LessThan, TokenTypes.LessEqualThan,
-                TokenTypes.GreaterThan, TokenTypes.GreaterEqualThan,
-                TokenTypes.ShiftLeft, TokenTypes.ShiftRight,
-                TokenTypes.Plus, TokenTypes.Minus, TokenTypes.Multiply,
-                TokenTypes.Divide, TokenTypes.Modulo, TokenTypes.Dot,
-                TokenTypes.CAST,
+                pair("or", TokenTypes.LogicOrWeak), pair("xor", TokenTypes.LogicXorWeak),
+                pair("and", TokenTypes.LogicAndWeak),
+                pair("=", TokenTypes.Assign), pair("+=", TokenTypes.PlusAssign), pair("-=", TokenTypes.MinusAssign),
+                pair("*=", TokenTypes.MultiplyAssign), pair("/=", TokenTypes.DivideAssign),
+                pair("&=", TokenTypes.BitwiseAndAssign), pair("|=", TokenTypes.BitwiseOrAssign),
+                pair("^=", TokenTypes.BitwiseXorAssign),
+                pair("%=", TokenTypes.ModuloAssign), pair(".=", TokenTypes.DotAssign),
+                pair("<<=", TokenTypes.ShiftLeftAssign), pair(">>=", TokenTypes.ShiftRightAssign),
+                pair("||", TokenTypes.LogicOr), pair("&&", TokenTypes.LogicAnd),
+                pair("|", TokenTypes.BitwiseOr), pair("&", TokenTypes.BitwiseAnd), pair("^", TokenTypes.BitwiseXor),
+                pair("==", TokenTypes.Equal), pair("===", TokenTypes.Identical),
+                pair("!=", TokenTypes.NotEqual), pair("!==", TokenTypes.NotIdentical),
+                pair("<", TokenTypes.LessThan), pair("<=", TokenTypes.LessEqualThan),
+                pair(">", TokenTypes.GreaterThan), pair(">=", TokenTypes.GreaterEqualThan),
+                pair("<<", TokenTypes.ShiftLeft), pair(">>", TokenTypes.ShiftRight),
+                pair("+", TokenTypes.Plus), pair("-", TokenTypes.Minus), pair("*", TokenTypes.Multiply),
+                pair("/", TokenTypes.Divide), pair("%", TokenTypes.Modulo), pair(".", TokenTypes.Dot),
+                //pair("cast",TokenTypes.CAST),
                 //unary operators
-                TokenTypes.PRE_INCREMENT, TokenTypes.PRE_DECREMENT,
-                TokenTypes.At, TokenTypes.BitwiseNot, TokenTypes.LogicNot,
-                TokenTypes.UNARY_MINUS, TokenTypes.UNARY_PLUS,
-                TokenTypes.POST_INCREMENT, TokenTypes.POST_DECREMENT
+                pair("++", TokenTypes.PRE_INCREMENT), pair("--", TokenTypes.PRE_DECREMENT),
+                pair("@", TokenTypes.At), pair("~", TokenTypes.BitwiseNot), pair("!", TokenTypes.LogicNot),
+                pair("-", TokenTypes.UNARY_MINUS), pair("+", TokenTypes.UNARY_PLUS),
+                pair("++", TokenTypes.POST_INCREMENT), pair("--", TokenTypes.POST_DECREMENT)
         };
-        for (int operatorType : operatorTypes) {
-            builtInOperators.put(operatorType, new ArrayList<IMethodSymbol>());
+
+        for (Pair<String, Integer> operatorType : operatorTypes) {
+            builtInOperators.put(operatorType.second, symbolFactory.createOverloadSymbol(operatorType.first));
         }
     }
 
     private void defineLogicOperators() {
         ITypeSymbol boolTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.BOOL);
 
-        Object[][] operators = new Object[][]{
-                {"or", TokenTypes.LogicOrWeak},
-                {"xor", TokenTypes.LogicXorWeak},
-                {"and", TokenTypes.LogicAndWeak},
-                {"&&", TokenTypes.LogicAnd},
-                {"||", TokenTypes.LogicOr}
+        @SuppressWarnings("unchecked")
+        Pair<String, Integer>[] operators = new Pair[]{
+                pair("or", TokenTypes.LogicOrWeak),
+                pair("xor", TokenTypes.LogicXorWeak),
+                pair("and", TokenTypes.LogicAndWeak),
+                pair("&&", TokenTypes.LogicAnd),
+                pair("||", TokenTypes.LogicOr)
         };
-        for (Object[] operator : operators) {
+        for (Pair<String, Integer> operator : operators) {
             addToAutoConvertingBinaryOperators(operator, boolTypeSymbol, boolTypeSymbol, boolTypeSymbol);
         }
-        addToAutoConvertingUnaryOperators(new Object[]{"!", TokenTypes.LogicNot}, boolTypeSymbol, boolTypeSymbol);
+        addToAutoConvertingUnaryOperators(new Pair<>("!", TokenTypes.LogicNot), boolTypeSymbol, boolTypeSymbol);
     }
 
     private void defineBitLevelOperators() {
         ITypeSymbol intTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.INT);
         ITypeSymbol stringTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.STRING);
 
-        Object[][] operators = new Object[][]{
-                {"|", TokenTypes.BitwiseOr},
-                {"^", TokenTypes.BitwiseXor},
-                {"&", TokenTypes.BitwiseAnd},
-                {"<<", TokenTypes.ShiftLeft},
-                {">>", TokenTypes.ShiftRight}
+        @SuppressWarnings("unchecked")
+        Pair<String, Integer>[] operators = new Pair[]{
+                pair("|", TokenTypes.BitwiseOr),
+                pair("^", TokenTypes.BitwiseXor),
+                pair("&", TokenTypes.BitwiseAnd),
+                pair("<<", TokenTypes.ShiftLeft),
+                pair(">>", TokenTypes.ShiftRight)
         };
-        for (Object[] operator : operators) {
+        for (Pair<String, Integer> operator : operators) {
             addToAutoConvertingBinaryOperators(operator, intTypeSymbol, intTypeSymbol, intTypeSymbol);
         }
-
-        operators = new Object[][]{
-                {"|", TokenTypes.BitwiseOr},
-                {"^", TokenTypes.BitwiseXor},
-                {"&", TokenTypes.BitwiseAnd}
+        operators = new Pair[]{
+                pair("|", TokenTypes.BitwiseOr),
+                pair("^", TokenTypes.BitwiseXor),
+                pair("&", TokenTypes.BitwiseAnd)
         };
-        for (Object[] operator : operators) {
+        for (Pair<String, Integer> operator : operators) {
             addToBinaryOperators(operator, stringTypeSymbol, stringTypeSymbol, stringTypeSymbol);
         }
-        addToAutoConvertingUnaryOperators(new Object[]{"~", TokenTypes.BitwiseNot}, intTypeSymbol, intTypeSymbol);
-        addToUnaryOperators(new Object[]{"~", TokenTypes.BitwiseNot}, stringTypeSymbol, stringTypeSymbol);
+        addToAutoConvertingUnaryOperators(new Pair<>("~", TokenTypes.BitwiseNot), intTypeSymbol, intTypeSymbol);
+        addToUnaryOperators(new Pair<>("~", TokenTypes.BitwiseNot), stringTypeSymbol, stringTypeSymbol);
     }
 
     private void defineRelationalOperators() {
         ITypeSymbol boolTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.BOOL);
-
-        Object[][] operators = new Object[][]{
-                {"<", TokenTypes.LessThan},
-                {"<=", TokenTypes.LessEqualThan},
-                {">", TokenTypes.GreaterThan},
-                {">=", TokenTypes.GreaterEqualThan}
+        @SuppressWarnings("unchecked")
+        Pair<String, Integer>[] operators = new Pair[]{
+                pair("<", TokenTypes.LessThan),
+                pair("<=", TokenTypes.LessEqualThan),
+                pair(">", TokenTypes.GreaterThan),
+                pair(">=", TokenTypes.GreaterEqualThan)
         };
-        for (Object[] operator : operators) {
+        for (Pair<String, Integer> operator : operators) {
             addToAutoConvertingUnaryOperators(operator, boolTypeSymbol, boolTypeSymbol);
         }
     }
@@ -146,85 +152,92 @@ public class OperatorProvider implements IOperatorsProvider
         ITypeSymbol floatTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.FLOAT);
         ITypeSymbol arrayTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.ARRAY);
 
-        Object[][] operators = new Object[][]{
-                {"+", TokenTypes.Plus},
-                {"-", TokenTypes.Minus},
-                {"*", TokenTypes.Multiply},
-                {"/", TokenTypes.Divide},
-                {"%", TokenTypes.Modulo}
+        @SuppressWarnings("unchecked")
+        Pair<String, Integer>[] operators = new Pair[]{
+                pair("+", TokenTypes.Plus),
+                pair("-", TokenTypes.Minus),
+                pair("*", TokenTypes.Multiply),
+                pair("/", TokenTypes.Divide),
+                pair("%", TokenTypes.Modulo)
         };
-        for (Object[] operator : operators) {
+        for (Pair<String, Integer> operator : operators) {
             addToBinaryOperators(operator, scalarTypeSymbol, scalarTypeSymbol, numTypeSymbol);
             addToBinaryOperators(operator, intTypeSymbol, intTypeSymbol, intTypeSymbol);
             addToBinaryOperators(operator, floatTypeSymbol, floatTypeSymbol, floatTypeSymbol);
         }
 
-        operators = new Object[][]{
-                {"++", TokenTypes.PRE_INCREMENT},
-                {"++", TokenTypes.POST_INCREMENT},
-                {"--", TokenTypes.PRE_DECREMENT},
-                {"--", TokenTypes.POST_DECREMENT},
+        operators = new Pair[]{
+                pair("++", TokenTypes.PRE_INCREMENT),
+                pair("++", TokenTypes.POST_INCREMENT),
+                pair("--", TokenTypes.PRE_DECREMENT),
+                pair("--", TokenTypes.POST_DECREMENT),
         };
-        for (Object[] operator : operators) {
+        for (Pair<String, Integer> operator : operators) {
             addToUnaryOperators(operator, boolTypeSymbol, boolTypeSymbol);
             addToUnaryOperators(operator, intTypeSymbol, intTypeSymbol);
             addToUnaryOperators(operator, floatTypeSymbol, floatTypeSymbol);
 
         }
 
-        operators = new Object[][]{
-                {"-", TokenTypes.UNARY_MINUS},
-                {"+", TokenTypes.UNARY_PLUS}
+        operators = new Pair[]{
+                pair("-", TokenTypes.UNARY_MINUS),
+                pair("+", TokenTypes.UNARY_PLUS)
         };
-        for (Object[] operator : operators) {
+        for (Pair<String, Integer> operator : operators) {
             addToAutoConvertingUnaryOperators(operator, intTypeSymbol, intTypeSymbol);
             addToUnaryOperators(operator, intTypeSymbol, intTypeSymbol);
             addToUnaryOperators(operator, floatTypeSymbol, floatTypeSymbol);
             addToUnaryOperators(operator, scalarTypeSymbol, numTypeSymbol);
         }
 
-        addToBinaryOperators(new Object[]{"+", TokenTypes.Plus}, arrayTypeSymbol, arrayTypeSymbol, arrayTypeSymbol);
+        addToBinaryOperators(new Pair<>("+", TokenTypes.Plus), arrayTypeSymbol, arrayTypeSymbol, arrayTypeSymbol);
     }
 
     private void defineDotOperator() {
         ITypeSymbol stringTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.STRING);
-        addToAutoConvertingUnaryOperators(new Object[]{".", TokenTypes.Dot}, stringTypeSymbol, stringTypeSymbol);
+        addToAutoConvertingUnaryOperators(new Pair<>(".", TokenTypes.Dot), stringTypeSymbol, stringTypeSymbol);
     }
 
     private void addToAutoConvertingBinaryOperators(
-            Object[] operator, ITypeSymbol leftParameterType, ITypeSymbol rightParameterType, ITypeSymbol returnType) {
-        IVariableSymbol[] params = addToBinaryOperators(operator, leftParameterType, rightParameterType, returnType);
-        TypeHelper.addAlwaysCastingModifier(params[0]);
-        TypeHelper.addAlwaysCastingModifier(params[1]);
+            Pair<String, Integer> operator, ITypeSymbol leftParameterType, ITypeSymbol rightParameterType,
+            ITypeSymbol returnType) {
+        addToBinaryOperators(operator, leftParameterType, rightParameterType, returnType);
+        //TODO TINS-330 define operator overloads
+        //there are more constraints to add ~{as bool} for instance
     }
 
-    private IVariableSymbol[] addToBinaryOperators(
-            Object[] operator, ITypeSymbol leftParameterType, ITypeSymbol rightParameterType, ITypeSymbol returnType) {
-        IMethodSymbol function = generatorHelper.createFunction((String) operator[0], returnType);
-        IVariableSymbol[] params = new IVariableSymbol[]{
-                generatorHelper.createParameter(function, "LHS", leftParameterType),
-                generatorHelper.createParameter(function, "RHS", rightParameterType)
-        };
-        addToOperators((int) operator[1], function);
-        return params;
+    private IFunctionTypeSymbol addToBinaryOperators(Pair<String, Integer> operator,
+            ITypeSymbol leftParameterType, ITypeSymbol rightParameterType, ITypeSymbol returnType) {
+
+        IFunctionTypeSymbol function = symbolFactory.createConstantFunctionTypeSymbol(
+                operator.first, Arrays.asList("$lhs", "$rhs"), returnType);
+        function.addParameterConstraint("$lhs", new TypeConstraint(leftParameterType));
+        function.addParameterConstraint("$lhs", new TypeConstraint(rightParameterType));
+        addToOperators(operator.second, function);
+        return function;
     }
 
     private void addToAutoConvertingUnaryOperators(
-            Object[] operator, ITypeSymbol formalParameterType, ITypeSymbol returnType) {
-        TypeHelper.addAlwaysCastingModifier(addToUnaryOperators(operator, formalParameterType, returnType));
+            Pair<String, Integer> operator, ITypeSymbol formalParameterType, ITypeSymbol returnType) {
+        addToUnaryOperators(operator, formalParameterType, returnType);
+        //TODO TINS-330 define operator overloads
+        //there are more constraints to add ~{as bool} for instance
     }
 
-    private IVariableSymbol addToUnaryOperators(
-            Object[] operator, ITypeSymbol formalParameterType, ITypeSymbol returnType) {
-        IMethodSymbol function = generatorHelper.createFunction((String) operator[0], returnType);
-        IVariableSymbol expr = generatorHelper.createParameter(function, "expr", formalParameterType);
-        addToOperators((int) operator[1], function);
-        return expr;
+    private IFunctionTypeSymbol addToUnaryOperators(
+            Pair<String, Integer> operator, ITypeSymbol formalParameterType, ITypeSymbol returnType) {
+
+        IFunctionTypeSymbol function = symbolFactory.createConstantFunctionTypeSymbol(
+                operator.first, Arrays.asList("expr"), returnType);
+
+        function.addParameterConstraint("expr", new TypeConstraint(formalParameterType));
+        addToOperators(operator.second, function);
+        return function;
     }
 
-    private void addToOperators(int operatorType, IMethodSymbol methodSymbol) {
-        List<IMethodSymbol> methods = builtInOperators.get(operatorType);
-        methods.add(methodSymbol);
+    private void addToOperators(int operatorType, IFunctionTypeSymbol functionTypeSymbol) {
+        IOverloadSymbol overloadSymbol = builtInOperators.get(operatorType);
+        overloadSymbol.addOverload(functionTypeSymbol);
     }
 
 }

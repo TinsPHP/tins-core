@@ -8,6 +8,7 @@ package ch.tsphp.tinsphp.core;
 
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IClassTypeSymbol;
+import ch.tsphp.tinsphp.common.symbols.IFunctionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IMethodSymbol;
 import ch.tsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IVariableSymbol;
@@ -18,10 +19,6 @@ public interface IGeneratorHelper
 
     IMethodSymbol defineMethod(
             IClassTypeSymbol classTypeSymbol, String name, ITypeSymbol returnType);
-
-    IMethodSymbol createFunction(String name, ITypeSymbol returnType);
-
-    IVariableSymbol createParameter(IMethodSymbol function, String name, ITypeSymbol typeSymbol);
 
     IVariableSymbol createConstant(String name, ITypeSymbol typeSymbol);
 

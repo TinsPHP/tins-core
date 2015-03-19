@@ -6,12 +6,11 @@
 
 package ch.tsphp.tinsphp.core;
 
-import ch.tsphp.tinsphp.common.symbols.IMethodSymbol;
+import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
 
-import java.util.List;
 import java.util.Map;
 
 public interface IOperatorsProvider
 {
-    Map<Integer, List<IMethodSymbol>> getOperators();
+    Map<Integer, IOverloadSymbol> getOperators();
 }

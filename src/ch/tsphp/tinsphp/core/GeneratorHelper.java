@@ -9,10 +9,10 @@ package ch.tsphp.tinsphp.core;
 import ch.tsphp.common.IAstHelper;
 import ch.tsphp.common.ITSPHPAst;
 import ch.tsphp.common.symbols.ITypeSymbol;
+import ch.tsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IClassTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IMethodSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
-import ch.tsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IVariableSymbol;
 import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 
@@ -49,27 +49,6 @@ public class GeneratorHelper implements IGeneratorHelper
         methodSymbol.setType(returnType);
         classTypeSymbol.define(methodSymbol);
         return methodSymbol;
-    }
-
-    @Override
-    public IMethodSymbol createFunction(String name, ITypeSymbol returnType) {
-        ITSPHPAst functionModifier = astHelper.createAst(TokenTypes.FUNCTION_MODIFIER, "fMod");
-        ITSPHPAst returnTypeModifier = astHelper.createAst(TokenTypes.TYPE_MODIFIER, "tMod");
-        ITSPHPAst identifier = astHelper.createAst(TokenTypes.Identifier, name);
-        IMethodSymbol methodSymbol = symbolFactory.createMethodSymbol(
-                functionModifier, returnTypeModifier, identifier, null);
-        methodSymbol.setType(returnType);
-        return methodSymbol;
-    }
-
-    @Override
-    public IVariableSymbol createParameter(IMethodSymbol function, String name, ITypeSymbol typeSymbol) {
-        ITSPHPAst typeModifier = astHelper.createAst(TokenTypes.TYPE_MODIFIER, "tMod");
-        ITSPHPAst identifier = astHelper.createAst(TokenTypes.Identifier, name);
-        IVariableSymbol variableSymbol = symbolFactory.createVariableSymbol(typeModifier, identifier);
-        variableSymbol.setType(typeSymbol);
-        function.addParameter(variableSymbol);
-        return variableSymbol;
     }
 
     @Override

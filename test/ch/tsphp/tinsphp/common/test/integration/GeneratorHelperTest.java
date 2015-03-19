@@ -105,26 +105,6 @@ public class GeneratorHelperTest extends ATest
     }
 
     @Test
-    public void createFunction_Standard_NameIsPassedName() {
-        String name = "foo";
-
-        IGeneratorHelper helper = createGenerator();
-        IMethodSymbol result = helper.createFunction(name, mock(ITypeSymbol.class));
-
-        assertThat(result.getName(), is(name));
-    }
-
-    @Test
-    public void createFunction_Standard_ReturnTypeIsPassedTypeSymbol() {
-        ITypeSymbol typeSymbol = mock(ITypeSymbol.class);
-
-        IGeneratorHelper helper = createGenerator();
-        IMethodSymbol result = helper.createFunction("foo", typeSymbol);
-
-        assertThat(result.getType(), is(typeSymbol));
-    }
-
-    @Test
     public void createConstant_Standard_NameIsPassedName() {
         String name = "foo";
 
