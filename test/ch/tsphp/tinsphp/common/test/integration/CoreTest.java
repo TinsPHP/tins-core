@@ -43,7 +43,7 @@ public class CoreTest extends ATest
         ICore core = createCore(symbolFactory, astHelper);
         Map<Integer, IOverloadSymbol> result = core.getOperators();
 
-        assertThat(result.size(), is(45));
+        assertThat(result.size(), is(48));
     }
 
     @Test

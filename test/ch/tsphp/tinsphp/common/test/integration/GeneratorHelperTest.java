@@ -116,7 +116,7 @@ public class GeneratorHelperTest extends ATest
 
     @Test
     public void createConstant_Standard_TypeIsPassedTypeSymbol() {
-        ITypeSymbol typeSymbol = mock(ITypeSymbol.class);
+        IUnionTypeSymbol typeSymbol = mock(IUnionTypeSymbol.class);
 
         IGeneratorHelper helper = createGenerator();
         IVariableSymbol result = helper.createConstant("foo", typeSymbol);
