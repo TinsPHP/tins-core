@@ -9,7 +9,6 @@ package ch.tsphp.tinsphp.common.test.integration;
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
 import ch.tsphp.tinsphp.common.test.integration.testutils.ATest;
-import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.IOperatorsProvider;
 import ch.tsphp.tinsphp.core.OperatorProvider;
 import org.junit.Test;
@@ -39,14 +38,10 @@ public class OperatorProviderTest extends ATest
     }
 
     private IOperatorsProvider createOperatorProvider() {
-        return createOperatorProvider(
-                createGenerator(astHelper, symbolFactory, primitiveTypes),
-                primitiveTypes);
+        return createOperatorProvider(primitiveTypes);
     }
 
-    protected IOperatorsProvider createOperatorProvider(
-            IGeneratorHelper theGeneratorHelper,
-            Map<String, ITypeSymbol> thePrimitiveType) {
+    protected IOperatorsProvider createOperatorProvider(Map<String, ITypeSymbol> thePrimitiveType) {
         return new OperatorProvider(symbolFactory, thePrimitiveType);
     }
 }
