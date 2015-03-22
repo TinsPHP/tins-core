@@ -121,13 +121,13 @@ public class OperatorProvider implements IOperatorsProvider
                 pair("+", TokenTypes.Plus), pair("-", TokenTypes.Minus), pair("*", TokenTypes.Multiply),
                 pair("/", TokenTypes.Divide), pair("%", TokenTypes.Modulo), pair(".", TokenTypes.Dot),
                 //pair("cast",TokenTypes.CAST),
-                pair("instanceof",TokenTypes.Instanceof),
+                pair("instanceof", TokenTypes.Instanceof),
                 //unary operators
                 pair("++", TokenTypes.PRE_INCREMENT), pair("--", TokenTypes.PRE_DECREMENT),
                 pair("@", TokenTypes.At), pair("~", TokenTypes.BitwiseNot), pair("!", TokenTypes.LogicNot),
                 pair("-", TokenTypes.UNARY_MINUS), pair("+", TokenTypes.UNARY_PLUS),
                 pair("++", TokenTypes.POST_INCREMENT), pair("--", TokenTypes.POST_DECREMENT),
-                pair("clone", TokenTypes.Clone), pair("new",TokenTypes.New)
+                pair("clone", TokenTypes.Clone), pair("new", TokenTypes.New)
         };
 
         for (Pair<String, Integer> operatorType : operatorTypes) {
