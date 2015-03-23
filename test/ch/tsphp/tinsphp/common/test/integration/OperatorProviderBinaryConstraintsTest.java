@@ -10,7 +10,6 @@ import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IFunctionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
 import ch.tsphp.tinsphp.common.test.integration.testutils.ATest;
-import ch.tsphp.tinsphp.common.utils.Pair;
 import ch.tsphp.tinsphp.core.IOperatorsProvider;
 import ch.tsphp.tinsphp.core.OperatorProvider;
 import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
@@ -24,8 +23,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import static ch.tsphp.tinsphp.common.utils.Pair.pair;
 
 
 @RunWith(Parameterized.class)

@@ -27,7 +27,6 @@ import static ch.tsphp.tinsphp.common.utils.Pair.pair;
 public class OperatorProvider implements IOperatorsProvider
 {
     private final ISymbolFactory symbolFactory;
-    private final Map<String, ITypeSymbol> primitiveTypes;
     private Map<Integer, IOverloadSymbol> builtInOperators;
     private final ITypeSymbol falseTypeSymbol;
     private final ITypeSymbol trueTypeSymbol;
@@ -54,7 +53,8 @@ public class OperatorProvider implements IOperatorsProvider
             Map<String, ITypeSymbol> thePrimitiveType) {
 
         symbolFactory = theSymbolFactory;
-        primitiveTypes = thePrimitiveType;
+
+        Map<String, ITypeSymbol> primitiveTypes = thePrimitiveType;
         falseTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.FALSE);
         trueTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.TRUE);
         boolTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.BOOL);
@@ -202,6 +202,7 @@ public class OperatorProvider implements IOperatorsProvider
         lhs.addConstraint(rhs);
         rtn.addConstraint(lhs);
         typeVariables.put("$lhs", lhs);
+        typeVariables.put("$rhs", rhs);
         typeVariables.put("return", rtn);
         function = symbolFactory.createPolymorphicFunctionTypeSymbol("=", parameterIds, typeVariables);
         function.addParameterConstraint("$lhs", mixedTypeConstraint);
@@ -213,7 +214,7 @@ public class OperatorProvider implements IOperatorsProvider
     }
 
     private ITypeVariableSymbol createByRefTypeVariable(String name) {
-        ITypeVariableSymbol typeVariableSymbol = symbolFactory.createMinimalTypeVariableSymbol(name);
+        ITypeVariableSymbol typeVariableSymbol = createTypeVariable(name);
         typeVariableSymbol.setIsByRef();
         return typeVariableSymbol;
     }
