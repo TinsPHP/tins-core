@@ -24,13 +24,13 @@ import java.util.Map;
 
 
 @RunWith(Parameterized.class)
-public class OperatorProviderBinaryOverloadTest extends ATest
+public class OperatorProviderOverloadTest extends ATest
 {
     private String operatorName;
     private int operatorType;
     private int numberOfOverloads;
 
-    public OperatorProviderBinaryOverloadTest(String theOperatorName, int theOperatorType, int theNumberOfOverloads) {
+    public OperatorProviderOverloadTest(String theOperatorName, int theOperatorType, int theNumberOfOverloads) {
         operatorName = theOperatorName;
         operatorType = theOperatorType;
         numberOfOverloads = theNumberOfOverloads;
@@ -57,7 +57,7 @@ public class OperatorProviderBinaryOverloadTest extends ATest
                 {"+=", TokenTypes.PlusAssign, 5},
                 {"-=", TokenTypes.MinusAssign, 4},
                 {"*=", TokenTypes.MultiplyAssign, 4},
-                {"/=", TokenTypes.DivideAssign, 2},
+                {"/=", TokenTypes.DivideAssign, 3},
                 {"%=", TokenTypes.ModuloAssign, 1},
                 {"&=", TokenTypes.BitwiseAndAssign, 2},
                 {"^=", TokenTypes.BitwiseXorAssign, 2},

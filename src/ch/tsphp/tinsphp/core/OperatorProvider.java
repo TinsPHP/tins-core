@@ -174,10 +174,10 @@ public class OperatorProvider implements IOperatorsProvider
         };
         for (Pair<String, Integer> operator : andOperators) {
             //TODO rstoll TINS-347 create overloads for conversion constraints
-            addToBinaryOperators(operator, falseTypeConstraint, boolTypeConstraint, trueTypeSymbol);
+            addToBinaryOperators(operator, falseTypeConstraint, boolTypeConstraint, falseTypeSymbol);
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //false x ~{as bool} -> false
-            addToBinaryOperators(operator, boolTypeConstraint, falseTypeConstraint, trueTypeSymbol);
+            addToBinaryOperators(operator, boolTypeConstraint, falseTypeConstraint, falseTypeSymbol);
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //~{bool} x false -> false
             addToBinaryOperators(operator, trueTypeConstraint, trueTypeConstraint, trueTypeSymbol);
@@ -361,16 +361,19 @@ public class OperatorProvider implements IOperatorsProvider
         numOrFalse.addTypeSymbol(numTypeSymbol);
         numOrFalse.addTypeSymbol(falseTypeSymbol);
         numOrFalse.seal();
+        TypeConstraint numOrFalseConstraint = new TypeConstraint(numOrFalse);
 
         IUnionTypeSymbol floatOrFalse = symbolFactory.createUnionTypeSymbol();
         floatOrFalse.addTypeSymbol(floatTypeSymbol);
         floatOrFalse.addTypeSymbol(falseTypeSymbol);
         floatOrFalse.seal();
+        TypeConstraint floatOrFalseConstraint = new TypeConstraint(floatOrFalse);
 
         IUnionTypeSymbol intOrFalse = symbolFactory.createUnionTypeSymbol();
         intOrFalse.addTypeSymbol(intTypeSymbol);
         intOrFalse.addTypeSymbol(falseTypeSymbol);
         intOrFalse.seal();
+        TypeConstraint intOrFalseConstraint = new TypeConstraint(intOrFalse);
 
 
         @SuppressWarnings("unchecked")
@@ -444,16 +447,28 @@ public class OperatorProvider implements IOperatorsProvider
         // divAssign operator /=
         {
             IFunctionTypeSymbol function;
-
-            //Tvar x float -> {float V false} \ Tvar < float / Tvar > {float V false}
+            //Tvar x bool -> {int V false} \ Tvar < bool / Tvar > {int V false}
             ITypeVariableSymbol lhs = createByRefTypeVariable("$lhs");
             ITypeVariableSymbol rhs = createTypeVariable("$rhs");
             ITypeVariableSymbol rtn = createTypeVariable("return");
+            lhs.addConstraint(intOrFalseConstraint);
+            rtn.addConstraint(intOrFalseConstraint);
+            Map<String, ITypeVariableSymbol> typeVariables = new HashMap<>();
+            typeVariables.put("$lhs", lhs);
+            typeVariables.put("$rhs", rhs);
+            typeVariables.put("return", rtn);
+            function = symbolFactory.createPolymorphicFunctionTypeSymbol("/=", parameterIds, typeVariables);
+            function.addParameterConstraint("$lhs", boolTypeConstraint);
+            function.addParameterConstraint("$rhs", boolTypeConstraint);
+            addToOperators(TokenTypes.DivideAssign, function);
 
-            TypeConstraint floatOrFalseConstraint = new TypeConstraint(floatOrFalse);
+            //Tvar x float -> {float V false} \ Tvar < float / Tvar > {float V false}
+            lhs = createByRefTypeVariable("$lhs");
+            rhs = createTypeVariable("$rhs");
+            rtn = createTypeVariable("return");
             lhs.addConstraint(floatOrFalseConstraint);
             rtn.addConstraint(floatOrFalseConstraint);
-            Map<String, ITypeVariableSymbol> typeVariables = new HashMap<>();
+            typeVariables = new HashMap<>();
             typeVariables.put("$lhs", lhs);
             typeVariables.put("$rhs", rhs);
             typeVariables.put("return", rtn);
@@ -463,14 +478,12 @@ public class OperatorProvider implements IOperatorsProvider
             addToOperators(TokenTypes.DivideAssign, function);
 
             //TODO rstoll TINS-347 create overloads for conversion constraints
-            //Tvar x float -> {float V false} \ Tvar < ~{as float} / Tvar > {float V false}
+            //Tvar x ~{as float} -> {float V false} \ Tvar < ~{as float} / Tvar > {float V false}
 
             //Tvar x num -> {num V false} \ Tvar < num / Tvar > {num V false}
             lhs = createByRefTypeVariable("$lhs");
             rhs = createTypeVariable("$rhs");
             rtn = createTypeVariable("return");
-
-            TypeConstraint numOrFalseConstraint = new TypeConstraint(numOrFalse);
             lhs.addConstraint(numOrFalseConstraint);
             rtn.addConstraint(numOrFalseConstraint);
             typeVariables = new HashMap<>();
@@ -496,8 +509,6 @@ public class OperatorProvider implements IOperatorsProvider
         ITypeVariableSymbol lhs = createByRefTypeVariable("$lhs");
         ITypeVariableSymbol rhs = createTypeVariable("$rhs");
         ITypeVariableSymbol rtn = createTypeVariable("return");
-
-        TypeConstraint intOrFalseConstraint = new TypeConstraint(intOrFalse);
         lhs.addConstraint(intOrFalseConstraint);
         rtn.addConstraint(intOrFalseConstraint);
         Map<String, ITypeVariableSymbol> typeVariables = new HashMap<>();
