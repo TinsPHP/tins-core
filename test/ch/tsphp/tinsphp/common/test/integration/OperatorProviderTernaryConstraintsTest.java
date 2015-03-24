@@ -50,7 +50,7 @@ public class OperatorProviderTernaryConstraintsTest extends ATest
         Assert.assertEquals(operatorName + " failed, no overload defined", false, overloads.isEmpty());
         for (IFunctionTypeSymbol overload : overloads) {
             Assert.assertEquals(operatorName + " failed, number of parameters wrong",
-                    3, overload.getParametersConstraints().size());
+                    3, overload.getInputConstraints().size());
         }
     }
 

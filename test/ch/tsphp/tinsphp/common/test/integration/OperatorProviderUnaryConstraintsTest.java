@@ -47,7 +47,7 @@ public class OperatorProviderUnaryConstraintsTest extends ATest
         Assert.assertEquals(operatorName + " failed, no overload defined", false, overloads.isEmpty());
         for (IFunctionTypeSymbol overload : overloads) {
             Assert.assertEquals(operatorName + " failed, number of parameters wrong",
-                    1, overload.getParametersConstraints().size());
+                    1, overload.getInputConstraints().size());
         }
     }
 

@@ -12,12 +12,17 @@ import ch.tsphp.tinsphp.common.symbols.IFunctionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.ITypeVariableSymbol;
+import ch.tsphp.tinsphp.common.symbols.ITypeVariableSymbolWithRef;
 import ch.tsphp.tinsphp.common.utils.Pair;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
+import ch.tsphp.tinsphp.symbols.constraints.TransferConstraint;
 import ch.tsphp.tinsphp.symbols.constraints.TypeConstraint;
+import ch.tsphp.tinsphp.symbols.constraints.UnionConstraint;
 import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 
+import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,8 +50,11 @@ public class OperatorProvider implements IOperatorsProvider
     private final TypeConstraint stringTypeConstraint;
     private final TypeConstraint arrayTypeConstraint;
     private final TypeConstraint mixedTypeConstraint;
-    private final List<String> parameterIds;
-    private final List<String> unaryParameterId;
+    private List<String> parameterIds;
+    private List<String> unaryParameterId;
+    private final IUnionTypeSymbol numOrFalse;
+    private final IUnionTypeSymbol floatOrFalse;
+    private final IUnionTypeSymbol intOrFalse;
 
     public OperatorProvider(
             ISymbolFactory theSymbolFactory,
@@ -54,15 +62,14 @@ public class OperatorProvider implements IOperatorsProvider
 
         symbolFactory = theSymbolFactory;
 
-        Map<String, ITypeSymbol> primitiveTypes = thePrimitiveType;
-        falseTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.FALSE);
-        trueTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.TRUE);
-        boolTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.BOOL);
-        intTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.INT);
-        floatTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.FLOAT);
-        numTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.NUM);
-        stringTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.STRING);
-        arrayTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.ARRAY);
+        falseTypeSymbol = thePrimitiveType.get(PrimitiveTypeNames.FALSE);
+        trueTypeSymbol = thePrimitiveType.get(PrimitiveTypeNames.TRUE);
+        boolTypeSymbol = thePrimitiveType.get(PrimitiveTypeNames.BOOL);
+        intTypeSymbol = thePrimitiveType.get(PrimitiveTypeNames.INT);
+        floatTypeSymbol = thePrimitiveType.get(PrimitiveTypeNames.FLOAT);
+        numTypeSymbol = thePrimitiveType.get(PrimitiveTypeNames.NUM);
+        stringTypeSymbol = thePrimitiveType.get(PrimitiveTypeNames.STRING);
+        arrayTypeSymbol = thePrimitiveType.get(PrimitiveTypeNames.ARRAY);
         falseTypeConstraint = new TypeConstraint(falseTypeSymbol);
         trueTypeConstraint = new TypeConstraint(trueTypeSymbol);
         boolTypeConstraint = new TypeConstraint(boolTypeSymbol);
@@ -71,10 +78,25 @@ public class OperatorProvider implements IOperatorsProvider
         numTypeConstraint = new TypeConstraint(numTypeSymbol);
         stringTypeConstraint = new TypeConstraint(stringTypeSymbol);
         arrayTypeConstraint = new TypeConstraint(arrayTypeSymbol);
-        mixedTypeConstraint = new TypeConstraint(primitiveTypes.get(PrimitiveTypeNames.MIXED));
+        mixedTypeConstraint = new TypeConstraint(thePrimitiveType.get(PrimitiveTypeNames.MIXED));
 
-        unaryParameterId = Arrays.asList("$expr");
+        numOrFalse = symbolFactory.createUnionTypeSymbol();
+        numOrFalse.addTypeSymbol(numTypeSymbol);
+        numOrFalse.addTypeSymbol(falseTypeSymbol);
+        numOrFalse.seal();
+
+        floatOrFalse = symbolFactory.createUnionTypeSymbol();
+        floatOrFalse.addTypeSymbol(floatTypeSymbol);
+        floatOrFalse.addTypeSymbol(falseTypeSymbol);
+        floatOrFalse.seal();
+
+        intOrFalse = symbolFactory.createUnionTypeSymbol();
+        intOrFalse.addTypeSymbol(intTypeSymbol);
+        intOrFalse.addTypeSymbol(falseTypeSymbol);
+        intOrFalse.seal();
+
         parameterIds = Arrays.asList("$lhs", "$rhs");
+        unaryParameterId = Arrays.asList("$expr");
     }
 
     @Override
@@ -194,29 +216,50 @@ public class OperatorProvider implements IOperatorsProvider
 
     private void defineAssignmentOperators() {
         //Tvar x Tval -> Tvar / Tvar > Tval
+
+        //can be simplified, for test purposes it is quasi
+        // function assign(&$lhs, $rhs){
+        //   $lhs = $rhs;
+        //   return $lhs;
+        // }
         IFunctionTypeSymbol function;
-        Map<String, ITypeVariableSymbol> typeVariables = new HashMap<>();
-        ITypeVariableSymbol lhs = createByRefTypeVariable("$lhs");
-        ITypeVariableSymbol rhs = createTypeVariable("$rhs");
-        ITypeVariableSymbol rtn = createTypeVariable("return");
-        lhs.addConstraint(rhs);
-        rtn.addConstraint(lhs);
-        typeVariables.put("$lhs", lhs);
-        typeVariables.put("$rhs", rhs);
-        typeVariables.put("return", rtn);
-        function = symbolFactory.createPolymorphicFunctionTypeSymbol("=", parameterIds, typeVariables);
-        function.addParameterConstraint("$lhs", mixedTypeConstraint);
-        function.addParameterConstraint("$rhs", mixedTypeConstraint);
+        ITypeVariableSymbolWithRef lhs = createByRefTypeVariableWithRef("$lhs");
+        ITypeVariableSymbolWithRef rhs = createTypeVariableWithRef("$rhs");
+        ITypeVariableSymbolWithRef rtn = createTypeVariableWithRef("return");
+
+        ITypeVariableSymbol rhs1 = createTypeVariable("$rhs1");
+        rhs.addRefVariable(rhs1);
+        rhs1.setConstraint(rhs);
+        ITypeVariableSymbol lhs1 = createTypeVariable("$lhs1");
+        lhs.addRefVariable(lhs1);
+        lhs1.setConstraint(rhs1);
+        ITypeVariableSymbol rtn1 = createTypeVariable("$rtn1");
+        rtn.addRefVariable(rtn1);
+        rtn1.setConstraint(new TransferConstraint(lhs1));
+        Deque<ITypeVariableSymbol> typeVariables = new ArrayDeque<>();
+        typeVariables.add(rhs1);
+        typeVariables.add(lhs1);
+        typeVariables.add(rtn1);
+        List<ITypeVariableSymbolWithRef> parameters = Arrays.asList(lhs, rhs);
+        function = symbolFactory.createPolymorphicFunctionTypeSymbol("=", parameters, rtn, typeVariables);
+        function.addInputConstraint("$lhs", mixedTypeConstraint);
+        function.addInputConstraint("$rhs", mixedTypeConstraint);
         addToOperators(TokenTypes.Assign, function);
 
         //Other assignment operators can be found in the corresponding sections.
         //For instance, += is in createAssignmentOperators
     }
 
-    private ITypeVariableSymbol createByRefTypeVariable(String name) {
-        ITypeVariableSymbol typeVariableSymbol = createTypeVariable(name);
-        typeVariableSymbol.setIsByRef();
-        return typeVariableSymbol;
+    private ITypeVariableSymbolWithRef createByRefTypeVariableWithRef(String name) {
+        ITypeVariableSymbolWithRef typeVariableWithRef = createTypeVariableWithRef(name);
+        typeVariableWithRef.setIsByRef();
+        return typeVariableWithRef;
+    }
+
+    private ITypeVariableSymbolWithRef createTypeVariableWithRef(String name) {
+        ITypeVariableSymbolWithRef typeSymbolWithRef = symbolFactory.createMinimalTypeVariableSymbolWithRef(name);
+        typeSymbolWithRef.setType(symbolFactory.createUnionTypeSymbol());
+        return typeSymbolWithRef;
     }
 
     private ITypeVariableSymbol createTypeVariable(String name) {
@@ -296,86 +339,57 @@ public class OperatorProvider implements IOperatorsProvider
 
     private void defineTernaryOperator() {
         IFunctionTypeSymbol function;
-        List<String> instanceofParamIds = Arrays.asList("$cond", "$if", "$else");
-
 
         //false x Ttrue x Tfalse -> Tfalse
-        Map<String, ITypeVariableSymbol> typeVariables = new HashMap<>();
-        ITypeVariableSymbol cond = createTypeVariable("$cond");
-        ITypeVariableSymbol ifTypeVariable = createTypeVariable("$if");
-        ITypeVariableSymbol elseTypeVariable = createTypeVariable("$else");
-        ITypeVariableSymbol rtn = createTypeVariable("return");
-        rtn.addConstraint(elseTypeVariable);
-        typeVariables.put("$cond", cond);
-        typeVariables.put("$if", ifTypeVariable);
-        typeVariables.put("$else", elseTypeVariable);
-        typeVariables.put("return", rtn);
-        function = symbolFactory.createPolymorphicFunctionTypeSymbol("?", instanceofParamIds, typeVariables);
-        function.addParameterConstraint("$cond", falseTypeConstraint);
-        function.addParameterConstraint("$if", mixedTypeConstraint);
-        function.addParameterConstraint("$else", mixedTypeConstraint);
+        Deque<ITypeVariableSymbol> typeVariables = new ArrayDeque<>();
+        ITypeVariableSymbolWithRef cond = createTypeVariableWithRef("$cond");
+        ITypeVariableSymbolWithRef ifTypeVariable = createTypeVariableWithRef("$if");
+        ITypeVariableSymbolWithRef elseTypeVariable = createTypeVariableWithRef("$else");
+        ITypeVariableSymbolWithRef rtn = createTypeVariableWithRef("return");
+        rtn.setConstraint(elseTypeVariable);
+        typeVariables.add(rtn);
+        List<ITypeVariableSymbolWithRef> parameters = Arrays.asList(cond, ifTypeVariable, elseTypeVariable);
+        function = symbolFactory.createPolymorphicFunctionTypeSymbol("?", parameters, rtn, typeVariables);
+        function.addInputConstraint("$cond", falseTypeConstraint);
+        function.addInputConstraint("$if", mixedTypeConstraint);
+        function.addInputConstraint("$else", mixedTypeConstraint);
         addToOperators(TokenTypes.QuestionMark, function);
 
         //true x Ttrue x Tfalse -> Ttrue
-        typeVariables = new HashMap<>();
-        cond = createTypeVariable("$cond");
-        ifTypeVariable = createTypeVariable("$if");
-        elseTypeVariable = createTypeVariable("$else");
-        rtn = createTypeVariable("return");
-        rtn.addConstraint(ifTypeVariable);
-        typeVariables.put("$cond", cond);
-        typeVariables.put("$if", ifTypeVariable);
-        typeVariables.put("$else", elseTypeVariable);
-        typeVariables.put("return", rtn);
-        function = symbolFactory.createPolymorphicFunctionTypeSymbol("?", instanceofParamIds, typeVariables);
-        function.addParameterConstraint("$cond", trueTypeConstraint);
-        function.addParameterConstraint("$if", mixedTypeConstraint);
-        function.addParameterConstraint("$else", mixedTypeConstraint);
+        typeVariables = new ArrayDeque<>();
+        cond = createTypeVariableWithRef("$cond");
+        ifTypeVariable = createTypeVariableWithRef("$if");
+        elseTypeVariable = createTypeVariableWithRef("$else");
+        rtn = createTypeVariableWithRef("return");
+        rtn.setConstraint(ifTypeVariable);
+        typeVariables.add(rtn);
+        parameters = Arrays.asList(cond, ifTypeVariable, elseTypeVariable);
+        function = symbolFactory.createPolymorphicFunctionTypeSymbol("?", parameters, rtn, typeVariables);
+        function.addInputConstraint("$cond", trueTypeConstraint);
+        function.addInputConstraint("$if", mixedTypeConstraint);
+        function.addInputConstraint("$else", mixedTypeConstraint);
         addToOperators(TokenTypes.QuestionMark, function);
 
         //bool x Ttrue x Tfalse -> {Ttrue V Tfalse}
-        typeVariables = new HashMap<>();
-        cond = createTypeVariable("$cond");
-        ifTypeVariable = createTypeVariable("$if");
-        elseTypeVariable = createTypeVariable("$else");
-        rtn = createTypeVariable("return");
-        rtn.addConstraint(ifTypeVariable);
-        rtn.addConstraint(elseTypeVariable);
-        typeVariables.put("$cond", cond);
-        typeVariables.put("$if", ifTypeVariable);
-        typeVariables.put("$else", elseTypeVariable);
-        typeVariables.put("return", rtn);
-        function = symbolFactory.createPolymorphicFunctionTypeSymbol("?", instanceofParamIds, typeVariables);
-        function.addParameterConstraint("$cond", boolTypeConstraint);
-        function.addParameterConstraint("$if", mixedTypeConstraint);
-        function.addParameterConstraint("$else", mixedTypeConstraint);
+        typeVariables = new ArrayDeque<>();
+        cond = createTypeVariableWithRef("$cond");
+        ifTypeVariable = createTypeVariableWithRef("$if");
+        elseTypeVariable = createTypeVariableWithRef("$else");
+        rtn = createTypeVariableWithRef("return");
+        rtn.setConstraint(new UnionConstraint(ifTypeVariable, elseTypeVariable));
+        parameters = Arrays.asList(cond, ifTypeVariable, elseTypeVariable);
+        function = symbolFactory.createPolymorphicFunctionTypeSymbol("?", parameters, rtn, typeVariables);
+        function.addInputConstraint("$cond", boolTypeConstraint);
+        function.addInputConstraint("$if", mixedTypeConstraint);
+        function.addInputConstraint("$else", mixedTypeConstraint);
         addToOperators(TokenTypes.QuestionMark, function);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
         //~{as bool} x Ttrue x Tfalse -> {Ttrue V Tfalse}
     }
 
-    @SuppressWarnings("checkstyle:methodlength")
+
     private void defineArithmeticOperators() {
-        IUnionTypeSymbol numOrFalse = symbolFactory.createUnionTypeSymbol();
-        numOrFalse.addTypeSymbol(numTypeSymbol);
-        numOrFalse.addTypeSymbol(falseTypeSymbol);
-        numOrFalse.seal();
-        TypeConstraint numOrFalseConstraint = new TypeConstraint(numOrFalse);
-
-        IUnionTypeSymbol floatOrFalse = symbolFactory.createUnionTypeSymbol();
-        floatOrFalse.addTypeSymbol(floatTypeSymbol);
-        floatOrFalse.addTypeSymbol(falseTypeSymbol);
-        floatOrFalse.seal();
-        TypeConstraint floatOrFalseConstraint = new TypeConstraint(floatOrFalse);
-
-        IUnionTypeSymbol intOrFalse = symbolFactory.createUnionTypeSymbol();
-        intOrFalse.addTypeSymbol(intTypeSymbol);
-        intOrFalse.addTypeSymbol(falseTypeSymbol);
-        intOrFalse.seal();
-        TypeConstraint intOrFalseConstraint = new TypeConstraint(intOrFalse);
-
-
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] operators = new Pair[]{
                 pair("+", TokenTypes.Plus),
@@ -389,7 +403,7 @@ public class OperatorProvider implements IOperatorsProvider
         for (Pair<String, Integer> operator : operators) {
             addToBinaryOperators(operator, intTypeConstraint, intTypeConstraint, intTypeSymbol);
             addToBinaryOperators(operator, floatTypeConstraint, floatTypeConstraint, floatTypeSymbol);
-            addToBinaryOperators(operator, numTypeConstraint, numTypeConstraint, intTypeSymbol);
+            addToBinaryOperators(operator, numTypeConstraint, numTypeConstraint, numTypeSymbol);
         }
 
         @SuppressWarnings("unchecked")
@@ -412,20 +426,10 @@ public class OperatorProvider implements IOperatorsProvider
         };
         for (Pair<String, Integer> operator : assignOperators) {
             //Tvar x bool -> int \ Tvar < bool /  Tvar > int
-            ITypeVariableSymbol lhs = createByRefTypeVariable("$lhs");
-            ITypeVariableSymbol rhs = createTypeVariable("$rhs");
-            ITypeVariableSymbol rtn = createTypeVariable("return");
-
-            lhs.addConstraint(intTypeConstraint);
-            rtn.addConstraint(intTypeConstraint);
-            Map<String, ITypeVariableSymbol> typeVariables = new HashMap<>();
-            typeVariables.put("$lhs", lhs);
-            typeVariables.put("$rhs", rhs);
-            typeVariables.put("return", rtn);
-            IFunctionTypeSymbol function
-                    = symbolFactory.createPolymorphicFunctionTypeSymbol(operator.first, parameterIds, typeVariables);
-            function.addParameterConstraint("$lhs", boolTypeConstraint);
-            function.addParameterConstraint("$rhs", boolTypeConstraint);
+            IFunctionTypeSymbol function =
+                    symbolFactory.createAssignFunctionTypeSymbol(operator.first, parameterIds, intTypeSymbol);
+            function.addInputConstraint("$lhs", boolTypeConstraint);
+            function.addInputConstraint("$rhs", boolTypeConstraint);
             addToOperators(operator.second, function);
 
             //TODO rstoll TINS-347 create overloads for conversion constraints
@@ -433,9 +437,15 @@ public class OperatorProvider implements IOperatorsProvider
         }
 
         addToBinaryOperators(pair("+", TokenTypes.Plus), arrayTypeConstraint, arrayTypeConstraint, arrayTypeSymbol);
-        addToBinaryOperators(pair("+=", TokenTypes.PlusAssign), arrayTypeConstraint, arrayTypeConstraint,
-                arrayTypeSymbol);
+        addToBinaryOperators(
+                pair("+=", TokenTypes.PlusAssign), arrayTypeConstraint, arrayTypeConstraint, arrayTypeSymbol);
 
+        createDivOperators();
+        createModuloOperators();
+        createUnaryArithmeticOperators();
+    }
+
+    private void createDivOperators() {
         Pair<String, Integer> div = pair("/", TokenTypes.Divide);
         addToBinaryOperators(div, boolTypeConstraint, boolTypeConstraint, intOrFalse);
         addToBinaryOperators(div, floatTypeConstraint, floatTypeConstraint, floatOrFalse);
@@ -443,86 +453,51 @@ public class OperatorProvider implements IOperatorsProvider
         //TODO rstoll TINS-347 create overloads for conversion constraints
         //~{as num} x ~{as num} -> {num V false}
 
+        IFunctionTypeSymbol function;
 
-        // divAssign operator /=
-        {
-            IFunctionTypeSymbol function;
-            //Tvar x bool -> {int V false} \ Tvar < bool / Tvar > {int V false}
-            ITypeVariableSymbol lhs = createByRefTypeVariable("$lhs");
-            ITypeVariableSymbol rhs = createTypeVariable("$rhs");
-            ITypeVariableSymbol rtn = createTypeVariable("return");
-            lhs.addConstraint(intOrFalseConstraint);
-            rtn.addConstraint(intOrFalseConstraint);
-            Map<String, ITypeVariableSymbol> typeVariables = new HashMap<>();
-            typeVariables.put("$lhs", lhs);
-            typeVariables.put("$rhs", rhs);
-            typeVariables.put("return", rtn);
-            function = symbolFactory.createPolymorphicFunctionTypeSymbol("/=", parameterIds, typeVariables);
-            function.addParameterConstraint("$lhs", boolTypeConstraint);
-            function.addParameterConstraint("$rhs", boolTypeConstraint);
-            addToOperators(TokenTypes.DivideAssign, function);
+        //Tvar x bool -> {int V false} \ Tvar < bool / Tvar > {int V false}
+        function = symbolFactory.createAssignFunctionTypeSymbol("/=", parameterIds, intOrFalse);
+        function.addInputConstraint("$lhs", boolTypeConstraint);
+        function.addInputConstraint("$rhs", boolTypeConstraint);
+        addToOperators(TokenTypes.DivideAssign, function);
 
-            //Tvar x float -> {float V false} \ Tvar < float / Tvar > {float V false}
-            lhs = createByRefTypeVariable("$lhs");
-            rhs = createTypeVariable("$rhs");
-            rtn = createTypeVariable("return");
-            lhs.addConstraint(floatOrFalseConstraint);
-            rtn.addConstraint(floatOrFalseConstraint);
-            typeVariables = new HashMap<>();
-            typeVariables.put("$lhs", lhs);
-            typeVariables.put("$rhs", rhs);
-            typeVariables.put("return", rtn);
-            function = symbolFactory.createPolymorphicFunctionTypeSymbol("/=", parameterIds, typeVariables);
-            function.addParameterConstraint("$lhs", floatTypeConstraint);
-            function.addParameterConstraint("$rhs", floatTypeConstraint);
-            addToOperators(TokenTypes.DivideAssign, function);
+        //Tvar x float -> {float V false} \ Tvar < float / Tvar > {float V false}
+        function = symbolFactory.createAssignFunctionTypeSymbol("/=", parameterIds, floatOrFalse);
+        function.addInputConstraint("$lhs", floatTypeConstraint);
+        function.addInputConstraint("$rhs", floatTypeConstraint);
+        addToOperators(TokenTypes.DivideAssign, function);
 
-            //TODO rstoll TINS-347 create overloads for conversion constraints
-            //Tvar x ~{as float} -> {float V false} \ Tvar < ~{as float} / Tvar > {float V false}
+        //TODO rstoll TINS-347 create overloads for conversion constraints
+        //Tvar x ~{as float} -> {float V false} \ Tvar < ~{as float} / Tvar > {float V false}
 
-            //Tvar x num -> {num V false} \ Tvar < num / Tvar > {num V false}
-            lhs = createByRefTypeVariable("$lhs");
-            rhs = createTypeVariable("$rhs");
-            rtn = createTypeVariable("return");
-            lhs.addConstraint(numOrFalseConstraint);
-            rtn.addConstraint(numOrFalseConstraint);
-            typeVariables = new HashMap<>();
-            typeVariables.put("$lhs", lhs);
-            typeVariables.put("$rhs", rhs);
-            typeVariables.put("return", rtn);
-            function = symbolFactory.createPolymorphicFunctionTypeSymbol("/=", parameterIds, typeVariables);
-            function.addParameterConstraint("$lhs", numTypeConstraint);
-            function.addParameterConstraint("$rhs", numTypeConstraint);
-            addToOperators(TokenTypes.DivideAssign, function);
+        //Tvar x num -> {num V false} \ Tvar < num / Tvar > {num V false}
+        function = symbolFactory.createAssignFunctionTypeSymbol("/=", parameterIds, numOrFalse);
+        function.addInputConstraint("$lhs", numTypeConstraint);
+        function.addInputConstraint("$rhs", numTypeConstraint);
+        addToOperators(TokenTypes.DivideAssign, function);
 
-            //TODO rstoll TINS-347 create overloads for conversion constraints
-            //Tvar x ~{as num} -> Tvar \ Tvar < ~{as num} / Tvar > {num V false}
-        }
+        //TODO rstoll TINS-347 create overloads for conversion constraints
+        //Tvar x ~{as num} -> Tvar \ Tvar < ~{as num} / Tvar > {num V false}
+    }
 
+    private void createModuloOperators() {
         Pair<String, Integer> modulo = pair("%", TokenTypes.Modulo);
         addToBinaryOperators(modulo, intTypeConstraint, intTypeConstraint, intOrFalse);
         //TODO rstoll TINS-347 create overloads for conversion constraints
         //~{as int} x ~{as int} -> {int V false}
 
-        //Tvar x int -> {int V false} \ Tvar < int / Tvar > {int V false}
         IFunctionTypeSymbol function;
-        ITypeVariableSymbol lhs = createByRefTypeVariable("$lhs");
-        ITypeVariableSymbol rhs = createTypeVariable("$rhs");
-        ITypeVariableSymbol rtn = createTypeVariable("return");
-        lhs.addConstraint(intOrFalseConstraint);
-        rtn.addConstraint(intOrFalseConstraint);
-        Map<String, ITypeVariableSymbol> typeVariables = new HashMap<>();
-        typeVariables.put("$lhs", lhs);
-        typeVariables.put("$rhs", rhs);
-        typeVariables.put("return", rtn);
-        function = symbolFactory.createPolymorphicFunctionTypeSymbol("%=", parameterIds, typeVariables);
-        function.addParameterConstraint("$lhs", intTypeConstraint);
-        function.addParameterConstraint("$rhs", intTypeConstraint);
+
+        //Tvar x int -> {int V false} \ Tvar < int / Tvar > {int V false}
+        function = symbolFactory.createAssignFunctionTypeSymbol("%=", parameterIds, intOrFalse);
+        function.addInputConstraint("$lhs", intTypeConstraint);
+        function.addInputConstraint("$rhs", intTypeConstraint);
         addToOperators(TokenTypes.ModuloAssign, function);
         //TODO rstoll TINS-347 create overloads for conversion constraints
         //Tvar x ~{as int} -> {int V false} \ Tvar < ~{as int} / Tvar > {int V false}
+    }
 
-
+    private void createUnaryArithmeticOperators() {
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] incrDecrOperators = new Pair[]{
                 pair("++", TokenTypes.PRE_INCREMENT),
@@ -556,8 +531,8 @@ public class OperatorProvider implements IOperatorsProvider
 
     private void defineDotOperator() {
         addToBinaryOperators(pair(".", TokenTypes.Dot), stringTypeConstraint, stringTypeConstraint, stringTypeSymbol);
-        addToBinaryOperators(pair(".=", TokenTypes.DotAssign), stringTypeConstraint, stringTypeConstraint,
-                stringTypeSymbol);
+        addToBinaryOperators(
+                pair(".=", TokenTypes.DotAssign), stringTypeConstraint, stringTypeConstraint, stringTypeSymbol);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
         //~{as string} x ~{as string} -> string
@@ -568,62 +543,26 @@ public class OperatorProvider implements IOperatorsProvider
 
     private void defineInstanceOfOperator() {
         //T x T -> bool
-        IFunctionTypeSymbol function;
-        ITypeVariableSymbol lhs = createByRefTypeVariable("$lhs");
-        ITypeVariableSymbol rhs = createTypeVariable("$rhs");
-        ITypeVariableSymbol rtn = createTypeVariable("return");
-        rtn.addConstraint(boolTypeConstraint);
-        Map<String, ITypeVariableSymbol> typeVariables = new HashMap<>();
-        typeVariables.put("$lhs", lhs);
-        typeVariables.put("$rhs", rhs);
-        typeVariables.put("return", rtn);
-        function = symbolFactory.createPolymorphicFunctionTypeSymbol("instanceof", parameterIds, typeVariables);
-        function.addParameterConstraint("$lhs", mixedTypeConstraint);
-        function.addParameterConstraint("$rhs", mixedTypeConstraint);
-        addToOperators(TokenTypes.Instanceof, function);
+        addToBinaryOperators(
+                pair("instanceof", TokenTypes.Instanceof), mixedTypeConstraint, mixedTypeConstraint, boolTypeSymbol);
     }
 
     private void defineCloneAndNewOperator() {
-        IFunctionTypeSymbol function;
-
         //T -> T
-        Map<String, ITypeVariableSymbol> typeVariables = new HashMap<>();
-        ITypeVariableSymbol expr = createTypeVariable("$expr");
-        ITypeVariableSymbol rtn = createTypeVariable("return");
-        rtn.addConstraint(expr);
-        typeVariables.put("$expr", expr);
-        typeVariables.put("return", rtn);
-        function = symbolFactory.createPolymorphicFunctionTypeSymbol("clone", unaryParameterId, typeVariables);
-        function.addParameterConstraint("$expr", mixedTypeConstraint);
+        IFunctionTypeSymbol function = symbolFactory.createIdentityFunctionTypeSymbol("clone", "$expr");
         addToOperators(TokenTypes.Clone, function);
 
         //TODO TINS-349 structural constraints
         //not all classes return itself, some return null as well in error cases
         //see https://wiki.php.net/rfc/internal_constructor_behaviour
         //T -> T
-        typeVariables = new HashMap<>();
-        expr = createTypeVariable("$expr");
-        rtn = createTypeVariable("return");
-        rtn.addConstraint(expr);
-        typeVariables.put("$expr", expr);
-        typeVariables.put("return", rtn);
-        function = symbolFactory.createPolymorphicFunctionTypeSymbol("new", unaryParameterId, typeVariables);
-        function.addParameterConstraint("$expr", mixedTypeConstraint);
+        function = symbolFactory.createIdentityFunctionTypeSymbol("new", "$expr");
         addToOperators(TokenTypes.New, function);
     }
 
     private void defineAtOperator() {
-        IFunctionTypeSymbol function;
-
         //T -> T
-        Map<String, ITypeVariableSymbol> typeVariables = new HashMap<>();
-        ITypeVariableSymbol expr = createTypeVariable("$expr");
-        ITypeVariableSymbol rtn = createTypeVariable("return");
-        rtn.addConstraint(expr);
-        typeVariables.put("$expr", expr);
-        typeVariables.put("return", rtn);
-        function = symbolFactory.createPolymorphicFunctionTypeSymbol("@", unaryParameterId, typeVariables);
-        function.addParameterConstraint("$expr", mixedTypeConstraint);
+        IFunctionTypeSymbol function = symbolFactory.createIdentityFunctionTypeSymbol("@", "$expr");
         addToOperators(TokenTypes.At, function);
     }
 
@@ -632,8 +571,8 @@ public class OperatorProvider implements IOperatorsProvider
 
         IFunctionTypeSymbol function = symbolFactory.createConstantFunctionTypeSymbol(
                 operator.first, parameterIds, returnType);
-        function.addParameterConstraint("$lhs", leftParameterType);
-        function.addParameterConstraint("$rhs", rightParameterType);
+        function.addInputConstraint("$lhs", leftParameterType);
+        function.addInputConstraint("$rhs", rightParameterType);
         addToOperators(operator.second, function);
         return function;
     }
@@ -644,7 +583,7 @@ public class OperatorProvider implements IOperatorsProvider
         IFunctionTypeSymbol function = symbolFactory.createConstantFunctionTypeSymbol(
                 operator.first, unaryParameterId, returnType);
 
-        function.addParameterConstraint("$expr", formalParameterType);
+        function.addInputConstraint("$expr", formalParameterType);
         addToOperators(operator.second, function);
         return function;
     }
@@ -655,6 +594,4 @@ public class OperatorProvider implements IOperatorsProvider
     }
 
 }
-
-
 
