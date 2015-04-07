@@ -10,6 +10,7 @@ import ch.tsphp.common.IAstHelper;
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.IConversionMethod;
 import ch.tsphp.tinsphp.common.ICore;
+import ch.tsphp.tinsphp.common.inference.constraints.IOverloadResolver;
 import ch.tsphp.tinsphp.common.resolving.ISymbolResolver;
 import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
@@ -26,7 +27,7 @@ public class Core implements ICore
     private final Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> explicitConversions;
     private final Map<Integer, IOverloadSymbol> operators;
 
-    public Core(ISymbolFactory symbolFactory, IAstHelper astHelper) {
+    public Core(ISymbolFactory symbolFactory, IOverloadResolver overloadResolver, IAstHelper astHelper) {
         primitiveTypes = new PrimitiveTypesProvider(symbolFactory).getTypes();
 
         symbolFactory.setMixedTypeSymbol(primitiveTypes.get(PrimitiveTypeNames.MIXED));
@@ -34,7 +35,7 @@ public class Core implements ICore
         IGeneratorHelper generatorHelper = new GeneratorHelper(astHelper, symbolFactory, primitiveTypes);
 
         ISymbolProvider builtInSymbolProvider = new BuiltInSymbolsProvider(
-                generatorHelper, symbolFactory, primitiveTypes);
+                generatorHelper, symbolFactory, overloadResolver, primitiveTypes);
         ISymbolProvider superGlobalSymbolResolver = new BuiltInSuperGlobalSymbolsProvider(
                 generatorHelper, symbolFactory, primitiveTypes);
 
@@ -45,7 +46,7 @@ public class Core implements ICore
         implicitConversions = conversionProvider.getImplicitConversions();
         explicitConversions = conversionProvider.getExplicitConversions();
 
-        IOperatorsProvider operatorsProvider = new OperatorProvider(symbolFactory, primitiveTypes);
+        IOperatorsProvider operatorsProvider = new OperatorProvider(symbolFactory, overloadResolver, primitiveTypes);
         operators = operatorsProvider.getOperators();
     }
 

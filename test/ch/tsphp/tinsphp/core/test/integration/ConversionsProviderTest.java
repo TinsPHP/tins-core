@@ -4,13 +4,13 @@
  * root folder or visit the project's website http://tsphp.ch/wiki/display/TINS/License
  */
 
-package ch.tsphp.tinsphp.common.test.integration;
+package ch.tsphp.tinsphp.core.test.integration;
 
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.IConversionMethod;
-import ch.tsphp.tinsphp.common.test.integration.testutils.ATest;
 import ch.tsphp.tinsphp.core.ConversionsProvider;
 import ch.tsphp.tinsphp.core.IConversionsProvider;
+import ch.tsphp.tinsphp.core.test.integration.testutils.ATest;
 import org.junit.Test;
 
 import java.util.HashMap;

@@ -4,14 +4,12 @@
  * root folder or visit the project's website http://tsphp.ch/wiki/display/TINS/License
  */
 
-package ch.tsphp.tinsphp.common.test.integration;
+package ch.tsphp.tinsphp.core.test.integration;
 
-import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IFunctionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
-import ch.tsphp.tinsphp.common.test.integration.testutils.ATest;
 import ch.tsphp.tinsphp.core.IOperatorsProvider;
-import ch.tsphp.tinsphp.core.OperatorProvider;
+import ch.tsphp.tinsphp.core.test.integration.testutils.AOperatorProviderTest;
 import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 import org.antlr.runtime.RecognitionException;
 import org.junit.Assert;
@@ -26,7 +24,7 @@ import java.util.Map;
 
 
 @RunWith(Parameterized.class)
-public class OperatorProviderUnaryConstraintsTest extends ATest
+public class OperatorProviderUnaryConstraintsTest extends AOperatorProviderTest
 {
     private String operatorName;
     private int operatorType;
@@ -47,7 +45,7 @@ public class OperatorProviderUnaryConstraintsTest extends ATest
         Assert.assertEquals(operatorName + " failed, no overload defined", false, overloads.isEmpty());
         for (IFunctionTypeSymbol overload : overloads) {
             Assert.assertEquals(operatorName + " failed, number of parameters wrong",
-                    1, overload.getInputConstraints().size());
+                    1, overload.getParameterTypeVariables().size());
         }
     }
 
@@ -66,13 +64,5 @@ public class OperatorProviderUnaryConstraintsTest extends ATest
                 {"clone", TokenTypes.Clone},
                 {"new", TokenTypes.New}
         });
-    }
-
-    private IOperatorsProvider createOperatorProvider() {
-        return createOperatorProvider(primitiveTypes);
-    }
-
-    protected IOperatorsProvider createOperatorProvider(Map<String, ITypeSymbol> thePrimitiveType) {
-        return new OperatorProvider(symbolFactory, thePrimitiveType);
     }
 }

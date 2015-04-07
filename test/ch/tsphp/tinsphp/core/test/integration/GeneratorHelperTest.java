@@ -4,16 +4,16 @@
  * root folder or visit the project's website http://tsphp.ch/wiki/display/TINS/License
  */
 
-package ch.tsphp.tinsphp.common.test.integration;
+package ch.tsphp.tinsphp.core.test.integration;
 
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.ITypeSymbol;
+import ch.tsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IClassTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IMethodSymbol;
-import ch.tsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IVariableSymbol;
-import ch.tsphp.tinsphp.common.test.integration.testutils.ATest;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
+import ch.tsphp.tinsphp.core.test.integration.testutils.ATest;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
 import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 import org.junit.Test;
@@ -121,7 +121,7 @@ public class GeneratorHelperTest extends ATest
         IGeneratorHelper helper = createGenerator();
         IVariableSymbol result = helper.createConstant("foo", typeSymbol);
 
-        assertThat(result.getType(), is(typeSymbol));
+        assertThat(result.getType(), is((ITypeSymbol) typeSymbol));
     }
 
     @Test(expected = IllegalArgumentException.class)

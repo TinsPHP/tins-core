@@ -4,13 +4,11 @@
  * root folder or visit the project's website http://tsphp.ch/wiki/display/TINS/License
  */
 
-package ch.tsphp.tinsphp.common.test.integration;
+package ch.tsphp.tinsphp.core.test.integration;
 
-import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
-import ch.tsphp.tinsphp.common.test.integration.testutils.ATest;
 import ch.tsphp.tinsphp.core.IOperatorsProvider;
-import ch.tsphp.tinsphp.core.OperatorProvider;
+import ch.tsphp.tinsphp.core.test.integration.testutils.AOperatorProviderTest;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -21,7 +19,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIn.isIn;
 
-public class OperatorProviderTest extends ATest
+public class OperatorProviderTest extends AOperatorProviderTest
 {
     @Test
     public void getOperators_SecondCall_DoesNotNeedToRecompute() {
@@ -35,13 +33,5 @@ public class OperatorProviderTest extends ATest
         assertThat(result1, is(result2));
         assertThat(result2.entrySet(), everyItem(isIn(backup.entrySet())));
         assertThat(result2.size(), is(backup.size()));
-    }
-
-    private IOperatorsProvider createOperatorProvider() {
-        return createOperatorProvider(primitiveTypes);
-    }
-
-    protected IOperatorsProvider createOperatorProvider(Map<String, ITypeSymbol> thePrimitiveType) {
-        return new OperatorProvider(symbolFactory, thePrimitiveType);
     }
 }

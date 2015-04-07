@@ -4,15 +4,15 @@
  * root folder or visit the project's website http://tsphp.ch/wiki/display/TINS/License
  */
 
-package ch.tsphp.tinsphp.common.test.integration;
+package ch.tsphp.tinsphp.core.test.integration;
 
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
-import ch.tsphp.tinsphp.common.test.integration.testutils.ATest;
+import ch.tsphp.tinsphp.core.BuiltInSuperGlobalSymbolsProvider;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.ISymbolProvider;
-import ch.tsphp.tinsphp.core.gen.BuiltInSymbolsProvider;
+import ch.tsphp.tinsphp.core.test.integration.testutils.ATest;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -22,15 +22,24 @@ import static org.hamcrest.CoreMatchers.everyItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIn.isIn;
+import static org.hamcrest.collection.IsMapContaining.hasKey;
 
-public class BuiltInSymbolsProviderTest extends ATest
+public class BuiltInSuperGlobalsProviderTest extends ATest
 {
+    @Test
+    public void getSymbols_Standard_VerifyAllCreated() {
+
+        ISymbolProvider provider = createBuiltInSuperGlobalSymbolsProvider();
+        Map<String, ISymbol> result = provider.getSymbols();
+
+        assertThat(result, hasKey("$_GET"));
+    }
 
     @Test
     public void getSymbols_SecondCall_DoesNotNeedToRecompute() {
         //no arrange necessary
 
-        ISymbolProvider provider = createBuiltInSymbolsProvider();
+        ISymbolProvider provider = createBuiltInSuperGlobalSymbolsProvider();
         Map<String, ISymbol> result1 = provider.getSymbols();
         Map<String, ISymbol> backup = new HashMap<>(result1);
         Map<String, ISymbol> result2 = provider.getSymbols();
@@ -40,18 +49,17 @@ public class BuiltInSymbolsProviderTest extends ATest
         assertThat(result2.size(), is(backup.size()));
     }
 
-    private BuiltInSymbolsProvider createBuiltInSymbolsProvider() {
-        return createBuiltInSymbolsProvider(
+    private ISymbolProvider createBuiltInSuperGlobalSymbolsProvider() {
+        return createBuiltInSuperGlobalSymbolsProvider(
                 createGenerator(astHelper, symbolFactory, primitiveTypes),
                 symbolFactory,
-                primitiveTypes
-        );
+                primitiveTypes);
     }
 
-    protected BuiltInSymbolsProvider createBuiltInSymbolsProvider(
-            IGeneratorHelper generatorHelper,
-            ISymbolFactory symbolFactory,
-            Map<String, ITypeSymbol> primitiveType) {
-        return new BuiltInSymbolsProvider(generatorHelper, symbolFactory, primitiveType);
+    protected ISymbolProvider createBuiltInSuperGlobalSymbolsProvider(
+            IGeneratorHelper theGeneratorHelper,
+            ISymbolFactory theSymbolFactory,
+            Map<String, ITypeSymbol> thePrimitiveType) {
+        return new BuiltInSuperGlobalSymbolsProvider(theGeneratorHelper, theSymbolFactory, thePrimitiveType);
     }
 }

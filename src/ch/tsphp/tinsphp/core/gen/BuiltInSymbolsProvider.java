@@ -9,59 +9,66 @@ package ch.tsphp.tinsphp.core.gen;
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.common.symbols.IUnionTypeSymbol;
+import ch.tsphp.tinsphp.common.inference.constraints.BoundException;
+import ch.tsphp.tinsphp.common.inference.constraints.IOverloadResolver;
+import ch.tsphp.tinsphp.common.inference.constraints.ITypeVariableCollection;
 import ch.tsphp.tinsphp.common.symbols.IClassTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IFunctionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.IVariableSymbol;
+import ch.tsphp.tinsphp.core.AProvider;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.ISymbolProvider;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
+import ch.tsphp.tinsphp.symbols.constraints.TypeVariableCollection;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BuiltInSymbolsProvider implements ISymbolProvider
+public class BuiltInSymbolsProvider extends AProvider implements ISymbolProvider
 {
 
     private final IGeneratorHelper generatorHelper;
-    private final ISymbolFactory symbolFactory;
-    private final Map<String, ITypeSymbol> primitiveTypes;
     private Map<String, ISymbol> builtInSymbols;
 
     public BuiltInSymbolsProvider(
             IGeneratorHelper theGeneratorHelper,
             ISymbolFactory theSymbolFactory,
+            IOverloadResolver theOverloadResolver,
             Map<String, ITypeSymbol> thePrimitiveType) {
+        super(theSymbolFactory, theOverloadResolver, thePrimitiveType);
         generatorHelper = theGeneratorHelper;
-        symbolFactory = theSymbolFactory;
-        primitiveTypes = thePrimitiveType;
     }
 
     @Override
     public Map<String, ISymbol> getSymbols() {
         if (builtInSymbols == null) {
-            builtInSymbols = createSymbols();
+            try {
+                builtInSymbols = createSymbols();
+            } catch (BoundException ex) {
+                //should not happen, turn it into a runtime exception
+                throw new RuntimeException(ex);
+            }
         }
 
         return builtInSymbols;
     }
 
-    private Map<String, ISymbol> createSymbols() {
+    private Map<String, ISymbol> createSymbols() throws BoundException {
         Map<String, ISymbol> symbols = new HashMap<>();
         IUnionTypeSymbol unionTypeSymbol;
         IFunctionTypeSymbol function;
         IVariableSymbol constant;
 
-        unionTypeSymbol = generatorHelper.createUnionTypeSymbolFromPrimitives(
-                PrimitiveTypeNames.INT,
-                PrimitiveTypeNames.FALSE);
-        function = symbolFactory.createConstantFunctionTypeSymbol(
-                "strpos", Arrays.asList("$haystack, $needle"), unionTypeSymbol);
+        ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+        collection.addUpperBound(T_LHS, stringTypeConstraint);
+        collection.addLowerBound(T_RETURN, intOrFalseTypeConstraint);
+        function = symbolFactory.createFunctionTypeSymbol(
+                "strpos", collection, binaryParameterIds, T_RETURN);
 
         symbols.put("\\strpos()", function);
 
-        constant = generatorHelper.createConstant("E_ALL#", primitiveTypes.get(PrimitiveTypeNames.INT));
+        constant = generatorHelper.createConstant("E_ALL#", intTypeSymbol);
         symbols.put("\\E_ALL#", constant);
 
         IClassTypeSymbol _exception = generatorHelper.createClass("Exception");

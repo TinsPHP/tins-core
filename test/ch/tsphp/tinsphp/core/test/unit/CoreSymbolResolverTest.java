@@ -4,7 +4,7 @@
  * root folder or visit the project's website http://tsphp.ch/wiki/display/TINS/License
  */
 
-package ch.tsphp.tinsphp.common.test.unit;
+package ch.tsphp.tinsphp.core.test.unit;
 
 import ch.tsphp.common.IScope;
 import ch.tsphp.common.ITSPHPAst;
@@ -12,7 +12,6 @@ import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.tinsphp.common.resolving.ISymbolResolver;
 import ch.tsphp.tinsphp.common.scopes.IConditionalScope;
 import ch.tsphp.tinsphp.common.scopes.INamespaceScope;
-
 import ch.tsphp.tinsphp.core.CoreSymbolResolver;
 import org.junit.Test;
 import org.mockito.exceptions.base.MockitoAssertionError;

@@ -8,95 +8,37 @@ package ch.tsphp.tinsphp.core;
 
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.common.symbols.IUnionTypeSymbol;
+import ch.tsphp.tinsphp.common.inference.constraints.BoundException;
+import ch.tsphp.tinsphp.common.inference.constraints.IOverloadResolver;
+import ch.tsphp.tinsphp.common.inference.constraints.ITypeVariableCollection;
+import ch.tsphp.tinsphp.common.inference.constraints.LowerBoundException;
 import ch.tsphp.tinsphp.common.symbols.IFunctionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
-import ch.tsphp.tinsphp.common.symbols.ITypeVariableSymbol;
-import ch.tsphp.tinsphp.common.symbols.ITypeVariableSymbolWithRef;
 import ch.tsphp.tinsphp.common.utils.Pair;
-import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
-import ch.tsphp.tinsphp.symbols.constraints.TransferConstraint;
 import ch.tsphp.tinsphp.symbols.constraints.TypeConstraint;
-import ch.tsphp.tinsphp.symbols.constraints.UnionConstraint;
+import ch.tsphp.tinsphp.symbols.constraints.TypeVariableCollection;
+import ch.tsphp.tinsphp.symbols.constraints.TypeVariableConstraint;
 import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 
-import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static ch.tsphp.tinsphp.common.utils.Pair.pair;
 
-public class OperatorProvider implements IOperatorsProvider
+public class OperatorProvider extends AProvider implements IOperatorsProvider
 {
-    private final ISymbolFactory symbolFactory;
+
     private Map<Integer, IOverloadSymbol> builtInOperators;
-    private final ITypeSymbol falseTypeSymbol;
-    private final ITypeSymbol trueTypeSymbol;
-    private final ITypeSymbol boolTypeSymbol;
-    private final ITypeSymbol intTypeSymbol;
-    private final ITypeSymbol floatTypeSymbol;
-    private final ITypeSymbol numTypeSymbol;
-    private final ITypeSymbol stringTypeSymbol;
-    private final ITypeSymbol arrayTypeSymbol;
-    private final TypeConstraint falseTypeConstraint;
-    private final TypeConstraint trueTypeConstraint;
-    private final TypeConstraint boolTypeConstraint;
-    private final TypeConstraint intTypeConstraint;
-    private final TypeConstraint floatTypeConstraint;
-    private final TypeConstraint numTypeConstraint;
-    private final TypeConstraint stringTypeConstraint;
-    private final TypeConstraint arrayTypeConstraint;
-    private final TypeConstraint mixedTypeConstraint;
-    private List<String> parameterIds;
-    private List<String> unaryParameterId;
-    private final IUnionTypeSymbol numOrFalse;
-    private final IUnionTypeSymbol floatOrFalse;
-    private final IUnionTypeSymbol intOrFalse;
+
 
     public OperatorProvider(
             ISymbolFactory theSymbolFactory,
+            IOverloadResolver theOverloadResolver,
             Map<String, ITypeSymbol> thePrimitiveType) {
-
-        symbolFactory = theSymbolFactory;
-
-        falseTypeSymbol = thePrimitiveType.get(PrimitiveTypeNames.FALSE);
-        trueTypeSymbol = thePrimitiveType.get(PrimitiveTypeNames.TRUE);
-        boolTypeSymbol = thePrimitiveType.get(PrimitiveTypeNames.BOOL);
-        intTypeSymbol = thePrimitiveType.get(PrimitiveTypeNames.INT);
-        floatTypeSymbol = thePrimitiveType.get(PrimitiveTypeNames.FLOAT);
-        numTypeSymbol = thePrimitiveType.get(PrimitiveTypeNames.NUM);
-        stringTypeSymbol = thePrimitiveType.get(PrimitiveTypeNames.STRING);
-        arrayTypeSymbol = thePrimitiveType.get(PrimitiveTypeNames.ARRAY);
-        falseTypeConstraint = new TypeConstraint(falseTypeSymbol);
-        trueTypeConstraint = new TypeConstraint(trueTypeSymbol);
-        boolTypeConstraint = new TypeConstraint(boolTypeSymbol);
-        intTypeConstraint = new TypeConstraint(intTypeSymbol);
-        floatTypeConstraint = new TypeConstraint(floatTypeSymbol);
-        numTypeConstraint = new TypeConstraint(numTypeSymbol);
-        stringTypeConstraint = new TypeConstraint(stringTypeSymbol);
-        arrayTypeConstraint = new TypeConstraint(arrayTypeSymbol);
-        mixedTypeConstraint = new TypeConstraint(thePrimitiveType.get(PrimitiveTypeNames.MIXED));
-
-        numOrFalse = symbolFactory.createUnionTypeSymbol();
-        numOrFalse.addTypeSymbol(numTypeSymbol);
-        numOrFalse.addTypeSymbol(falseTypeSymbol);
-        numOrFalse.seal();
-
-        floatOrFalse = symbolFactory.createUnionTypeSymbol();
-        floatOrFalse.addTypeSymbol(floatTypeSymbol);
-        floatOrFalse.addTypeSymbol(falseTypeSymbol);
-        floatOrFalse.seal();
-
-        intOrFalse = symbolFactory.createUnionTypeSymbol();
-        intOrFalse.addTypeSymbol(intTypeSymbol);
-        intOrFalse.addTypeSymbol(falseTypeSymbol);
-        intOrFalse.seal();
-
-        parameterIds = Arrays.asList("$lhs", "$rhs");
-        unaryParameterId = Arrays.asList("$expr");
+        super(theSymbolFactory, theOverloadResolver, thePrimitiveType);
     }
 
     @Override
@@ -109,6 +51,7 @@ public class OperatorProvider implements IOperatorsProvider
 
     private void createOperators() {
         builtInOperators = new HashMap<>();
+
         addOperatorLists();
         defineLogicOperators();
         defineAssignmentOperators();
@@ -167,24 +110,36 @@ public class OperatorProvider implements IOperatorsProvider
                 pair("||", TokenTypes.LogicOr)
         };
         for (Pair<String, Integer> operator : orOperators) {
-            addToBinaryOperators(operator, falseTypeConstraint, falseTypeConstraint, falseTypeSymbol);
-            addToBinaryOperators(operator, trueTypeConstraint, boolTypeConstraint, trueTypeSymbol);
+            //false x false -> false
+            addToBinaryOperators(operator, falseTypeConstraint, falseTypeConstraint, falseTypeConstraint);
+            //true x bool -> true
+            addToBinaryOperators(operator, trueTypeConstraint, boolTypeConstraint, trueTypeConstraint);
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //true x ~{as bool} -> true
-            addToBinaryOperators(operator, boolTypeConstraint, trueTypeConstraint, trueTypeSymbol);
+
+            //bool x true -> true
+            addToBinaryOperators(operator, boolTypeConstraint, trueTypeConstraint, trueTypeConstraint);
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //~{as bool} x true -> true
-            addToBinaryOperators(operator, boolTypeConstraint, boolTypeConstraint, boolTypeSymbol);
+
+            //bool x bool -> bool
+            addToBinaryOperators(operator, boolTypeConstraint, boolTypeConstraint, boolTypeConstraint);
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //~{as bool} x ~{as bool} -> bool
+
         }
 
         Pair<String, Integer> xorWeak = pair("xor", TokenTypes.LogicXorWeak);
-        addToBinaryOperators(xorWeak, falseTypeConstraint, trueTypeConstraint, trueTypeSymbol);
-        addToBinaryOperators(xorWeak, trueTypeConstraint, falseTypeConstraint, trueTypeSymbol);
-        addToBinaryOperators(xorWeak, falseTypeConstraint, falseTypeConstraint, falseTypeSymbol);
-        addToBinaryOperators(xorWeak, trueTypeConstraint, trueTypeConstraint, falseTypeSymbol);
-        addToBinaryOperators(xorWeak, boolTypeConstraint, boolTypeConstraint, boolTypeSymbol);
+        //false x true -> true
+        addToBinaryOperators(xorWeak, falseTypeConstraint, trueTypeConstraint, trueTypeConstraint);
+        //true x false -> true
+        addToBinaryOperators(xorWeak, trueTypeConstraint, falseTypeConstraint, trueTypeConstraint);
+        //false x false -> false
+        addToBinaryOperators(xorWeak, falseTypeConstraint, falseTypeConstraint, falseTypeConstraint);
+        //true x true -> false
+        addToBinaryOperators(xorWeak, trueTypeConstraint, trueTypeConstraint, falseTypeConstraint);
+        //bool x bool -> bool
+        addToBinaryOperators(xorWeak, boolTypeConstraint, boolTypeConstraint, boolTypeConstraint);
         //TODO rstoll TINS-347 create overloads for conversion constraints
         //~{as bool} x ~{as bool} -> bool
 
@@ -194,80 +149,43 @@ public class OperatorProvider implements IOperatorsProvider
                 pair("&&", TokenTypes.LogicAnd)
         };
         for (Pair<String, Integer> operator : andOperators) {
-            //TODO rstoll TINS-347 create overloads for conversion constraints
-            addToBinaryOperators(operator, falseTypeConstraint, boolTypeConstraint, falseTypeSymbol);
+            //false x bool -> false
+            addToBinaryOperators(operator, falseTypeConstraint, boolTypeConstraint, falseTypeConstraint);
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //false x ~{as bool} -> false
-            addToBinaryOperators(operator, boolTypeConstraint, falseTypeConstraint, falseTypeSymbol);
+
+            //bool x false -> false
+            addToBinaryOperators(operator, boolTypeConstraint, falseTypeConstraint, falseTypeConstraint);
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //~{bool} x false -> false
-            addToBinaryOperators(operator, trueTypeConstraint, trueTypeConstraint, trueTypeSymbol);
-            addToBinaryOperators(operator, boolTypeConstraint, boolTypeConstraint, boolTypeSymbol);
+
+            //true x true -> true
+            addToBinaryOperators(operator, trueTypeConstraint, trueTypeConstraint, trueTypeConstraint);
+            //bool x bool -> bool
+            addToBinaryOperators(operator, boolTypeConstraint, boolTypeConstraint, boolTypeConstraint);
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //~{as bool} x ~{as bool} -> bool
         }
 
         Pair<String, Integer> logicNot = new Pair<>("!", TokenTypes.LogicNot);
-        addToUnaryOperators(logicNot, falseTypeConstraint, trueTypeSymbol);
-        addToUnaryOperators(logicNot, trueTypeConstraint, falseTypeSymbol);
-        addToUnaryOperators(logicNot, boolTypeConstraint, boolTypeSymbol);
+        addToUnaryOperators(logicNot, falseTypeConstraint, trueTypeConstraint);
+        addToUnaryOperators(logicNot, trueTypeConstraint, falseTypeConstraint);
+        addToUnaryOperators(logicNot, boolTypeConstraint, boolTypeConstraint);
     }
 
-    private void defineAssignmentOperators() {
-        //Tvar x Tval -> Tvar / Tvar > Tval
-
-        //can be simplified, for test purposes it is quasi
-        // function assign(&$lhs, $rhs){
-        //   $lhs = $rhs;
-        //   return $lhs;
-        // }
-        IFunctionTypeSymbol function;
-        ITypeVariableSymbolWithRef lhs = createByRefTypeVariableWithRef("$lhs");
-        ITypeVariableSymbolWithRef rhs = createTypeVariableWithRef("$rhs");
-        ITypeVariableSymbolWithRef rtn = createTypeVariableWithRef("return");
-
-        ITypeVariableSymbol rhs1 = createTypeVariable("$rhs1");
-        rhs.addRefVariable(rhs1);
-        rhs1.setConstraint(rhs);
-        ITypeVariableSymbol lhs1 = createTypeVariable("$lhs1");
-        lhs.addRefVariable(lhs1);
-        lhs1.setConstraint(rhs1);
-        ITypeVariableSymbol rtn1 = createTypeVariable("$rtn1");
-        rtn.addRefVariable(rtn1);
-        rtn1.setConstraint(new TransferConstraint(lhs1));
-        Deque<ITypeVariableSymbol> typeVariables = new ArrayDeque<>();
-        typeVariables.add(rhs1);
-        typeVariables.add(lhs1);
-        typeVariables.add(rtn1);
-        List<ITypeVariableSymbolWithRef> parameters = Arrays.asList(lhs, rhs);
-        function = symbolFactory.createPolymorphicFunctionTypeSymbol("=", parameters, rtn, typeVariables);
-        function.addInputConstraint("$lhs", mixedTypeConstraint);
-        function.addInputConstraint("$rhs", mixedTypeConstraint);
+    private void defineAssignmentOperators() throws LowerBoundException {
+        //Tlhs x Trhs -> Tlhs \ Tlhs > Trhs
+        ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+        collection.addLowerBound(T_LHS, new TypeVariableConstraint(T_RHS));
+        IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
+                "=", collection, binaryParameterIds, T_LHS);
         addToOperators(TokenTypes.Assign, function);
 
         //Other assignment operators can be found in the corresponding sections.
         //For instance, += is in createAssignmentOperators
     }
 
-    private ITypeVariableSymbolWithRef createByRefTypeVariableWithRef(String name) {
-        ITypeVariableSymbolWithRef typeVariableWithRef = createTypeVariableWithRef(name);
-        typeVariableWithRef.setIsByRef();
-        return typeVariableWithRef;
-    }
-
-    private ITypeVariableSymbolWithRef createTypeVariableWithRef(String name) {
-        ITypeVariableSymbolWithRef typeSymbolWithRef = symbolFactory.createMinimalTypeVariableSymbolWithRef(name);
-        typeSymbolWithRef.setType(symbolFactory.createUnionTypeSymbol());
-        return typeSymbolWithRef;
-    }
-
-    private ITypeVariableSymbol createTypeVariable(String name) {
-        ITypeVariableSymbol typeVariableSymbol = symbolFactory.createMinimalTypeVariableSymbol(name);
-        typeVariableSymbol.setType(symbolFactory.createUnionTypeSymbol());
-        return typeVariableSymbol;
-    }
-
-    private void defineBitLevelOperators() {
+    private void defineBitLevelOperators() throws BoundException {
 
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] intResultingNonAssignOperators = new Pair[]{
@@ -278,7 +196,8 @@ public class OperatorProvider implements IOperatorsProvider
                 pair(">>", TokenTypes.ShiftRight),
         };
         for (Pair<String, Integer> operator : intResultingNonAssignOperators) {
-            addToBinaryOperators(operator, intTypeConstraint, intTypeConstraint, intTypeSymbol);
+            //int x int -> int
+            addToBinaryOperators(operator, intTypeConstraint, intTypeConstraint, intTypeConstraint);
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //~{as int} x ~{as int} -> int
         }
@@ -292,9 +211,10 @@ public class OperatorProvider implements IOperatorsProvider
                 pair(">>=", TokenTypes.ShiftRightAssign),
         };
         for (Pair<String, Integer> operator : intResultingAssignOperators) {
-            addToBinaryOperators(operator, intTypeConstraint, intTypeConstraint, intTypeSymbol);
+            //int x int -> int
+            addToBinaryOperators(operator, intTypeConstraint, intTypeConstraint, intTypeConstraint);
             //TODO rstoll TINS-347 create overloads for conversion constraints
-            //Tvar x ~{as int} -> int \ Tvar < ~{as int} / Tvar > int
+            //(int | ~{as int}) x ~{as int} -> int
         }
 
         @SuppressWarnings("unchecked")
@@ -307,17 +227,21 @@ public class OperatorProvider implements IOperatorsProvider
                 pair("&=", TokenTypes.BitwiseAndAssign),
         };
         for (Pair<String, Integer> operator : stringResultingOperators) {
-            addToBinaryOperators(operator, stringTypeConstraint, stringTypeConstraint, stringTypeSymbol);
+            //string x string -> string
+            addToBinaryOperators(operator, stringTypeConstraint, stringTypeConstraint, stringTypeConstraint);
         }
 
         Pair<String, Integer> bitwiseNot = pair("~", TokenTypes.BitwiseNot);
-        addToUnaryOperators(bitwiseNot, intTypeConstraint, intTypeSymbol);
+        //int -> int
+        addToUnaryOperators(bitwiseNot, intTypeConstraint, intTypeConstraint);
         //TODO rstoll TINS-347 create overloads for conversion constraints
         //~{as int} -> int
-        addToUnaryOperators(bitwiseNot, stringTypeConstraint, stringTypeSymbol);
+
+        //string -> string
+        addToUnaryOperators(bitwiseNot, stringTypeConstraint, stringTypeConstraint);
     }
 
-    private void defineComparisonOperators() {
+    private void defineComparisonOperators() throws BoundException {
 
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] operators = new Pair[]{
@@ -331,68 +255,48 @@ public class OperatorProvider implements IOperatorsProvider
                 pair(">=", TokenTypes.GreaterEqualThan),
         };
         for (Pair<String, Integer> operator : operators) {
-            addToBinaryOperators(operator, mixedTypeConstraint, mixedTypeConstraint, boolTypeSymbol);
+            addToBinaryOperators(operator, mixedTypeConstraint, mixedTypeConstraint, boolTypeConstraint);
         }
     }
 
+    private void defineTernaryOperator() throws BoundException {
+        final String T_COND = "Tcond";
+        final String T_FALSE = "Tfalse";
+        final String T_TRUE = "Ttrue";
+        List<String> parameterIds = Arrays.asList(T_COND, T_TRUE, T_FALSE);
 
-    private void defineTernaryOperator() {
-        IFunctionTypeSymbol function;
-
-        //false x Ttrue x Tfalse -> Tfalse
-        Deque<ITypeVariableSymbol> typeVariables = new ArrayDeque<>();
-        ITypeVariableSymbolWithRef cond = createTypeVariableWithRef("$cond");
-        ITypeVariableSymbolWithRef ifTypeVariable = createTypeVariableWithRef("$if");
-        ITypeVariableSymbolWithRef elseTypeVariable = createTypeVariableWithRef("$else");
-        ITypeVariableSymbolWithRef rtn = createTypeVariableWithRef("return");
-        rtn.setConstraint(new TransferConstraint(elseTypeVariable));
-        typeVariables.add(rtn);
-        List<ITypeVariableSymbolWithRef> parameters = Arrays.asList(cond, ifTypeVariable, elseTypeVariable);
-        function = symbolFactory.createPolymorphicFunctionTypeSymbol("?", parameters, rtn, typeVariables);
-        function.addInputConstraint("$cond", falseTypeConstraint);
-        function.addInputConstraint("$if", mixedTypeConstraint);
-        function.addInputConstraint("$else", mixedTypeConstraint);
+        //false x mixed x Tfalse -> Tfalse
+        ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+        collection.addLowerBound(T_COND, falseTypeConstraint);
+        collection.addUpperBound(T_COND, falseTypeConstraint);
+        IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
+                "=", collection, parameterIds, T_FALSE);
         addToOperators(TokenTypes.QuestionMark, function);
 
-        //true x Ttrue x Tfalse -> Ttrue
-        typeVariables = new ArrayDeque<>();
-        cond = createTypeVariableWithRef("$cond");
-        ifTypeVariable = createTypeVariableWithRef("$if");
-        elseTypeVariable = createTypeVariableWithRef("$else");
-        rtn = createTypeVariableWithRef("return");
-        rtn.setConstraint(new TransferConstraint(ifTypeVariable));
-        typeVariables.add(rtn);
-        parameters = Arrays.asList(cond, ifTypeVariable, elseTypeVariable);
-        function = symbolFactory.createPolymorphicFunctionTypeSymbol("?", parameters, rtn, typeVariables);
-        function.addInputConstraint("$cond", trueTypeConstraint);
-        function.addInputConstraint("$if", mixedTypeConstraint);
-        function.addInputConstraint("$else", mixedTypeConstraint);
+
+        //true x Ttrue x mixed -> Ttrue
+        collection = new TypeVariableCollection(overloadResolver);
+        collection.addLowerBound(T_COND, trueTypeConstraint);
+        collection.addUpperBound(T_COND, trueTypeConstraint);
+        function = symbolFactory.createFunctionTypeSymbol(
+                "=", collection, parameterIds, T_TRUE);
         addToOperators(TokenTypes.QuestionMark, function);
 
-        //bool x Ttrue x Tfalse -> {Ttrue V Tfalse}
-        typeVariables = new ArrayDeque<>();
-        cond = createTypeVariableWithRef("$cond");
-        ifTypeVariable = createTypeVariableWithRef("$if");
-        elseTypeVariable = createTypeVariableWithRef("$else");
-        rtn = createTypeVariableWithRef("return");
-        ITypeVariableSymbol ifElse = createTypeVariable("$ifElse");
-        ifElse.setConstraint(new UnionConstraint(ifTypeVariable, elseTypeVariable));
-        rtn.setConstraint(new TransferConstraint(ifElse));
-        typeVariables.add(ifElse);
-        typeVariables.add(rtn);
-        parameters = Arrays.asList(cond, ifTypeVariable, elseTypeVariable);
-        function = symbolFactory.createPolymorphicFunctionTypeSymbol("?", parameters, rtn, typeVariables);
-        function.addInputConstraint("$cond", boolTypeConstraint);
-        function.addInputConstraint("$if", mixedTypeConstraint);
-        function.addInputConstraint("$else", mixedTypeConstraint);
+        //bool x Ttrue x Tfalse -> (Ttrue | Tfalse)
+        collection = new TypeVariableCollection(overloadResolver);
+        collection.addLowerBound(T_COND, boolTypeConstraint);
+        collection.addUpperBound(T_COND, boolTypeConstraint);
+        collection.addLowerBound(T_RETURN, new TypeVariableConstraint(T_FALSE));
+        collection.addLowerBound(T_RETURN, new TypeVariableConstraint(T_TRUE));
+        function = symbolFactory.createFunctionTypeSymbol(
+                "=", collection, parameterIds, T_RETURN);
         addToOperators(TokenTypes.QuestionMark, function);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
-        //~{as bool} x Ttrue x Tfalse -> {Ttrue V Tfalse}
+        //~{as bool} x Ttrue x Tfalse -> (Ttrue | Tfalse)
     }
 
-
-    private void defineArithmeticOperators() {
+    private void defineArithmeticOperators() throws BoundException {
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] operators = new Pair[]{
                 pair("+", TokenTypes.Plus),
@@ -404,9 +308,12 @@ public class OperatorProvider implements IOperatorsProvider
         };
 
         for (Pair<String, Integer> operator : operators) {
-            addToBinaryOperators(operator, intTypeConstraint, intTypeConstraint, intTypeSymbol);
-            addToBinaryOperators(operator, floatTypeConstraint, floatTypeConstraint, floatTypeSymbol);
-            addToBinaryOperators(operator, numTypeConstraint, numTypeConstraint, numTypeSymbol);
+            //T x T -> T \ T < num
+            ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+            collection.addUpperBound("T", numTypeConstraint);
+            IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
+                    operator.first, collection, Arrays.asList("T", "T"), "T");
+            addToOperators(operator.second, function);
         }
 
         @SuppressWarnings("unchecked")
@@ -416,9 +323,11 @@ public class OperatorProvider implements IOperatorsProvider
                 pair("*", TokenTypes.Multiply)
         };
         for (Pair<String, Integer> operator : nonAssignOperators) {
-            addToBinaryOperators(operator, boolTypeConstraint, boolTypeConstraint, intTypeSymbol);
+            //bool x bool -> int
+            addToBinaryOperators(operator, boolTypeConstraint, boolTypeConstraint, intTypeConstraint);
+
             //TODO rstoll TINS-347 create overloads for conversion constraints
-            //~{as num} x ~{as num} -> num
+            //~{as T} x ~{as T} -> T \ T< num
         }
 
         @SuppressWarnings("unchecked")
@@ -428,79 +337,87 @@ public class OperatorProvider implements IOperatorsProvider
                 pair("*=", TokenTypes.MultiplyAssign),
         };
         for (Pair<String, Integer> operator : assignOperators) {
-            //Tvar x bool -> int \ Tvar < bool /  Tvar > int
-            IFunctionTypeSymbol function =
-                    symbolFactory.createAssignFunctionTypeSymbol(operator.first, parameterIds, intTypeSymbol);
-            function.addInputConstraint("$lhs", boolTypeConstraint);
-            function.addInputConstraint("$rhs", boolTypeConstraint);
-            addToOperators(operator.second, function);
-
             //TODO rstoll TINS-347 create overloads for conversion constraints
-            //Tvar x ~{as num} -> Tvar \ Tvar < ~{as num} / Tvar > num
+            //(T | ~{as T}) x T -> T \ T < num
+            //(T | ~{as T}) x ~{as T} -> T \ T < num
         }
 
-        addToBinaryOperators(pair("+", TokenTypes.Plus), arrayTypeConstraint, arrayTypeConstraint, arrayTypeSymbol);
+        //array x array -> array
+        addToBinaryOperators(pair("+", TokenTypes.Plus), arrayTypeConstraint, arrayTypeConstraint, arrayTypeConstraint);
         addToBinaryOperators(
-                pair("+=", TokenTypes.PlusAssign), arrayTypeConstraint, arrayTypeConstraint, arrayTypeSymbol);
+                pair("+=", TokenTypes.PlusAssign), arrayTypeConstraint, arrayTypeConstraint, arrayTypeConstraint);
 
         createDivOperators();
         createModuloOperators();
         createUnaryArithmeticOperators();
     }
 
-    private void createDivOperators() {
-        Pair<String, Integer> div = pair("/", TokenTypes.Divide);
-        addToBinaryOperators(div, boolTypeConstraint, boolTypeConstraint, intOrFalse);
-        addToBinaryOperators(div, floatTypeConstraint, floatTypeConstraint, floatOrFalse);
-        addToBinaryOperators(div, numTypeConstraint, numTypeConstraint, numOrFalse);
-        //TODO rstoll TINS-347 create overloads for conversion constraints
-        //~{as num} x ~{as num} -> {num V false}
-
+    private void createDivOperators() throws BoundException {
         IFunctionTypeSymbol function;
 
-        //Tvar x bool -> {int V false} \ Tvar < bool / Tvar > {int V false}
-        function = symbolFactory.createAssignFunctionTypeSymbol("/=", parameterIds, intOrFalse);
-        function.addInputConstraint("$lhs", boolTypeConstraint);
-        function.addInputConstraint("$rhs", boolTypeConstraint);
-        addToOperators(TokenTypes.DivideAssign, function);
+        //bool x bool -> (int | false)
+        addToBinaryOperators(
+                pair("/", TokenTypes.Divide), boolTypeConstraint, boolTypeConstraint, intOrFalseTypeConstraint);
 
-        //Tvar x float -> {float V false} \ Tvar < float / Tvar > {float V false}
-        function = symbolFactory.createAssignFunctionTypeSymbol("/=", parameterIds, floatOrFalse);
-        function.addInputConstraint("$lhs", floatTypeConstraint);
-        function.addInputConstraint("$rhs", floatTypeConstraint);
+
+        //T x T -> (T | false) \ float < T < num
+        //expanded: T x T -> Treturn \ float < T < num, Treturn > T, Treturn > false
+        ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+        collection.addLowerBound("T", floatTypeConstraint);
+        collection.addUpperBound("T", numTypeConstraint);
+        collection.addLowerBound(T_RETURN, new TypeVariableConstraint("T"));
+        collection.addLowerBound(T_RETURN, falseTypeConstraint);
+        function = symbolFactory.createFunctionTypeSymbol("/", collection, Arrays.asList("T", "T"), T_RETURN);
+        addToOperators(TokenTypes.Divide, function);
+
+        //TODO rstoll TINS-347 create overloads for conversion constraints
+        //float x ~{as float} -> (float | false)
+        //~{as float} x float -> (float | false)
+        //~{as num} x ~{as num} -> (num | false)
+
+
+        //(int | bool) x bool -> (int | false)
+        IUnionTypeSymbol intOrBoolTypeSymbol = symbolFactory.createUnionTypeSymbol();
+        intOrBoolTypeSymbol.addTypeSymbol(intTypeSymbol);
+        intOrBoolTypeSymbol.addTypeSymbol(boolTypeSymbol);
+        intOrBoolTypeSymbol.seal();
+        addToBinaryOperators(
+                pair("/=", TokenTypes.DivideAssign),
+                new TypeConstraint(intOrBoolTypeSymbol),
+                boolTypeConstraint,
+                intOrFalseTypeConstraint);
+
+        //(T | false) x T -> (T | false) \ float < T < num
+        //expanded: Tlhs x T -> Tlhs \ float < T < num, Tlhs > T, Tlhs > false
+        collection = new TypeVariableCollection(overloadResolver);
+        collection.addLowerBound("T", floatTypeConstraint);
+        collection.addUpperBound("T", numTypeConstraint);
+        collection.addLowerBound(T_LHS, new TypeVariableConstraint("T"));
+        collection.addLowerBound(T_LHS, falseTypeConstraint);
+        function = symbolFactory.createFunctionTypeSymbol("/=", collection, Arrays.asList(T_LHS, "T"), T_LHS);
         addToOperators(TokenTypes.DivideAssign, function);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
-        //Tvar x ~{as float} -> {float V false} \ Tvar < ~{as float} / Tvar > {float V false}
-
-        //Tvar x num -> {num V false} \ Tvar < num / Tvar > {num V false}
-        function = symbolFactory.createAssignFunctionTypeSymbol("/=", parameterIds, numOrFalse);
-        function.addInputConstraint("$lhs", numTypeConstraint);
-        function.addInputConstraint("$rhs", numTypeConstraint);
-        addToOperators(TokenTypes.DivideAssign, function);
-
-        //TODO rstoll TINS-347 create overloads for conversion constraints
-        //Tvar x ~{as num} -> Tvar \ Tvar < ~{as num} / Tvar > {num V false}
+        //(T | ~{as T}) x ~{as T} -> (T | false) \ float < T < num
     }
 
-    private void createModuloOperators() {
+    private void createModuloOperators() throws BoundException {
+        //int x int -> (int | false)
         Pair<String, Integer> modulo = pair("%", TokenTypes.Modulo);
-        addToBinaryOperators(modulo, intTypeConstraint, intTypeConstraint, intOrFalse);
-        //TODO rstoll TINS-347 create overloads for conversion constraints
-        //~{as int} x ~{as int} -> {int V false}
+        addToBinaryOperators(modulo, intTypeConstraint, intTypeConstraint, intOrFalseTypeConstraint);
 
-        IFunctionTypeSymbol function;
-
-        //Tvar x int -> {int V false} \ Tvar < int / Tvar > {int V false}
-        function = symbolFactory.createAssignFunctionTypeSymbol("%=", parameterIds, intOrFalse);
-        function.addInputConstraint("$lhs", intTypeConstraint);
-        function.addInputConstraint("$rhs", intTypeConstraint);
-        addToOperators(TokenTypes.ModuloAssign, function);
         //TODO rstoll TINS-347 create overloads for conversion constraints
-        //Tvar x ~{as int} -> {int V false} \ Tvar < ~{as int} / Tvar > {int V false}
+        //~{as int} x ~{as int} -> (int | false)
+
+        //(int | false) x int -> (int | false)
+        Pair<String, Integer> moduloAssign = pair("%=", TokenTypes.ModuloAssign);
+        addToBinaryOperators(moduloAssign, intOrFalseTypeConstraint, intTypeConstraint, intOrFalseTypeConstraint);
+
+        //TODO rstoll TINS-347 create overloads for conversion constraints
+        //(int | ~{as int}) x ~{as int} -> (int | false)
     }
 
-    private void createUnaryArithmeticOperators() {
+    private void createUnaryArithmeticOperators() throws BoundException {
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] incrDecrOperators = new Pair[]{
                 pair("++", TokenTypes.PRE_INCREMENT),
@@ -508,13 +425,23 @@ public class OperatorProvider implements IOperatorsProvider
                 pair("--", TokenTypes.PRE_DECREMENT),
                 pair("--", TokenTypes.POST_DECREMENT),
         };
+
+        IUnionTypeSymbol numOrBoolTypeSymbol = symbolFactory.createUnionTypeSymbol();
+        numOrBoolTypeSymbol.addTypeSymbol(numOrBoolTypeSymbol);
+        numOrBoolTypeSymbol.addTypeSymbol(boolTypeSymbol);
+        numOrBoolTypeSymbol.seal();
+
         for (Pair<String, Integer> operator : incrDecrOperators) {
-            addToUnaryOperators(operator, boolTypeConstraint, boolTypeSymbol);
-            addToUnaryOperators(operator, intTypeConstraint, intTypeSymbol);
-            addToUnaryOperators(operator, floatTypeConstraint, floatTypeSymbol);
-            addToUnaryOperators(operator, numTypeConstraint, numTypeSymbol);
+            //T -> T \ T < (num | bool)
+            ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+            collection.addUpperBound("T", boolTypeConstraint);
+            collection.addUpperBound("T", numTypeConstraint);
+            IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
+                    operator.first, collection, Arrays.asList("T"), "T");
+            addToOperators(operator.second, function);
+
             //TODO rstoll TINS-347 create overloads for conversion constraints
-            //Tvar -> Tvar \ Tvar > num, Tvar < ~{as num}
+            //(T | ~T) -> T \ T < num
         }
 
         @SuppressWarnings("unchecked")
@@ -523,90 +450,111 @@ public class OperatorProvider implements IOperatorsProvider
                 pair("+", TokenTypes.UNARY_PLUS)
         };
         for (Pair<String, Integer> operator : unaryPlusMinusOperators) {
-            addToUnaryOperators(operator, boolTypeConstraint, intTypeSymbol);
-            addToUnaryOperators(operator, intTypeConstraint, intTypeSymbol);
-            addToUnaryOperators(operator, floatTypeConstraint, floatTypeSymbol);
-            addToUnaryOperators(operator, numTypeConstraint, numTypeSymbol);
+            //bool x int
+            addToUnaryOperators(operator, boolTypeConstraint, intTypeConstraint);
+            //T -> T \ T < num
+            ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+            collection.addUpperBound("T", numTypeConstraint);
+            IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
+                    operator.first, collection, Arrays.asList("T"), "T");
+            addToOperators(operator.second, function);
+
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //~{as num} -> num
         }
     }
 
-    private void defineDotOperator() {
-        addToBinaryOperators(pair(".", TokenTypes.Dot), stringTypeConstraint, stringTypeConstraint, stringTypeSymbol);
+    private void defineDotOperator() throws BoundException {
         addToBinaryOperators(
-                pair(".=", TokenTypes.DotAssign), stringTypeConstraint, stringTypeConstraint, stringTypeSymbol);
+                pair(".", TokenTypes.Dot), stringTypeConstraint, stringTypeConstraint, stringTypeConstraint);
+        addToBinaryOperators(
+                pair(".=", TokenTypes.DotAssign), stringTypeConstraint, stringTypeConstraint, stringTypeConstraint);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
         //~{as string} x ~{as string} -> string
 
-        //Tvar x ~{as string} -> Tvar \ Tvar < ~{as string} / Tvar > int
         //TODO rstoll TINS-347 create overloads for conversion constraints
+        //(string | ~{as string}) x ~{as string} -> string
     }
 
-    private void defineInstanceOfOperator() {
-        //T x T -> bool
-        addToBinaryOperators(
-                pair("instanceof", TokenTypes.Instanceof), mixedTypeConstraint, mixedTypeConstraint, boolTypeSymbol);
+    private void defineInstanceOfOperator() throws BoundException {
+        //TODO rstoll TINS-332 introduce object pseudo type
+        //more precise would be: object x mixed -> bool
+        //mixed x mixed -> bool
+        Pair<String, Integer> instanceOf = pair("instanceof", TokenTypes.Instanceof);
+        addToBinaryOperators(instanceOf, mixedTypeConstraint, mixedTypeConstraint, boolTypeConstraint);
     }
 
     private void defineCloneAndNewOperator() {
+        //TODO rstoll TINS-332 introduce object pseudo type
+        //more precise would be: T -> T \ T < object
         //T -> T
-        IFunctionTypeSymbol function = symbolFactory.createIdentityFunctionTypeSymbol("clone", "$expr");
-        function.addInputConstraint("$expr", mixedTypeConstraint);
+        ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+        IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
+                "clone", collection, Arrays.asList("T"), "T");
         addToOperators(TokenTypes.Clone, function);
 
         //TODO TINS-349 structural constraints
         //not all classes return itself, some return null as well in error cases
         //see https://wiki.php.net/rfc/internal_constructor_behaviour
         //T -> T
-        function = symbolFactory.createIdentityFunctionTypeSymbol("new", "$expr");
-        function.addInputConstraint("$expr", mixedTypeConstraint);
+        collection = new TypeVariableCollection(overloadResolver);
+        function = symbolFactory.createFunctionTypeSymbol(
+                "new", collection, Arrays.asList("T"), "T");
         addToOperators(TokenTypes.New, function);
     }
 
     private void defineAtAndCastOperator() {
         //T -> T
-        IFunctionTypeSymbol function = symbolFactory.createIdentityFunctionTypeSymbol("@", "$expr");
-        function.addInputConstraint("$expr", mixedTypeConstraint);
+        ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+        IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
+                "@", collection, Arrays.asList("T"), "T");
         addToOperators(TokenTypes.At, function);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
-        //T x T2 -> T \ T2 < ~{T}
-
-        ITypeVariableSymbolWithRef lhs = createByRefTypeVariableWithRef("$lhs");
-        ITypeVariableSymbolWithRef rhs = createTypeVariableWithRef("$rhs");
-        ITypeVariableSymbolWithRef rtn = createTypeVariableWithRef("return");
-        rtn.setConstraint(new TransferConstraint(lhs));
-        Deque<ITypeVariableSymbol> typeVariables = new ArrayDeque<>();
-        typeVariables.add(rtn);
-        List<ITypeVariableSymbolWithRef> parameters = Arrays.asList(lhs, rhs);
-        function = symbolFactory.createPolymorphicFunctionTypeSymbol("cast", parameters, rtn, typeVariables);
-        function.addInputConstraint("$lhs", mixedTypeConstraint);
-        function.addInputConstraint("$rhs", mixedTypeConstraint);
+        //T1 x T2 -> T1 \ T2 < ~{as T1}
+        //T1 x T2 -> T1
+        collection = new TypeVariableCollection(overloadResolver);
+        function = symbolFactory.createFunctionTypeSymbol(
+                "cast", collection, Arrays.asList("T1", "T2"), "T1");
         addToOperators(TokenTypes.CAST, function);
     }
 
-    private IFunctionTypeSymbol addToBinaryOperators(Pair<String, Integer> operator,
-            TypeConstraint leftParameterType, TypeConstraint rightParameterType, ITypeSymbol returnType) {
+    private void addToBinaryOperators(
+            Pair<String, Integer> operator,
+            TypeConstraint leftBound,
+            TypeConstraint rightBound,
+            TypeConstraint returnBound) {
 
-        IFunctionTypeSymbol function = symbolFactory.createConstantFunctionTypeSymbol(
-                operator.first, parameterIds, returnType);
-        function.addInputConstraint("$lhs", leftParameterType);
-        function.addInputConstraint("$rhs", rightParameterType);
+        ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+
+        collection.addLowerBound(T_LHS, leftBound);
+        collection.addUpperBound(T_LHS, leftBound);
+        collection.addLowerBound(T_RHS, rightBound);
+        collection.addUpperBound(T_RHS, rightBound);
+        collection.addLowerBound(T_RETURN, returnBound);
+        collection.addUpperBound(T_RETURN, returnBound);
+
+        IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
+                operator.first, collection, binaryParameterIds, T_RETURN);
+
         addToOperators(operator.second, function);
-        return function;
     }
 
-    private IFunctionTypeSymbol addToUnaryOperators(
-            Pair<String, Integer> operator, TypeConstraint formalParameterType, ITypeSymbol returnType) {
+    private void addToUnaryOperators(
+            Pair<String, Integer> operator, TypeConstraint formalBound, TypeConstraint returnBound) {
 
-        IFunctionTypeSymbol function = symbolFactory.createConstantFunctionTypeSymbol(
-                operator.first, unaryParameterId, returnType);
+        ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
 
-        function.addInputConstraint("$expr", formalParameterType);
+        collection.addLowerBound(T_EXPR, formalBound);
+        collection.addUpperBound(T_EXPR, formalBound);
+        collection.addLowerBound(T_RETURN, returnBound);
+        collection.addUpperBound(T_RETURN, returnBound);
+
+        IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
+                operator.first, collection, unaryParameterId, T_RETURN);
+
         addToOperators(operator.second, function);
-        return function;
     }
 
     private void addToOperators(int operatorType, IFunctionTypeSymbol functionTypeSymbol) {

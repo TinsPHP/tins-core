@@ -4,7 +4,7 @@
  * root folder or visit the project's website http://tsphp.ch/wiki/display/TINS/License
  */
 
-package ch.tsphp.tinsphp.common.test.integration.testutils;
+package ch.tsphp.tinsphp.core.test.integration.testutils;
 
 import ch.tsphp.common.AstHelper;
 import ch.tsphp.common.IAstHelper;
@@ -53,7 +53,7 @@ public abstract class ATest
         return new ModifierHelper();
     }
 
-    protected IOverloadResolver createOverloadResolver(){
+    protected IOverloadResolver createOverloadResolver() {
         return new OverloadResolver();
     }
 

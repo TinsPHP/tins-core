@@ -4,13 +4,11 @@
  * root folder or visit the project's website http://tsphp.ch/wiki/display/TINS/License
  */
 
-package ch.tsphp.tinsphp.common.test.integration;
+package ch.tsphp.tinsphp.core.test.integration;
 
-import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
-import ch.tsphp.tinsphp.common.test.integration.testutils.ATest;
 import ch.tsphp.tinsphp.core.IOperatorsProvider;
-import ch.tsphp.tinsphp.core.OperatorProvider;
+import ch.tsphp.tinsphp.core.test.integration.testutils.AOperatorProviderTest;
 import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 import org.antlr.runtime.RecognitionException;
 import org.junit.Assert;
@@ -24,7 +22,7 @@ import java.util.Map;
 
 
 @RunWith(Parameterized.class)
-public class OperatorProviderOverloadTest extends ATest
+public class OperatorProviderOverloadTest extends AOperatorProviderTest
 {
     private String operatorName;
     private int operatorType;
@@ -54,10 +52,10 @@ public class OperatorProviderOverloadTest extends ATest
                 {"xor", TokenTypes.LogicXorWeak, 5},
                 {"and", TokenTypes.LogicAndWeak, 4},
                 {"=", TokenTypes.Assign, 1},
-                {"+=", TokenTypes.PlusAssign, 5},
-                {"-=", TokenTypes.MinusAssign, 4},
-                {"*=", TokenTypes.MultiplyAssign, 4},
-                {"/=", TokenTypes.DivideAssign, 3},
+                {"+=", TokenTypes.PlusAssign, 2},
+                {"-=", TokenTypes.MinusAssign, 1},
+                {"*=", TokenTypes.MultiplyAssign, 1},
+                {"/=", TokenTypes.DivideAssign, 2},
                 {"%=", TokenTypes.ModuloAssign, 1},
                 {"&=", TokenTypes.BitwiseAndAssign, 2},
                 {"^=", TokenTypes.BitwiseXorAssign, 2},
@@ -81,32 +79,24 @@ public class OperatorProviderOverloadTest extends ATest
                 {">=", TokenTypes.GreaterEqualThan, 1},
                 {"<<", TokenTypes.ShiftLeft, 1},
                 {">>", TokenTypes.ShiftRight, 1},
-                {"+", TokenTypes.Plus, 5},
-                {"-", TokenTypes.Minus, 4},
+                {"+", TokenTypes.Plus, 3},
+                {"-", TokenTypes.Minus, 2},
                 {".", TokenTypes.Dot, 1},
-                {"*", TokenTypes.Multiply, 4},
-                {"/", TokenTypes.Divide, 3},
+                {"*", TokenTypes.Multiply, 2},
+                {"/", TokenTypes.Divide, 2},
                 {"%", TokenTypes.Modulo, 1},
                 {"instanceof", TokenTypes.Instanceof, 1},
                 {"clone", TokenTypes.Clone, 1},
                 {"new", TokenTypes.New, 1},
-                {"++", TokenTypes.PRE_INCREMENT, 4},
-                {"--", TokenTypes.PRE_DECREMENT, 4},
+                {"preIncr", TokenTypes.PRE_INCREMENT, 1},
+                {"postDecr", TokenTypes.PRE_DECREMENT, 1},
                 {"@", TokenTypes.At, 1},
                 {"~", TokenTypes.BitwiseNot, 2},
                 {"!", TokenTypes.LogicNot, 3},
-                {"-", TokenTypes.UNARY_MINUS, 4},
-                {"+", TokenTypes.UNARY_PLUS, 4},
-                {"++", TokenTypes.POST_INCREMENT, 4},
-                {"--", TokenTypes.POST_DECREMENT, 4},
+                {"uMinus", TokenTypes.UNARY_MINUS, 2},
+                {"uPlus", TokenTypes.UNARY_PLUS, 2},
+                {"postIncr", TokenTypes.POST_INCREMENT, 1},
+                {"postDecr", TokenTypes.POST_DECREMENT, 1},
         });
-    }
-
-    private IOperatorsProvider createOperatorProvider() {
-        return createOperatorProvider(primitiveTypes);
-    }
-
-    protected IOperatorsProvider createOperatorProvider(Map<String, ITypeSymbol> thePrimitiveType) {
-        return new OperatorProvider(symbolFactory, thePrimitiveType);
     }
 }
