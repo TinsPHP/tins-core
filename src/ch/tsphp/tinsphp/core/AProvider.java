@@ -19,6 +19,11 @@ import java.util.Map;
 
 public abstract class AProvider
 {
+    protected static final String T_LHS = "Tlhs";
+    protected static final String T_RHS = "Trhs";
+    protected static final String T_RETURN = "Treturn";
+    protected static final String T_EXPR = "Texpr";
+
     protected final ISymbolFactory symbolFactory;
     protected final IOverloadResolver overloadResolver;
     protected final ITypeSymbol falseTypeSymbol;
@@ -49,10 +54,6 @@ public abstract class AProvider
 
     protected List<String> binaryParameterIds;
     protected List<String> unaryParameterId;
-    protected static final String T_LHS = "Tlhs";
-    protected static final String T_RHS = "Trhs";
-    protected static final String T_RETURN = "Treturn";
-    protected static final String T_EXPR = "Texpr";
 
     public AProvider(
             ISymbolFactory theSymbolFactory,

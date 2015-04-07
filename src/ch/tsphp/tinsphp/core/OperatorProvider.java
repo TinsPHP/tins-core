@@ -8,10 +8,8 @@ package ch.tsphp.tinsphp.core;
 
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.common.symbols.IUnionTypeSymbol;
-import ch.tsphp.tinsphp.common.inference.constraints.BoundException;
 import ch.tsphp.tinsphp.common.inference.constraints.IOverloadResolver;
 import ch.tsphp.tinsphp.common.inference.constraints.ITypeVariableCollection;
-import ch.tsphp.tinsphp.common.inference.constraints.LowerBoundException;
 import ch.tsphp.tinsphp.common.symbols.IFunctionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
@@ -173,7 +171,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         addToUnaryOperators(logicNot, boolTypeConstraint, boolTypeConstraint);
     }
 
-    private void defineAssignmentOperators() throws LowerBoundException {
+    private void defineAssignmentOperators() {
         //Tlhs x Trhs -> Tlhs \ Tlhs > Trhs
         ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
         collection.addLowerBound(T_LHS, new TypeVariableConstraint(T_RHS));
@@ -185,7 +183,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //For instance, += is in createAssignmentOperators
     }
 
-    private void defineBitLevelOperators() throws BoundException {
+    private void defineBitLevelOperators() {
 
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] intResultingNonAssignOperators = new Pair[]{
@@ -241,7 +239,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         addToUnaryOperators(bitwiseNot, stringTypeConstraint, stringTypeConstraint);
     }
 
-    private void defineComparisonOperators() throws BoundException {
+    private void defineComparisonOperators() {
 
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] operators = new Pair[]{
@@ -259,44 +257,44 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         }
     }
 
-    private void defineTernaryOperator() throws BoundException {
-        final String T_COND = "Tcond";
-        final String T_FALSE = "Tfalse";
-        final String T_TRUE = "Ttrue";
-        List<String> parameterIds = Arrays.asList(T_COND, T_TRUE, T_FALSE);
+    private void defineTernaryOperator() {
+        final String tCond = "Tcond";
+        final String tIf = "Tif";
+        final String tElse = "Telse";
+        List<String> parameterIds = Arrays.asList(tCond, tIf, tElse);
 
-        //false x mixed x Tfalse -> Tfalse
+        //false x mixed x Telse -> Telse
         ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
-        collection.addLowerBound(T_COND, falseTypeConstraint);
-        collection.addUpperBound(T_COND, falseTypeConstraint);
+        collection.addLowerBound(tCond, falseTypeConstraint);
+        collection.addUpperBound(tCond, falseTypeConstraint);
         IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
-                "=", collection, parameterIds, T_FALSE);
+                "=", collection, parameterIds, tElse);
         addToOperators(TokenTypes.QuestionMark, function);
 
 
-        //true x Ttrue x mixed -> Ttrue
+        //true x Tif x mixed -> Tif
         collection = new TypeVariableCollection(overloadResolver);
-        collection.addLowerBound(T_COND, trueTypeConstraint);
-        collection.addUpperBound(T_COND, trueTypeConstraint);
+        collection.addLowerBound(tCond, trueTypeConstraint);
+        collection.addUpperBound(tCond, trueTypeConstraint);
         function = symbolFactory.createFunctionTypeSymbol(
-                "=", collection, parameterIds, T_TRUE);
+                "=", collection, parameterIds, tIf);
         addToOperators(TokenTypes.QuestionMark, function);
 
-        //bool x Ttrue x Tfalse -> (Ttrue | Tfalse)
+        //bool x Tif x Telse -> (Tif | Telse)
         collection = new TypeVariableCollection(overloadResolver);
-        collection.addLowerBound(T_COND, boolTypeConstraint);
-        collection.addUpperBound(T_COND, boolTypeConstraint);
-        collection.addLowerBound(T_RETURN, new TypeVariableConstraint(T_FALSE));
-        collection.addLowerBound(T_RETURN, new TypeVariableConstraint(T_TRUE));
+        collection.addLowerBound(tCond, boolTypeConstraint);
+        collection.addUpperBound(tCond, boolTypeConstraint);
+        collection.addLowerBound(T_RETURN, new TypeVariableConstraint(tElse));
+        collection.addLowerBound(T_RETURN, new TypeVariableConstraint(tIf));
         function = symbolFactory.createFunctionTypeSymbol(
                 "=", collection, parameterIds, T_RETURN);
         addToOperators(TokenTypes.QuestionMark, function);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
-        //~{as bool} x Ttrue x Tfalse -> (Ttrue | Tfalse)
+        //~{as bool} x Tif x Telse -> (Tif | Telse)
     }
 
-    private void defineArithmeticOperators() throws BoundException {
+    private void defineArithmeticOperators() {
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] operators = new Pair[]{
                 pair("+", TokenTypes.Plus),
@@ -352,7 +350,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         createUnaryArithmeticOperators();
     }
 
-    private void createDivOperators() throws BoundException {
+    private void createDivOperators() {
         IFunctionTypeSymbol function;
 
         //bool x bool -> (int | false)
@@ -401,7 +399,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //(T | ~{as T}) x ~{as T} -> (T | false) \ float < T < num
     }
 
-    private void createModuloOperators() throws BoundException {
+    private void createModuloOperators() {
         //int x int -> (int | false)
         Pair<String, Integer> modulo = pair("%", TokenTypes.Modulo);
         addToBinaryOperators(modulo, intTypeConstraint, intTypeConstraint, intOrFalseTypeConstraint);
@@ -417,7 +415,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //(int | ~{as int}) x ~{as int} -> (int | false)
     }
 
-    private void createUnaryArithmeticOperators() throws BoundException {
+    private void createUnaryArithmeticOperators() {
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] incrDecrOperators = new Pair[]{
                 pair("++", TokenTypes.PRE_INCREMENT),
@@ -464,7 +462,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         }
     }
 
-    private void defineDotOperator() throws BoundException {
+    private void defineDotOperator() {
         addToBinaryOperators(
                 pair(".", TokenTypes.Dot), stringTypeConstraint, stringTypeConstraint, stringTypeConstraint);
         addToBinaryOperators(
@@ -477,7 +475,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //(string | ~{as string}) x ~{as string} -> string
     }
 
-    private void defineInstanceOfOperator() throws BoundException {
+    private void defineInstanceOfOperator() {
         //TODO rstoll TINS-332 introduce object pseudo type
         //more precise would be: object x mixed -> bool
         //mixed x mixed -> bool
