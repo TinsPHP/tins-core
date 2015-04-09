@@ -9,7 +9,6 @@ package ch.tsphp.tinsphp.core.gen;
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.common.symbols.IUnionTypeSymbol;
-import ch.tsphp.tinsphp.common.inference.constraints.BoundException;
 import ch.tsphp.tinsphp.common.inference.constraints.IOverloadResolver;
 import ch.tsphp.tinsphp.common.inference.constraints.ITypeVariableCollection;
 import ch.tsphp.tinsphp.common.symbols.IClassTypeSymbol;
@@ -43,18 +42,13 @@ public class BuiltInSymbolsProvider extends AProvider implements ISymbolProvider
     @Override
     public Map<String, ISymbol> getSymbols() {
         if (builtInSymbols == null) {
-            try {
-                builtInSymbols = createSymbols();
-            } catch (BoundException ex) {
-                //should not happen, turn it into a runtime exception
-                throw new RuntimeException(ex);
-            }
+            builtInSymbols = createSymbols();
         }
 
         return builtInSymbols;
     }
 
-    private Map<String, ISymbol> createSymbols() throws BoundException {
+    private Map<String, ISymbol> createSymbols() {
         Map<String, ISymbol> symbols = new HashMap<>();
         IUnionTypeSymbol unionTypeSymbol;
         IFunctionTypeSymbol function;

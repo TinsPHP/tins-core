@@ -19,10 +19,10 @@ import java.util.Map;
 
 public abstract class AProvider
 {
-    protected static final String T_LHS = "Tlhs";
-    protected static final String T_RHS = "Trhs";
-    protected static final String T_RETURN = "Treturn";
-    protected static final String T_EXPR = "Texpr";
+    protected static final String T_LHS = "CTlhs";
+    protected static final String T_RHS = "CTrhs";
+    protected static final String T_RETURN = "CTreturn";
+    protected static final String T_EXPR = "CTexpr";
 
     protected final ISymbolFactory symbolFactory;
     protected final IOverloadResolver overloadResolver;

@@ -258,9 +258,9 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
     }
 
     private void defineTernaryOperator() {
-        final String tCond = "Tcond";
-        final String tIf = "Tif";
-        final String tElse = "Telse";
+        final String tCond = "CTcond";
+        final String tIf = "CTif";
+        final String tElse = "CTelse";
         List<String> parameterIds = Arrays.asList(tCond, tIf, tElse);
 
         //false x mixed x Telse -> Telse
@@ -293,26 +293,37 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
     private void defineArithmeticOperators() {
         @SuppressWarnings("unchecked")
+        Pair<String, Integer>[] operators = new Pair[]{
+                pair("+", TokenTypes.Plus),
+                pair("-", TokenTypes.Minus),
+                pair("*", TokenTypes.Multiply),
+                pair("+=", TokenTypes.PlusAssign),
+                pair("-=", TokenTypes.MinusAssign),
+                pair("*=", TokenTypes.MultiplyAssign),
+        };
+
+        for (Pair<String, Integer> operator : operators) {
+            //T x T -> T \ T < num, T > T
+            ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+            collection.addUpperBound("CT", numTypeConstraint);
+            collection.addLowerBound("CT", new TypeVariableConstraint("CT"));
+            IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
+                    operator.first, collection, Arrays.asList("CT", "CT"), "CT");
+            addToOperators(operator.second, function);
+        }
+
+        @SuppressWarnings("unchecked")
         Pair<String, Integer>[] nonAssignOperators = new Pair[]{
                 pair("+", TokenTypes.Plus),
                 pair("-", TokenTypes.Minus),
                 pair("*", TokenTypes.Multiply)
         };
         for (Pair<String, Integer> operator : nonAssignOperators) {
-            //T x T -> T \ T < num
-            //expanded: T1 x T1 -> Treturn \ T1 < num, Treturn > T1
-            ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
-            collection.addUpperBound("T1", numTypeConstraint);
-            collection.addLowerBound(T_RETURN, new TypeVariableConstraint("T1"));
-            IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
-                    operator.first, collection, Arrays.asList("T1", "T1"), T_RETURN);
-            addToOperators(operator.second, function);
-
             //bool x bool -> int
             addToBinaryOperators(operator, boolTypeConstraint, boolTypeConstraint, intTypeConstraint);
 
             //TODO rstoll TINS-347 create overloads for conversion constraints
-            //~{as T} x ~{as T} -> T \ T< num
+            //~{as T} x ~{as T} -> T \ T < num
         }
 
         @SuppressWarnings("unchecked")
@@ -322,16 +333,6 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
                 pair("*=", TokenTypes.MultiplyAssign),
         };
         for (Pair<String, Integer> operator : assignOperators) {
-            //T x T -> T \ T < num
-            //expanded: Tlhs x T1 -> Tlhs \ T1 < num, Tlhs > T1, Tlhs < num
-            ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
-            collection.addUpperBound("T1", numTypeConstraint);
-            collection.addLowerBound(T_LHS, numTypeConstraint);
-            collection.addLowerBound(T_LHS, new TypeVariableConstraint("T1"));
-            IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
-                    operator.first, collection, Arrays.asList(T_LHS, "T1"), T_LHS);
-            addToOperators(operator.second, function);
-
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //(T | ~{as T}) x T -> T \ T < num
             //(T | ~{as T}) x ~{as T} -> T \ T < num
@@ -339,7 +340,6 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
         //array x array -> array
         addToBinaryOperators(pair("+", TokenTypes.Plus), arrayTypeConstraint, arrayTypeConstraint, arrayTypeConstraint);
-        //array x array -> array
         addToBinaryOperators(
                 pair("+=", TokenTypes.PlusAssign), arrayTypeConstraint, arrayTypeConstraint, arrayTypeConstraint);
 
@@ -355,14 +355,15 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         addToBinaryOperators(
                 pair("/", TokenTypes.Divide), boolTypeConstraint, boolTypeConstraint, intOrFalseTypeConstraint);
 
+
         //T x T -> (T | false) \ float < T < num
         //expanded: T x T -> Treturn \ float < T < num, Treturn > T, Treturn > false
         ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
-        collection.addLowerBound("T", floatTypeConstraint);
-        collection.addUpperBound("T", numTypeConstraint);
-        collection.addLowerBound(T_RETURN, new TypeVariableConstraint("T"));
+        collection.addLowerBound("CT", floatTypeConstraint);
+        collection.addUpperBound("CT", numTypeConstraint);
+        collection.addLowerBound(T_RETURN, new TypeVariableConstraint("CT"));
         collection.addLowerBound(T_RETURN, falseTypeConstraint);
-        function = symbolFactory.createFunctionTypeSymbol("/", collection, Arrays.asList("T", "T"), T_RETURN);
+        function = symbolFactory.createFunctionTypeSymbol("/", collection, Arrays.asList("CT", "CT"), T_RETURN);
         addToOperators(TokenTypes.Divide, function);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
@@ -383,13 +384,13 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
                 intOrFalseTypeConstraint);
 
         //(T | false) x T -> (T | false) \ float < T < num
-        //expanded: Tlhs x T -> T \ float < T < num, Tlhs > T, Tlhs > false
+        //expanded: Tlhs x T -> Tlhs \ float < T < num, Tlhs > T, Tlhs > false
         collection = new TypeVariableCollection(overloadResolver);
-        collection.addLowerBound("T", floatTypeConstraint);
-        collection.addUpperBound("T", numTypeConstraint);
-        collection.addLowerBound(T_LHS, new TypeVariableConstraint("T"));
+        collection.addLowerBound("CT", floatTypeConstraint);
+        collection.addUpperBound("CT", numTypeConstraint);
+        collection.addLowerBound(T_LHS, new TypeVariableConstraint("CT"));
         collection.addLowerBound(T_LHS, falseTypeConstraint);
-        function = symbolFactory.createFunctionTypeSymbol("/=", collection, Arrays.asList(T_LHS, "T"), T_LHS);
+        function = symbolFactory.createFunctionTypeSymbol("/=", collection, Arrays.asList(T_LHS, "CT"), T_LHS);
         addToOperators(TokenTypes.DivideAssign, function);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
@@ -429,10 +430,10 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         for (Pair<String, Integer> operator : incrDecrOperators) {
             //T -> T \ T < (num | bool)
             ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
-            collection.addUpperBound("T", boolTypeConstraint);
-            collection.addUpperBound("T", numTypeConstraint);
+            collection.addUpperBound("CT", boolTypeConstraint);
+            collection.addUpperBound("CT", numTypeConstraint);
             IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
-                    operator.first, collection, Arrays.asList("T"), "T");
+                    operator.first, collection, Arrays.asList("CT"), "CT");
             addToOperators(operator.second, function);
 
             //TODO rstoll TINS-347 create overloads for conversion constraints
@@ -449,9 +450,9 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             addToUnaryOperators(operator, boolTypeConstraint, intTypeConstraint);
             //T -> T \ T < num
             ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
-            collection.addUpperBound("T", numTypeConstraint);
+            collection.addUpperBound("CT", numTypeConstraint);
             IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
-                    operator.first, collection, Arrays.asList("T"), "T");
+                    operator.first, collection, Arrays.asList("CT"), "CT");
             addToOperators(operator.second, function);
 
             //TODO rstoll TINS-347 create overloads for conversion constraints
@@ -486,7 +487,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //T -> T
         ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
         IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
-                "clone", collection, Arrays.asList("T"), "T");
+                "clone", collection, Arrays.asList("CT"), "CT");
         addToOperators(TokenTypes.Clone, function);
 
         //TODO TINS-349 structural constraints
@@ -495,7 +496,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //T -> T
         collection = new TypeVariableCollection(overloadResolver);
         function = symbolFactory.createFunctionTypeSymbol(
-                "new", collection, Arrays.asList("T"), "T");
+                "new", collection, Arrays.asList("CT"), "CT");
         addToOperators(TokenTypes.New, function);
     }
 
@@ -503,7 +504,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //T -> T
         ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
         IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
-                "@", collection, Arrays.asList("T"), "T");
+                "@", collection, Arrays.asList("CT"), "CT");
         addToOperators(TokenTypes.At, function);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
@@ -511,7 +512,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //T1 x T2 -> T1
         collection = new TypeVariableCollection(overloadResolver);
         function = symbolFactory.createFunctionTypeSymbol(
-                "cast", collection, Arrays.asList("T1", "T2"), "T1");
+                "cast", collection, Arrays.asList("CT1", "CT2"), "CT1");
         addToOperators(TokenTypes.CAST, function);
     }
 
@@ -522,6 +523,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             TypeConstraint returnBound) {
 
         ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+
         collection.addUpperBound(T_LHS, leftBound);
         collection.addUpperBound(T_RHS, rightBound);
         collection.addLowerBound(T_RETURN, returnBound);
@@ -536,6 +538,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             Pair<String, Integer> operator, TypeConstraint formalBound, TypeConstraint returnBound) {
 
         ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+
         collection.addUpperBound(T_EXPR, formalBound);
         collection.addLowerBound(T_RETURN, returnBound);
 
