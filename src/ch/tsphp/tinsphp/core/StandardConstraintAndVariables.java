@@ -33,6 +33,7 @@ public class StandardConstraintAndVariables
     public final ITypeSymbol numTypeSymbol;
     public final ITypeSymbol stringTypeSymbol;
     public final ITypeSymbol arrayTypeSymbol;
+    public final ITypeSymbol mixedTypeSymbol;
     public final IUnionTypeSymbol numOrFalse;
     public final IUnionTypeSymbol floatOrFalse;
     public final IUnionTypeSymbol intOrFalse;
@@ -45,6 +46,7 @@ public class StandardConstraintAndVariables
     public final TypeConstraint numTypeConstraint;
     public final TypeConstraint stringTypeConstraint;
     public final TypeConstraint arrayTypeConstraint;
+    public final TypeConstraint mixedTypeConstraint;
     public final TypeConstraint numOrFalseTypeConstraint;
     public final TypeConstraint floatOrFalseTypeConstraint;
     public final TypeConstraint intOrFalseTypeConstraint;
@@ -67,6 +69,7 @@ public class StandardConstraintAndVariables
         numTypeSymbol = primitiveType.get(PrimitiveTypeNames.NUM);
         stringTypeSymbol = primitiveType.get(PrimitiveTypeNames.STRING);
         arrayTypeSymbol = primitiveType.get(PrimitiveTypeNames.ARRAY);
+        mixedTypeSymbol = primitiveType.get(PrimitiveTypeNames.MIXED);
 
         numOrFalse = symbolFactory.createUnionTypeSymbol();
         numOrFalse.addTypeSymbol(numTypeSymbol);
@@ -91,6 +94,7 @@ public class StandardConstraintAndVariables
         numTypeConstraint = new TypeConstraint(numTypeSymbol);
         stringTypeConstraint = new TypeConstraint(stringTypeSymbol);
         arrayTypeConstraint = new TypeConstraint(arrayTypeSymbol);
+        mixedTypeConstraint = new TypeConstraint(mixedTypeSymbol);
 
         numOrFalseTypeConstraint = new TypeConstraint(numOrFalse);
         intOrFalseTypeConstraint = new TypeConstraint(intOrFalse);
