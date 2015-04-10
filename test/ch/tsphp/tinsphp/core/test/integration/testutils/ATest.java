@@ -17,6 +17,7 @@ import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.core.GeneratorHelper;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.PrimitiveTypesProvider;
+import ch.tsphp.tinsphp.core.StandardConstraintAndVariables;
 import ch.tsphp.tinsphp.symbols.ModifierHelper;
 import ch.tsphp.tinsphp.symbols.SymbolFactory;
 import ch.tsphp.tinsphp.symbols.utils.OverloadResolver;
@@ -35,6 +36,7 @@ public abstract class ATest
     protected IOverloadResolver overloadResolver;
     protected ISymbolFactory symbolFactory;
     protected Map<String, ITypeSymbol> primitiveTypes;
+    protected StandardConstraintAndVariables std;
 
     public ATest() {
         astHelper = createAstHelper();
@@ -42,7 +44,16 @@ public abstract class ATest
         modifierHelper = createModifierHelper();
         overloadResolver = createOverloadResolver();
         symbolFactory = createSymbolFactory(scopeHelper, modifierHelper, overloadResolver);
-        primitiveTypes = new PrimitiveTypesProvider(symbolFactory).getTypes();
+        primitiveTypes = getPrimitiveTypes(symbolFactory);
+        std = createStandardConstraintAndVariables();
+    }
+
+    private StandardConstraintAndVariables createStandardConstraintAndVariables() {
+        return new StandardConstraintAndVariables(symbolFactory, primitiveTypes);
+    }
+
+    private Map<String, ITypeSymbol> getPrimitiveTypes(ISymbolFactory theSymbolFactory) {
+        return new PrimitiveTypesProvider(theSymbolFactory).getTypes();
     }
 
     protected IScopeHelper createScopeHelper() {

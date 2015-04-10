@@ -6,10 +6,10 @@
 
 package ch.tsphp.tinsphp.core;
 
-import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.inference.constraints.IOverloadResolver;
 import ch.tsphp.tinsphp.common.inference.constraints.ITypeVariableCollection;
+import ch.tsphp.tinsphp.common.inference.constraints.IVariable;
 import ch.tsphp.tinsphp.common.inference.constraints.TypeVariableConstraint;
 import ch.tsphp.tinsphp.common.symbols.IFunctionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
@@ -21,22 +21,24 @@ import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static ch.tsphp.tinsphp.common.utils.Pair.pair;
+import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_EXPR;
+import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_LHS;
+import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_RETURN;
+import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_RHS;
 
 public class OperatorProvider extends AProvider implements IOperatorsProvider
 {
 
     private Map<Integer, IOverloadSymbol> builtInOperators;
 
-
     public OperatorProvider(
             ISymbolFactory theSymbolFactory,
             IOverloadResolver theOverloadResolver,
-            Map<String, ITypeSymbol> thePrimitiveType) {
-        super(theSymbolFactory, theOverloadResolver, thePrimitiveType);
+            StandardConstraintAndVariables standardConstraintAndVariables) {
+        super(theSymbolFactory, theOverloadResolver, standardConstraintAndVariables);
     }
 
     @Override
@@ -109,19 +111,19 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         };
         for (Pair<String, Integer> operator : orOperators) {
             //false x false -> false
-            addToBinaryOperators(operator, falseTypeConstraint, falseTypeConstraint, falseTypeConstraint);
+            addToBinaryOperators(operator, std.falseTypeConstraint, std.falseTypeConstraint, std.falseTypeConstraint);
             //true x bool -> true
-            addToBinaryOperators(operator, trueTypeConstraint, boolTypeConstraint, trueTypeConstraint);
+            addToBinaryOperators(operator, std.trueTypeConstraint, std.boolTypeConstraint, std.trueTypeConstraint);
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //true x ~{as bool} -> true
 
             //bool x true -> true
-            addToBinaryOperators(operator, boolTypeConstraint, trueTypeConstraint, trueTypeConstraint);
+            addToBinaryOperators(operator, std.boolTypeConstraint, std.trueTypeConstraint, std.trueTypeConstraint);
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //~{as bool} x true -> true
 
             //bool x bool -> bool
-            addToBinaryOperators(operator, boolTypeConstraint, boolTypeConstraint, boolTypeConstraint);
+            addToBinaryOperators(operator, std.boolTypeConstraint, std.boolTypeConstraint, std.boolTypeConstraint);
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //~{as bool} x ~{as bool} -> bool
 
@@ -129,15 +131,15 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
         Pair<String, Integer> xorWeak = pair("xor", TokenTypes.LogicXorWeak);
         //false x true -> true
-        addToBinaryOperators(xorWeak, falseTypeConstraint, trueTypeConstraint, trueTypeConstraint);
+        addToBinaryOperators(xorWeak, std.falseTypeConstraint, std.trueTypeConstraint, std.trueTypeConstraint);
         //true x false -> true
-        addToBinaryOperators(xorWeak, trueTypeConstraint, falseTypeConstraint, trueTypeConstraint);
+        addToBinaryOperators(xorWeak, std.trueTypeConstraint, std.falseTypeConstraint, std.trueTypeConstraint);
         //false x false -> false
-        addToBinaryOperators(xorWeak, falseTypeConstraint, falseTypeConstraint, falseTypeConstraint);
+        addToBinaryOperators(xorWeak, std.falseTypeConstraint, std.falseTypeConstraint, std.falseTypeConstraint);
         //true x true -> false
-        addToBinaryOperators(xorWeak, trueTypeConstraint, trueTypeConstraint, falseTypeConstraint);
+        addToBinaryOperators(xorWeak, std.trueTypeConstraint, std.trueTypeConstraint, std.falseTypeConstraint);
         //bool x bool -> bool
-        addToBinaryOperators(xorWeak, boolTypeConstraint, boolTypeConstraint, boolTypeConstraint);
+        addToBinaryOperators(xorWeak, std.boolTypeConstraint, std.boolTypeConstraint, std.boolTypeConstraint);
         //TODO rstoll TINS-347 create overloads for conversion constraints
         //~{as bool} x ~{as bool} -> bool
 
@@ -148,35 +150,39 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         };
         for (Pair<String, Integer> operator : andOperators) {
             //false x bool -> false
-            addToBinaryOperators(operator, falseTypeConstraint, boolTypeConstraint, falseTypeConstraint);
+            addToBinaryOperators(operator, std.falseTypeConstraint, std.boolTypeConstraint, std.falseTypeConstraint);
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //false x ~{as bool} -> false
 
             //bool x false -> false
-            addToBinaryOperators(operator, boolTypeConstraint, falseTypeConstraint, falseTypeConstraint);
+            addToBinaryOperators(operator, std.boolTypeConstraint, std.falseTypeConstraint, std.falseTypeConstraint);
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //~{bool} x false -> false
 
             //true x true -> true
-            addToBinaryOperators(operator, trueTypeConstraint, trueTypeConstraint, trueTypeConstraint);
+            addToBinaryOperators(operator, std.trueTypeConstraint, std.trueTypeConstraint, std.trueTypeConstraint);
             //bool x bool -> bool
-            addToBinaryOperators(operator, boolTypeConstraint, boolTypeConstraint, boolTypeConstraint);
+            addToBinaryOperators(operator, std.boolTypeConstraint, std.boolTypeConstraint, std.boolTypeConstraint);
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //~{as bool} x ~{as bool} -> bool
         }
 
         Pair<String, Integer> logicNot = new Pair<>("!", TokenTypes.LogicNot);
-        addToUnaryOperators(logicNot, falseTypeConstraint, trueTypeConstraint);
-        addToUnaryOperators(logicNot, trueTypeConstraint, falseTypeConstraint);
-        addToUnaryOperators(logicNot, boolTypeConstraint, boolTypeConstraint);
+        addToUnaryOperators(logicNot, std.falseTypeConstraint, std.trueTypeConstraint);
+        addToUnaryOperators(logicNot, std.trueTypeConstraint, std.falseTypeConstraint);
+        addToUnaryOperators(logicNot, std.boolTypeConstraint, std.boolTypeConstraint);
     }
 
     private void defineAssignmentOperators() {
+        IFunctionTypeSymbol function;
+
         //Tlhs x Trhs -> Tlhs \ Tlhs > Trhs
+        IVariable lhs = symbolFactory.createVariable("$lhs", T_LHS);
+        IVariable rhs = symbolFactory.createVariable("$rhs", T_RHS);
+        IVariable rtn = symbolFactory.createVariable("rtn", T_LHS);
         ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
         collection.addLowerBound(T_LHS, new TypeVariableConstraint(T_RHS));
-        IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
-                "=", collection, binaryParameterIds, T_LHS);
+        function = symbolFactory.createFunctionTypeSymbol("=", collection, Arrays.asList(lhs, rhs), rtn);
         addToOperators(TokenTypes.Assign, function);
 
         //Other assignment operators can be found in the corresponding sections.
@@ -195,7 +201,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         };
         for (Pair<String, Integer> operator : intResultingNonAssignOperators) {
             //int x int -> int
-            addToBinaryOperators(operator, intTypeConstraint, intTypeConstraint, intTypeConstraint);
+            addToBinaryOperators(operator, std.intTypeConstraint, std.intTypeConstraint, std.intTypeConstraint);
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //~{as int} x ~{as int} -> int
         }
@@ -210,7 +216,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         };
         for (Pair<String, Integer> operator : intResultingAssignOperators) {
             //int x int -> int
-            addToBinaryOperators(operator, intTypeConstraint, intTypeConstraint, intTypeConstraint);
+            addToBinaryOperators(operator, std.intTypeConstraint, std.intTypeConstraint, std.intTypeConstraint);
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //(int | ~{as int}) x ~{as int} -> int
         }
@@ -226,17 +232,18 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         };
         for (Pair<String, Integer> operator : stringResultingOperators) {
             //string x string -> string
-            addToBinaryOperators(operator, stringTypeConstraint, stringTypeConstraint, stringTypeConstraint);
+            addToBinaryOperators(
+                    operator, std.stringTypeConstraint, std.stringTypeConstraint, std.stringTypeConstraint);
         }
 
         Pair<String, Integer> bitwiseNot = pair("~", TokenTypes.BitwiseNot);
         //int -> int
-        addToUnaryOperators(bitwiseNot, intTypeConstraint, intTypeConstraint);
+        addToUnaryOperators(bitwiseNot, std.intTypeConstraint, std.intTypeConstraint);
         //TODO rstoll TINS-347 create overloads for conversion constraints
         //~{as int} -> int
 
         //string -> string
-        addToUnaryOperators(bitwiseNot, stringTypeConstraint, stringTypeConstraint);
+        addToUnaryOperators(bitwiseNot, std.stringTypeConstraint, std.stringTypeConstraint);
     }
 
     private void defineComparisonOperators() {
@@ -253,38 +260,59 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
                 pair(">=", TokenTypes.GreaterEqualThan),
         };
         for (Pair<String, Integer> operator : operators) {
-            addToBinaryOperators(operator, mixedTypeConstraint, mixedTypeConstraint, boolTypeConstraint);
+            addToBinaryOperators(operator, null, null, std.boolTypeConstraint);
         }
     }
 
     private void defineTernaryOperator() {
-        final String tCond = "CTcond";
-        final String tIf = "CTif";
-        final String tElse = "CTelse";
-        List<String> parameterIds = Arrays.asList(tCond, tIf, tElse);
+        final String tCondition = "Tcondition";
+        final String tIf = "Tif";
+        String tElse = "Telse";
 
         //false x mixed x Telse -> Telse
+        //expanded: false x mixed x Telse -> Treturn \ Treturn > Telse
+        IVariable conditionVariable = symbolFactory.createVariable("$condition", tCondition);
+        IVariable ifVariable = symbolFactory.createVariable("$if", tIf);
+        IVariable elseVariable = symbolFactory.createVariable("$else", tElse);
+        IVariable rtn = std.variableTypedReturnVariable;
         ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
-        collection.addUpperBound(tCond, falseTypeConstraint);
+        collection.addUpperBound(tCondition, std.falseTypeConstraint);
+        conditionVariable.hasFixedType();
+        ifVariable.hasFixedType();
+        collection.addLowerBound(T_RETURN, new TypeVariableConstraint(tElse));
         IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
-                "=", collection, parameterIds, tElse);
+                "=", collection, Arrays.asList(conditionVariable, ifVariable, elseVariable), rtn);
         addToOperators(TokenTypes.QuestionMark, function);
 
 
         //true x Tif x mixed -> Tif
+        //expanded: true x Tif x mixed -> Treturn \ Treturn > Tif
+        conditionVariable = symbolFactory.createVariable("$condition", tCondition);
+        ifVariable = symbolFactory.createVariable("$if", tIf);
+        elseVariable = symbolFactory.createVariable("$else", tElse);
+        rtn = std.variableTypedReturnVariable;
         collection = new TypeVariableCollection(overloadResolver);
-        collection.addUpperBound(tCond, trueTypeConstraint);
+        collection.addUpperBound(tCondition, std.trueTypeConstraint);
+        conditionVariable.hasFixedType();
+        elseVariable.hasFixedType();
+        collection.addLowerBound(T_RETURN, new TypeVariableConstraint(tIf));
         function = symbolFactory.createFunctionTypeSymbol(
-                "=", collection, parameterIds, tIf);
+                "=", collection, Arrays.asList(conditionVariable, ifVariable, elseVariable), rtn);
         addToOperators(TokenTypes.QuestionMark, function);
 
         //bool x Tif x Telse -> (Tif | Telse)
+        //expanded: bool x Tif x Telse -> Treturn \ Treturn > Tif, Treturn > Telse
+        conditionVariable = symbolFactory.createVariable("$condition", tCondition);
+        ifVariable = symbolFactory.createVariable("$if", tIf);
+        elseVariable = symbolFactory.createVariable("$else", tElse);
+        rtn = std.variableTypedReturnVariable;
         collection = new TypeVariableCollection(overloadResolver);
-        collection.addUpperBound(tCond, boolTypeConstraint);
+        collection.addUpperBound(tCondition, std.boolTypeConstraint);
+        conditionVariable.hasFixedType();
         collection.addLowerBound(T_RETURN, new TypeVariableConstraint(tElse));
         collection.addLowerBound(T_RETURN, new TypeVariableConstraint(tIf));
         function = symbolFactory.createFunctionTypeSymbol(
-                "=", collection, parameterIds, T_RETURN);
+                "=", collection, Arrays.asList(conditionVariable, ifVariable, elseVariable), rtn);
         addToOperators(TokenTypes.QuestionMark, function);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
@@ -304,11 +332,14 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
         for (Pair<String, Integer> operator : operators) {
             //T x T -> T \ T < num, T > T
+            IVariable lhs = std.tLhs;
+            IVariable rhs = std.tRhs;
+            IVariable rtn = std.tReturn;
             ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
-            collection.addUpperBound("CT", numTypeConstraint);
-            collection.addLowerBound("CT", new TypeVariableConstraint("CT"));
+            collection.addUpperBound("T", std.numTypeConstraint);
+            collection.addLowerBound("T", new TypeVariableConstraint("T"));
             IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
-                    operator.first, collection, Arrays.asList("CT", "CT"), "CT");
+                    operator.first, collection, Arrays.asList(lhs, rhs), rtn);
             addToOperators(operator.second, function);
         }
 
@@ -320,7 +351,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         };
         for (Pair<String, Integer> operator : nonAssignOperators) {
             //bool x bool -> int
-            addToBinaryOperators(operator, boolTypeConstraint, boolTypeConstraint, intTypeConstraint);
+            addToBinaryOperators(operator, std.boolTypeConstraint, std.boolTypeConstraint, std.intTypeConstraint);
 
             //TODO rstoll TINS-347 create overloads for conversion constraints
             //~{as T} x ~{as T} -> T \ T < num
@@ -339,9 +370,10 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         }
 
         //array x array -> array
-        addToBinaryOperators(pair("+", TokenTypes.Plus), arrayTypeConstraint, arrayTypeConstraint, arrayTypeConstraint);
-        addToBinaryOperators(
-                pair("+=", TokenTypes.PlusAssign), arrayTypeConstraint, arrayTypeConstraint, arrayTypeConstraint);
+        addToBinaryOperators(pair("+", TokenTypes.Plus),
+                std.arrayTypeConstraint, std.arrayTypeConstraint, std.arrayTypeConstraint);
+        addToBinaryOperators(pair("+=", TokenTypes.PlusAssign),
+                std.arrayTypeConstraint, std.arrayTypeConstraint, std.arrayTypeConstraint);
 
         createDivOperators();
         createModuloOperators();
@@ -352,18 +384,21 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         IFunctionTypeSymbol function;
 
         //bool x bool -> (int | false)
-        addToBinaryOperators(
-                pair("/", TokenTypes.Divide), boolTypeConstraint, boolTypeConstraint, intOrFalseTypeConstraint);
+        addToBinaryOperators(pair("/", TokenTypes.Divide),
+                std.boolTypeConstraint, std.boolTypeConstraint, std.intOrFalseTypeConstraint);
 
 
         //T x T -> (T | false) \ float < T < num
         //expanded: T x T -> Treturn \ float < T < num, Treturn > T, Treturn > false
         ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
-        collection.addLowerBound("CT", floatTypeConstraint);
-        collection.addUpperBound("CT", numTypeConstraint);
-        collection.addLowerBound(T_RETURN, new TypeVariableConstraint("CT"));
-        collection.addLowerBound(T_RETURN, falseTypeConstraint);
-        function = symbolFactory.createFunctionTypeSymbol("/", collection, Arrays.asList("CT", "CT"), T_RETURN);
+        IVariable lhs = std.tLhs;
+        IVariable rhs = std.tRhs;
+        IVariable rtn = symbolFactory.createVariable("rtn", T_RETURN);
+        collection.addLowerBound("T", std.floatTypeConstraint);
+        collection.addUpperBound("T", std.numTypeConstraint);
+        collection.addLowerBound(T_RETURN, new TypeVariableConstraint("T"));
+        collection.addLowerBound(T_RETURN, std.falseTypeConstraint);
+        function = symbolFactory.createFunctionTypeSymbol("/", collection, Arrays.asList(lhs, rhs), rtn);
         addToOperators(TokenTypes.Divide, function);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
@@ -374,23 +409,23 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
         //(int | bool) x bool -> (int | false)
         IUnionTypeSymbol intOrBoolTypeSymbol = symbolFactory.createUnionTypeSymbol();
-        intOrBoolTypeSymbol.addTypeSymbol(intTypeSymbol);
-        intOrBoolTypeSymbol.addTypeSymbol(boolTypeSymbol);
+        intOrBoolTypeSymbol.addTypeSymbol(std.intTypeSymbol);
+        intOrBoolTypeSymbol.addTypeSymbol(std.boolTypeSymbol);
         intOrBoolTypeSymbol.seal();
-        addToBinaryOperators(
-                pair("/=", TokenTypes.DivideAssign),
-                new TypeConstraint(intOrBoolTypeSymbol),
-                boolTypeConstraint,
-                intOrFalseTypeConstraint);
+        addToBinaryOperators(pair("/=", TokenTypes.DivideAssign),
+                new TypeConstraint(intOrBoolTypeSymbol), std.boolTypeConstraint, std.intOrFalseTypeConstraint);
 
         //(T | false) x T -> (T | false) \ float < T < num
         //expanded: Tlhs x T -> Tlhs \ float < T < num, Tlhs > T, Tlhs > false
+        lhs = symbolFactory.createVariable("$lhs", T_LHS);
+        rhs = std.tRhs;
+        rtn = symbolFactory.createVariable("rtn", T_LHS);
         collection = new TypeVariableCollection(overloadResolver);
-        collection.addLowerBound("CT", floatTypeConstraint);
-        collection.addUpperBound("CT", numTypeConstraint);
-        collection.addLowerBound(T_LHS, new TypeVariableConstraint("CT"));
-        collection.addLowerBound(T_LHS, falseTypeConstraint);
-        function = symbolFactory.createFunctionTypeSymbol("/=", collection, Arrays.asList(T_LHS, "CT"), T_LHS);
+        collection.addLowerBound("T", std.floatTypeConstraint);
+        collection.addUpperBound("T", std.numTypeConstraint);
+        collection.addLowerBound(T_LHS, new TypeVariableConstraint("T"));
+        collection.addLowerBound(T_LHS, std.falseTypeConstraint);
+        function = symbolFactory.createFunctionTypeSymbol("/=", collection, Arrays.asList(lhs, rhs), rtn);
         addToOperators(TokenTypes.DivideAssign, function);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
@@ -399,15 +434,15 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
     private void createModuloOperators() {
         //int x int -> (int | false)
-        Pair<String, Integer> modulo = pair("%", TokenTypes.Modulo);
-        addToBinaryOperators(modulo, intTypeConstraint, intTypeConstraint, intOrFalseTypeConstraint);
+        addToBinaryOperators(pair("%", TokenTypes.Modulo),
+                std.intTypeConstraint, std.intTypeConstraint, std.intOrFalseTypeConstraint);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
         //~{as int} x ~{as int} -> (int | false)
 
         //(int | false) x int -> (int | false)
-        Pair<String, Integer> moduloAssign = pair("%=", TokenTypes.ModuloAssign);
-        addToBinaryOperators(moduloAssign, intOrFalseTypeConstraint, intTypeConstraint, intOrFalseTypeConstraint);
+        addToBinaryOperators(pair("%=", TokenTypes.ModuloAssign),
+                std.intOrFalseTypeConstraint, std.intTypeConstraint, std.intOrFalseTypeConstraint);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
         //(int | ~{as int}) x ~{as int} -> (int | false)
@@ -423,21 +458,23 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         };
 
         IUnionTypeSymbol numOrBoolTypeSymbol = symbolFactory.createUnionTypeSymbol();
-        numOrBoolTypeSymbol.addTypeSymbol(numOrBoolTypeSymbol);
-        numOrBoolTypeSymbol.addTypeSymbol(boolTypeSymbol);
+        numOrBoolTypeSymbol.addTypeSymbol(std.numTypeSymbol);
+        numOrBoolTypeSymbol.addTypeSymbol(std.boolTypeSymbol);
         numOrBoolTypeSymbol.seal();
 
         for (Pair<String, Integer> operator : incrDecrOperators) {
-            //T -> T \ T < (num | bool)
+            //T -> T \ T < (num | bool), T > T
+            IVariable expr = std.tExpr;
+            IVariable rtn = std.tReturn;
             ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
-            collection.addUpperBound("CT", boolTypeConstraint);
-            collection.addUpperBound("CT", numTypeConstraint);
+            collection.addUpperBound("T", new TypeConstraint(numOrBoolTypeSymbol));
+            collection.addLowerBound("T", new TypeVariableConstraint("T"));
             IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
-                    operator.first, collection, Arrays.asList("CT"), "CT");
+                    operator.first, collection, Arrays.asList(expr), rtn);
             addToOperators(operator.second, function);
 
             //TODO rstoll TINS-347 create overloads for conversion constraints
-            //(T | ~T) -> T \ T < num
+            //(T | ~T) -> T \ T < num, T > T
         }
 
         @SuppressWarnings("unchecked")
@@ -447,12 +484,15 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         };
         for (Pair<String, Integer> operator : unaryPlusMinusOperators) {
             //bool x int
-            addToUnaryOperators(operator, boolTypeConstraint, intTypeConstraint);
-            //T -> T \ T < num
+            addToUnaryOperators(operator, std.boolTypeConstraint, std.intTypeConstraint);
+            //T -> T \ T < num, T > T
+            IVariable expr = std.tExpr;
+            IVariable rtn = std.tReturn;
             ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
-            collection.addUpperBound("CT", numTypeConstraint);
+            collection.addUpperBound("T", std.numTypeConstraint);
+            collection.addLowerBound("T", new TypeVariableConstraint("T"));
             IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
-                    operator.first, collection, Arrays.asList("CT"), "CT");
+                    operator.first, collection, Arrays.asList(expr), rtn);
             addToOperators(operator.second, function);
 
             //TODO rstoll TINS-347 create overloads for conversion constraints
@@ -462,9 +502,11 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
     private void defineDotOperator() {
         addToBinaryOperators(
-                pair(".", TokenTypes.Dot), stringTypeConstraint, stringTypeConstraint, stringTypeConstraint);
+                pair(".", TokenTypes.Dot), std.stringTypeConstraint, std.stringTypeConstraint,
+                std.stringTypeConstraint);
         addToBinaryOperators(
-                pair(".=", TokenTypes.DotAssign), stringTypeConstraint, stringTypeConstraint, stringTypeConstraint);
+                pair(".=", TokenTypes.DotAssign), std.stringTypeConstraint, std.stringTypeConstraint,
+                std.stringTypeConstraint);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
         //~{as string} x ~{as string} -> string
@@ -478,41 +520,49 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //more precise would be: object x mixed -> bool
         //mixed x mixed -> bool
         Pair<String, Integer> instanceOf = pair("instanceof", TokenTypes.Instanceof);
-        addToBinaryOperators(instanceOf, mixedTypeConstraint, mixedTypeConstraint, boolTypeConstraint);
+        addToBinaryOperators(instanceOf, null, null, std.boolTypeConstraint);
     }
 
     private void defineCloneAndNewOperator() {
         //TODO rstoll TINS-332 introduce object pseudo type
         //more precise would be: T -> T \ T < object
         //T -> T
+        IVariable expr = std.tExpr;
+        IVariable rtn = std.tReturn;
         ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
         IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
-                "clone", collection, Arrays.asList("CT"), "CT");
+                "clone", collection, Arrays.asList(expr), rtn);
         addToOperators(TokenTypes.Clone, function);
 
         //TODO TINS-349 structural constraints
         //not all classes return itself, some return null as well in error cases
         //see https://wiki.php.net/rfc/internal_constructor_behaviour
         //T -> T
+        expr = std.tExpr;
+        rtn = std.tReturn;
         collection = new TypeVariableCollection(overloadResolver);
-        function = symbolFactory.createFunctionTypeSymbol(
-                "new", collection, Arrays.asList("CT"), "CT");
+        function = symbolFactory.createFunctionTypeSymbol("new", collection, Arrays.asList(expr), rtn);
         addToOperators(TokenTypes.New, function);
     }
 
     private void defineAtAndCastOperator() {
         //T -> T
+        IVariable expr = std.tExpr;
+        IVariable rtn = std.tReturn;
         ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
         IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
-                "@", collection, Arrays.asList("CT"), "CT");
+                "@", collection, Arrays.asList(expr), rtn);
         addToOperators(TokenTypes.At, function);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
         //T1 x T2 -> T1 \ T2 < ~{as T1}
-        //T1 x T2 -> T1
+        //simplified version for now: T1 x T2 -> T1 or expanded: Tlhs x Trhs -> Treturn \ Treturn > Tlhs
+        IVariable lhs = symbolFactory.createVariable("$lhs", T_LHS);
+        IVariable rhs = symbolFactory.createVariable("$rhs", T_RHS);
+        rtn = std.variableTypedReturnVariable;
         collection = new TypeVariableCollection(overloadResolver);
-        function = symbolFactory.createFunctionTypeSymbol(
-                "cast", collection, Arrays.asList("CT1", "CT2"), "CT1");
+        collection.addLowerBound(T_RETURN, new TypeVariableConstraint(T_LHS));
+        function = symbolFactory.createFunctionTypeSymbol("cast", collection, Arrays.asList(lhs, rhs), rtn);
         addToOperators(TokenTypes.CAST, function);
     }
 
@@ -524,12 +574,16 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
         ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
 
-        collection.addUpperBound(T_LHS, leftBound);
-        collection.addUpperBound(T_RHS, rightBound);
+        if (leftBound != null) {
+            collection.addUpperBound(T_LHS, leftBound);
+        }
+        if (rightBound != null) {
+            collection.addUpperBound(T_RHS, rightBound);
+        }
         collection.addLowerBound(T_RETURN, returnBound);
 
         IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
-                operator.first, collection, binaryParameterIds, T_RETURN);
+                operator.first, collection, std.binaryParameterIds, std.fixTypedReturnVariable);
 
         addToOperators(operator.second, function);
     }
@@ -543,7 +597,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         collection.addLowerBound(T_RETURN, returnBound);
 
         IFunctionTypeSymbol function = symbolFactory.createFunctionTypeSymbol(
-                operator.first, collection, unaryParameterId, T_RETURN);
+                operator.first, collection, std.unaryParameterId, std.fixTypedReturnVariable);
 
         addToOperators(operator.second, function);
     }

@@ -33,9 +33,10 @@ public class Core implements ICore
         symbolFactory.setMixedTypeSymbol(primitiveTypes.get(PrimitiveTypeNames.MIXED));
 
         IGeneratorHelper generatorHelper = new GeneratorHelper(astHelper, symbolFactory, primitiveTypes);
+        StandardConstraintAndVariables std = new StandardConstraintAndVariables(symbolFactory, primitiveTypes);
 
         ISymbolProvider builtInSymbolProvider = new BuiltInSymbolsProvider(
-                generatorHelper, symbolFactory, overloadResolver, primitiveTypes);
+                generatorHelper, symbolFactory, overloadResolver, std);
         ISymbolProvider superGlobalSymbolResolver = new BuiltInSuperGlobalSymbolsProvider(
                 generatorHelper, symbolFactory, primitiveTypes);
 
@@ -46,7 +47,7 @@ public class Core implements ICore
         implicitConversions = conversionProvider.getImplicitConversions();
         explicitConversions = conversionProvider.getExplicitConversions();
 
-        IOperatorsProvider operatorsProvider = new OperatorProvider(symbolFactory, overloadResolver, primitiveTypes);
+        IOperatorsProvider operatorsProvider = new OperatorProvider(symbolFactory, overloadResolver, std);
         operators = operatorsProvider.getOperators();
     }
 

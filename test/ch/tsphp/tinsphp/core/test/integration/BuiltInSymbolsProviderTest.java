@@ -7,11 +7,11 @@
 package ch.tsphp.tinsphp.core.test.integration;
 
 import ch.tsphp.common.symbols.ISymbol;
-import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.inference.constraints.IOverloadResolver;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.ISymbolProvider;
+import ch.tsphp.tinsphp.core.StandardConstraintAndVariables;
 import ch.tsphp.tinsphp.core.gen.BuiltInSymbolsProvider;
 import ch.tsphp.tinsphp.core.test.integration.testutils.ATest;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class BuiltInSymbolsProviderTest extends ATest
                 createGenerator(astHelper, symbolFactory, primitiveTypes),
                 symbolFactory,
                 overloadResolver,
-                primitiveTypes
+                std
         );
     }
 
@@ -54,7 +54,8 @@ public class BuiltInSymbolsProviderTest extends ATest
             IGeneratorHelper theGeneratorHelper,
             ISymbolFactory theSymbolFactory,
             IOverloadResolver theOverloadResolver,
-            Map<String, ITypeSymbol> thePrimitiveType) {
-        return new BuiltInSymbolsProvider(theGeneratorHelper, theSymbolFactory, theOverloadResolver, thePrimitiveType);
+            StandardConstraintAndVariables standardConstraintAndVariables) {
+        return new BuiltInSymbolsProvider(
+                theGeneratorHelper, theSymbolFactory, theOverloadResolver, standardConstraintAndVariables);
     }
 }

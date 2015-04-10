@@ -45,7 +45,7 @@ public class OperatorProviderBinaryConstraintsTest extends AOperatorProviderTest
         Assert.assertEquals(operatorName + " failed, no overload defined", false, overloads.isEmpty());
         for (IFunctionTypeSymbol overload : overloads) {
             Assert.assertEquals(operatorName + " failed, number of parameters wrong",
-                    2, overload.getParameterTypeVariables().size());
+                    2, overload.getParameters().size());
         }
     }
 

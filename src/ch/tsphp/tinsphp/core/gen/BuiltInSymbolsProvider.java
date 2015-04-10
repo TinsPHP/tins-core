@@ -7,7 +7,6 @@
 package ch.tsphp.tinsphp.core.gen;
 
 import ch.tsphp.common.symbols.ISymbol;
-import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.inference.constraints.IOverloadResolver;
 import ch.tsphp.tinsphp.common.inference.constraints.ITypeVariableCollection;
@@ -18,11 +17,15 @@ import ch.tsphp.tinsphp.common.symbols.IVariableSymbol;
 import ch.tsphp.tinsphp.core.AProvider;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.ISymbolProvider;
+import ch.tsphp.tinsphp.core.StandardConstraintAndVariables;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
 import ch.tsphp.tinsphp.symbols.constraints.TypeVariableCollection;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_LHS;
+import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_RETURN;
 
 public class BuiltInSymbolsProvider extends AProvider implements ISymbolProvider
 {
@@ -34,8 +37,8 @@ public class BuiltInSymbolsProvider extends AProvider implements ISymbolProvider
             IGeneratorHelper theGeneratorHelper,
             ISymbolFactory theSymbolFactory,
             IOverloadResolver theOverloadResolver,
-            Map<String, ITypeSymbol> thePrimitiveType) {
-        super(theSymbolFactory, theOverloadResolver, thePrimitiveType);
+            StandardConstraintAndVariables standardConstraintAndVariables) {
+        super(theSymbolFactory, theOverloadResolver, standardConstraintAndVariables);
         generatorHelper = theGeneratorHelper;
     }
 
@@ -55,14 +58,14 @@ public class BuiltInSymbolsProvider extends AProvider implements ISymbolProvider
         IVariableSymbol constant;
 
         ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
-        collection.addUpperBound(T_LHS, stringTypeConstraint);
-        collection.addLowerBound(T_RETURN, intOrFalseTypeConstraint);
+        collection.addUpperBound(T_LHS, std.stringTypeConstraint);
+        collection.addLowerBound(T_RETURN, std.intOrFalseTypeConstraint);
         function = symbolFactory.createFunctionTypeSymbol(
-                "strpos", collection, binaryParameterIds, T_RETURN);
+                "strpos", collection, std.binaryParameterIds, std.fixTypedReturnVariable);
 
         symbols.put("\\strpos()", function);
 
-        constant = generatorHelper.createConstant("E_ALL#", intTypeSymbol);
+        constant = generatorHelper.createConstant("E_ALL#", std.intTypeSymbol);
         symbols.put("\\E_ALL#", constant);
 
         IClassTypeSymbol _exception = generatorHelper.createClass("Exception");

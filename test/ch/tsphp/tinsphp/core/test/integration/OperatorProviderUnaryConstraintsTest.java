@@ -45,22 +45,22 @@ public class OperatorProviderUnaryConstraintsTest extends AOperatorProviderTest
         Assert.assertEquals(operatorName + " failed, no overload defined", false, overloads.isEmpty());
         for (IFunctionTypeSymbol overload : overloads) {
             Assert.assertEquals(operatorName + " failed, number of parameters wrong",
-                    1, overload.getParameterTypeVariables().size());
+                    1, overload.getParameters().size());
         }
     }
 
     @Parameterized.Parameters
     public static Collection<Object[]> testStrings() {
         return Arrays.asList(new Object[][]{
-                {"++", TokenTypes.PRE_INCREMENT},
-                {"--", TokenTypes.PRE_DECREMENT},
+                {"preIncr", TokenTypes.PRE_INCREMENT},
+                {"preDecr", TokenTypes.PRE_DECREMENT},
                 {"@", TokenTypes.At},
                 {"~", TokenTypes.BitwiseNot},
                 {"!", TokenTypes.LogicNot},
-                {"-", TokenTypes.UNARY_MINUS},
-                {"+", TokenTypes.UNARY_PLUS},
-                {"++", TokenTypes.POST_INCREMENT},
-                {"--", TokenTypes.POST_DECREMENT},
+                {"uMinus", TokenTypes.UNARY_MINUS},
+                {"uPlus", TokenTypes.UNARY_PLUS},
+                {"postIncr", TokenTypes.POST_INCREMENT},
+                {"postDecr", TokenTypes.POST_DECREMENT},
                 {"clone", TokenTypes.Clone},
                 {"new", TokenTypes.New}
         });
