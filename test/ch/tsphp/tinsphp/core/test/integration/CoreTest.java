@@ -11,7 +11,7 @@ import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.ICore;
 import ch.tsphp.tinsphp.common.inference.constraints.IOverloadResolver;
 import ch.tsphp.tinsphp.common.resolving.ISymbolResolver;
-import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
+import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.core.Core;
 import ch.tsphp.tinsphp.core.test.integration.testutils.ATest;
@@ -42,7 +42,7 @@ public class CoreTest extends ATest
         //no arrange necessary
 
         ICore core = createCore();
-        Map<Integer, IOverloadSymbol> result = core.getOperators();
+        Map<Integer, IMinimalMethodSymbol> result = core.getOperators();
 
         assertThat(result.size(), is(50));
     }

@@ -12,7 +12,7 @@ import ch.tsphp.tinsphp.common.IConversionMethod;
 import ch.tsphp.tinsphp.common.ICore;
 import ch.tsphp.tinsphp.common.inference.constraints.IOverloadResolver;
 import ch.tsphp.tinsphp.common.resolving.ISymbolResolver;
-import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
+import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.core.gen.BuiltInSymbolsProvider;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
@@ -25,7 +25,7 @@ public class Core implements ICore
     private final Map<String, ITypeSymbol> primitiveTypes;
     private final Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> implicitConversions;
     private final Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> explicitConversions;
-    private final Map<Integer, IOverloadSymbol> operators;
+    private final Map<Integer, IMinimalMethodSymbol> operators;
 
     public Core(ISymbolFactory symbolFactory, IOverloadResolver overloadResolver, IAstHelper astHelper) {
         primitiveTypes = new PrimitiveTypesProvider(symbolFactory).getTypes();
@@ -52,7 +52,7 @@ public class Core implements ICore
     }
 
     @Override
-    public Map<Integer, IOverloadSymbol> getOperators() {
+    public Map<Integer, IMinimalMethodSymbol> getOperators() {
         return operators;
     }
 

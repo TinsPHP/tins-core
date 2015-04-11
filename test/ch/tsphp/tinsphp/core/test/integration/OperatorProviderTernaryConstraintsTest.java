@@ -6,8 +6,8 @@
 
 package ch.tsphp.tinsphp.core.test.integration;
 
-import ch.tsphp.tinsphp.common.symbols.IFunctionTypeSymbol;
-import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
+import ch.tsphp.tinsphp.common.inference.constraints.IFunctionType;
+import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
 import ch.tsphp.tinsphp.core.IOperatorsProvider;
 import ch.tsphp.tinsphp.core.test.integration.testutils.AOperatorProviderTest;
 import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
@@ -39,11 +39,11 @@ public class OperatorProviderTernaryConstraintsTest extends AOperatorProviderTes
         //no arrange necessary
 
         IOperatorsProvider provider = createOperatorProvider();
-        Map<Integer, IOverloadSymbol> result = provider.getOperators();
+        Map<Integer, IMinimalMethodSymbol> result = provider.getOperators();
 
-        List<IFunctionTypeSymbol> overloads = result.get(operatorType).getOverloads();
+        List<IFunctionType> overloads = result.get(operatorType).getOverloads();
         Assert.assertEquals(operatorName + " failed, no overload defined", false, overloads.isEmpty());
-        for (IFunctionTypeSymbol overload : overloads) {
+        for (IFunctionType overload : overloads) {
             Assert.assertEquals(operatorName + " failed, number of parameters wrong",
                     3, overload.getParameters().size());
         }

@@ -6,7 +6,7 @@
 
 package ch.tsphp.tinsphp.core.test.integration;
 
-import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
+import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
 import ch.tsphp.tinsphp.core.IOperatorsProvider;
 import ch.tsphp.tinsphp.core.test.integration.testutils.AOperatorProviderTest;
 import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
@@ -39,7 +39,7 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
         //no arrange necessary
 
         IOperatorsProvider provider = createOperatorProvider();
-        Map<Integer, IOverloadSymbol> result = provider.getOperators();
+        Map<Integer, IMinimalMethodSymbol> result = provider.getOperators();
 
         Assert.assertEquals(operatorName + " failed, number of overloads different",
                 numberOfOverloads, result.get(operatorType).getOverloads().size());

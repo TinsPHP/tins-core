@@ -8,10 +8,11 @@ package ch.tsphp.tinsphp.core.gen;
 
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.IUnionTypeSymbol;
+import ch.tsphp.tinsphp.common.inference.constraints.IFunctionType;
 import ch.tsphp.tinsphp.common.inference.constraints.IOverloadResolver;
 import ch.tsphp.tinsphp.common.inference.constraints.ITypeVariableCollection;
 import ch.tsphp.tinsphp.common.symbols.IClassTypeSymbol;
-import ch.tsphp.tinsphp.common.symbols.IFunctionTypeSymbol;
+import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.IVariableSymbol;
 import ch.tsphp.tinsphp.core.AProvider;
@@ -26,6 +27,7 @@ import java.util.Map;
 
 import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_LHS;
 import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_RETURN;
+import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_RHS;
 
 public class BuiltInSymbolsProvider extends AProvider implements ISymbolProvider
 {
@@ -54,16 +56,21 @@ public class BuiltInSymbolsProvider extends AProvider implements ISymbolProvider
     private Map<String, ISymbol> createSymbols() {
         Map<String, ISymbol> symbols = new HashMap<>();
         IUnionTypeSymbol unionTypeSymbol;
-        IFunctionTypeSymbol function;
+        IFunctionType function;
+        ITypeVariableCollection collection;
         IVariableSymbol constant;
+        IMinimalMethodSymbol methodSymbol;
 
-        ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+        //string x string -> (int | false)
+        collection = new TypeVariableCollection(overloadResolver);
         collection.addUpperBound(T_LHS, std.stringTypeConstraint);
+        collection.addUpperBound(T_RHS, std.stringTypeConstraint);
         collection.addLowerBound(T_RETURN, std.intOrFalseTypeConstraint);
-        function = symbolFactory.createFunctionTypeSymbol(
+        function = symbolFactory.createFunctionType(
                 "strpos", collection, std.binaryParameterIds, std.fixTypedReturnVariable);
-
-        symbols.put("\\strpos()", function);
+        methodSymbol = symbolFactory.createMinimalMethodSymbol("strpos");
+        methodSymbol.addOverload(function);
+        symbols.put("\\strpos()", methodSymbol);
 
         constant = generatorHelper.createConstant("E_ALL#", std.intTypeSymbol);
         symbols.put("\\E_ALL#", constant);

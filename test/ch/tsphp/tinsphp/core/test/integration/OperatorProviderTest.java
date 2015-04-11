@@ -6,7 +6,7 @@
 
 package ch.tsphp.tinsphp.core.test.integration;
 
-import ch.tsphp.tinsphp.common.symbols.IOverloadSymbol;
+import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
 import ch.tsphp.tinsphp.core.IOperatorsProvider;
 import ch.tsphp.tinsphp.core.test.integration.testutils.AOperatorProviderTest;
 import org.junit.Test;
@@ -26,9 +26,9 @@ public class OperatorProviderTest extends AOperatorProviderTest
         //no arrange necessary
 
         IOperatorsProvider provider = createOperatorProvider();
-        Map<Integer, IOverloadSymbol> result1 = provider.getOperators();
-        Map<Integer, IOverloadSymbol> backup = new HashMap<>(result1);
-        Map<Integer, IOverloadSymbol> result2 = provider.getOperators();
+        Map<Integer, IMinimalMethodSymbol> result1 = provider.getOperators();
+        Map<Integer, IMinimalMethodSymbol> backup = new HashMap<>(result1);
+        Map<Integer, IMinimalMethodSymbol> result2 = provider.getOperators();
 
         assertThat(result1, is(result2));
         assertThat(result2.entrySet(), everyItem(isIn(backup.entrySet())));
