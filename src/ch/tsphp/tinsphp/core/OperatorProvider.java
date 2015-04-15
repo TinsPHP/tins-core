@@ -8,15 +8,16 @@ package ch.tsphp.tinsphp.core;
 
 import ch.tsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.inference.constraints.IFunctionType;
+import ch.tsphp.tinsphp.common.inference.constraints.IOverloadBindings;
 import ch.tsphp.tinsphp.common.inference.constraints.IOverloadResolver;
-import ch.tsphp.tinsphp.common.inference.constraints.ITypeVariableCollection;
 import ch.tsphp.tinsphp.common.inference.constraints.IVariable;
 import ch.tsphp.tinsphp.common.inference.constraints.TypeVariableConstraint;
 import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.utils.Pair;
+import ch.tsphp.tinsphp.symbols.TypeVariableNames;
+import ch.tsphp.tinsphp.symbols.constraints.OverloadBindings;
 import ch.tsphp.tinsphp.symbols.constraints.TypeConstraint;
-import ch.tsphp.tinsphp.symbols.constraints.TypeVariableCollection;
 import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 
 import java.util.Arrays;
@@ -179,8 +180,8 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //Tlhs x Trhs -> Tlhs \ Tlhs > Trhs
         IVariable lhs = symbolFactory.createVariable("$lhs", T_LHS);
         IVariable rhs = symbolFactory.createVariable("$rhs", T_RHS);
-        IVariable rtn = symbolFactory.createVariable("rtn", T_LHS);
-        ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+        IVariable rtn = symbolFactory.createVariable(TypeVariableNames.RETURN_VARIABLE_NAME, T_LHS);
+        IOverloadBindings collection = new OverloadBindings(overloadResolver);
         collection.addLowerBound(T_LHS, new TypeVariableConstraint(T_RHS));
         function = symbolFactory.createFunctionType("=", collection, Arrays.asList(lhs, rhs), rtn);
         addToOperators(TokenTypes.Assign, function);
@@ -275,7 +276,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         IVariable ifVariable = symbolFactory.createVariable("$if", tIf);
         IVariable elseVariable = symbolFactory.createVariable("$else", tElse);
         IVariable rtn = std.variableTypedReturnVariable;
-        ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+        IOverloadBindings collection = new OverloadBindings(overloadResolver);
         collection.addUpperBound(tCondition, std.falseTypeConstraint);
         conditionVariable.setHasFixedType();
         collection.addUpperBound(tIf, std.mixedTypeConstraint);
@@ -292,7 +293,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         ifVariable = symbolFactory.createVariable("$if", tIf);
         elseVariable = symbolFactory.createVariable("$else", tElse);
         rtn = std.variableTypedReturnVariable;
-        collection = new TypeVariableCollection(overloadResolver);
+        collection = new OverloadBindings(overloadResolver);
         collection.addUpperBound(tCondition, std.trueTypeConstraint);
         conditionVariable.setHasFixedType();
         collection.addUpperBound(tElse, std.mixedTypeConstraint);
@@ -308,7 +309,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         ifVariable = symbolFactory.createVariable("$if", tIf);
         elseVariable = symbolFactory.createVariable("$else", tElse);
         rtn = std.variableTypedReturnVariable;
-        collection = new TypeVariableCollection(overloadResolver);
+        collection = new OverloadBindings(overloadResolver);
         collection.addUpperBound(tCondition, std.boolTypeConstraint);
         conditionVariable.setHasFixedType();
         collection.addLowerBound(T_RETURN, new TypeVariableConstraint(tIf));
@@ -337,7 +338,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             IVariable lhs = std.tLhs;
             IVariable rhs = std.tRhs;
             IVariable rtn = std.tReturn;
-            ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+            IOverloadBindings collection = new OverloadBindings(overloadResolver);
             collection.addUpperBound("T", std.numTypeConstraint);
             collection.addLowerBound("T", new TypeVariableConstraint("T"));
             IFunctionType function = symbolFactory.createFunctionType(
@@ -392,10 +393,10 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
         //T x T -> (T | false) \ float < T < num
         //expanded: T x T -> Treturn \ float < T < num, Treturn > T, Treturn > false
-        ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+        IOverloadBindings collection = new OverloadBindings(overloadResolver);
         IVariable lhs = std.tLhs;
         IVariable rhs = std.tRhs;
-        IVariable rtn = symbolFactory.createVariable("rtn", T_RETURN);
+        IVariable rtn = symbolFactory.createVariable(TypeVariableNames.RETURN_VARIABLE_NAME, T_RETURN);
         collection.addLowerBound("T", std.floatTypeConstraint);
         collection.addUpperBound("T", std.numTypeConstraint);
         collection.addLowerBound(T_RETURN, new TypeVariableConstraint("T"));
@@ -421,8 +422,8 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //expanded: Tlhs x T -> Treturn \ float < T < num, Tlhs > T, Tlhs > false
         lhs = symbolFactory.createVariable("$lhs", T_LHS);
         rhs = std.tRhs;
-        rtn = symbolFactory.createVariable("rtn", T_LHS);
-        collection = new TypeVariableCollection(overloadResolver);
+        rtn = symbolFactory.createVariable(TypeVariableNames.RETURN_VARIABLE_NAME, T_LHS);
+        collection = new OverloadBindings(overloadResolver);
         collection.addLowerBound("T", std.floatTypeConstraint);
         collection.addUpperBound("T", std.numTypeConstraint);
         collection.addLowerBound(T_LHS, new TypeVariableConstraint("T"));
@@ -468,7 +469,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             //T -> T \ T < (num | bool), T > T
             IVariable expr = std.tExpr;
             IVariable rtn = std.tReturn;
-            ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+            IOverloadBindings collection = new OverloadBindings(overloadResolver);
             collection.addUpperBound("T", new TypeConstraint(numOrBoolTypeSymbol));
             collection.addLowerBound("T", new TypeVariableConstraint("T"));
             IFunctionType function = symbolFactory.createFunctionType(
@@ -490,7 +491,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             //T -> T \ T < num, T > T
             IVariable expr = std.tExpr;
             IVariable rtn = std.tReturn;
-            ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+            IOverloadBindings collection = new OverloadBindings(overloadResolver);
             collection.addUpperBound("T", std.numTypeConstraint);
             collection.addLowerBound("T", new TypeVariableConstraint("T"));
             IFunctionType function = symbolFactory.createFunctionType(
@@ -531,7 +532,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //T -> T
         IVariable expr = std.tExpr;
         IVariable rtn = std.tReturn;
-        ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+        IOverloadBindings collection = new OverloadBindings(overloadResolver);
         IFunctionType function = symbolFactory.createFunctionType(
                 "clone", collection, Arrays.asList(expr), rtn);
         addToOperators(TokenTypes.Clone, function);
@@ -542,7 +543,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //T -> T
         expr = std.tExpr;
         rtn = std.tReturn;
-        collection = new TypeVariableCollection(overloadResolver);
+        collection = new OverloadBindings(overloadResolver);
         function = symbolFactory.createFunctionType("new", collection, Arrays.asList(expr), rtn);
         addToOperators(TokenTypes.New, function);
     }
@@ -551,7 +552,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //T -> T
         IVariable expr = std.tExpr;
         IVariable rtn = std.tReturn;
-        ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+        IOverloadBindings collection = new OverloadBindings(overloadResolver);
         IFunctionType function = symbolFactory.createFunctionType(
                 "@", collection, Arrays.asList(expr), rtn);
         addToOperators(TokenTypes.At, function);
@@ -563,7 +564,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         lhs.setHasFixedType();
         IVariable rhs = symbolFactory.createVariable("$rhs", T_RHS);
         rtn = std.fixTypedReturnVariable;
-        collection = new TypeVariableCollection(overloadResolver);
+        collection = new OverloadBindings(overloadResolver);
         collection.addLowerBound(T_RETURN, new TypeVariableConstraint(T_LHS));
         function = symbolFactory.createFunctionType("cast", collection, Arrays.asList(lhs, rhs), rtn);
         addToOperators(TokenTypes.CAST, function);
@@ -575,7 +576,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             TypeConstraint rightBound,
             TypeConstraint returnBound) {
 
-        ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+        IOverloadBindings collection = new OverloadBindings(overloadResolver);
         collection.addUpperBound(T_LHS, leftBound);
         collection.addUpperBound(T_RHS, rightBound);
         collection.addLowerBound(T_RETURN, returnBound);
@@ -589,7 +590,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
     private void addToUnaryOperators(
             Pair<String, Integer> operator, TypeConstraint formalBound, TypeConstraint returnBound) {
 
-        ITypeVariableCollection collection = new TypeVariableCollection(overloadResolver);
+        IOverloadBindings collection = new OverloadBindings(overloadResolver);
         collection.addUpperBound(T_EXPR, formalBound);
         collection.addLowerBound(T_RETURN, returnBound);
 

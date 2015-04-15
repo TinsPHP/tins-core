@@ -9,8 +9,8 @@ package ch.tsphp.tinsphp.core.gen;
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.inference.constraints.IFunctionType;
+import ch.tsphp.tinsphp.common.inference.constraints.IOverloadBindings;
 import ch.tsphp.tinsphp.common.inference.constraints.IOverloadResolver;
-import ch.tsphp.tinsphp.common.inference.constraints.ITypeVariableCollection;
 import ch.tsphp.tinsphp.common.symbols.IClassTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
@@ -20,7 +20,7 @@ import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.ISymbolProvider;
 import ch.tsphp.tinsphp.core.StandardConstraintAndVariables;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
-import ch.tsphp.tinsphp.symbols.constraints.TypeVariableCollection;
+import ch.tsphp.tinsphp.symbols.constraints.OverloadBindings;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,12 +57,12 @@ public class BuiltInSymbolsProvider extends AProvider implements ISymbolProvider
         Map<String, ISymbol> symbols = new HashMap<>();
         IUnionTypeSymbol unionTypeSymbol;
         IFunctionType function;
-        ITypeVariableCollection collection;
+        IOverloadBindings collection;
         IVariableSymbol constant;
         IMinimalMethodSymbol methodSymbol;
 
         //string x string -> (int | false)
-        collection = new TypeVariableCollection(overloadResolver);
+        collection = new OverloadBindings(overloadResolver);
         collection.addUpperBound(T_LHS, std.stringTypeConstraint);
         collection.addUpperBound(T_RHS, std.stringTypeConstraint);
         collection.addLowerBound(T_RETURN, std.intOrFalseTypeConstraint);

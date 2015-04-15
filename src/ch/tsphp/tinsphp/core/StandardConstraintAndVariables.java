@@ -11,6 +11,7 @@ import ch.tsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.inference.constraints.IVariable;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
+import ch.tsphp.tinsphp.symbols.TypeVariableNames;
 import ch.tsphp.tinsphp.symbols.constraints.TypeConstraint;
 
 import java.util.Arrays;
@@ -106,9 +107,9 @@ public class StandardConstraintAndVariables
         IVariable rhs = symbolFactory.createVariable("$rhs", T_RHS);
         rhs.setHasFixedType();
         binaryParameterIds = Arrays.asList(lhs, rhs);
-        fixTypedReturnVariable = symbolFactory.createVariable("rtn", T_RETURN);
+        fixTypedReturnVariable = symbolFactory.createVariable(TypeVariableNames.RETURN_VARIABLE_NAME, T_RETURN);
         fixTypedReturnVariable.setHasFixedType();
-        variableTypedReturnVariable = symbolFactory.createVariable("rtn", T_RETURN);
+        variableTypedReturnVariable = symbolFactory.createVariable(TypeVariableNames.RETURN_VARIABLE_NAME, T_RETURN);
 
         IVariable expr = symbolFactory.createVariable("$expr", T_EXPR);
         expr.setHasFixedType();
@@ -116,7 +117,7 @@ public class StandardConstraintAndVariables
 
         tLhs = symbolFactory.createVariable("$lhs", "T");
         tRhs = symbolFactory.createVariable("$rhs", "T");
-        tReturn = symbolFactory.createVariable("rtn", "T");
+        tReturn = symbolFactory.createVariable(TypeVariableNames.RETURN_VARIABLE_NAME, "T");
         tExpr = symbolFactory.createVariable("$expr", "T");
     }
 }
