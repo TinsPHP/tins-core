@@ -7,20 +7,19 @@
 package ch.tsphp.tinsphp.core.gen;
 
 import ch.tsphp.common.symbols.ISymbol;
-import ch.tsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.inference.constraints.IFunctionType;
 import ch.tsphp.tinsphp.common.inference.constraints.IOverloadBindings;
-import ch.tsphp.tinsphp.common.inference.constraints.IOverloadResolver;
 import ch.tsphp.tinsphp.common.symbols.IClassTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
+import ch.tsphp.tinsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IVariableSymbol;
+import ch.tsphp.tinsphp.common.utils.IOverloadResolver;
 import ch.tsphp.tinsphp.core.AProvider;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.ISymbolProvider;
 import ch.tsphp.tinsphp.core.StandardConstraintAndVariables;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
-import ch.tsphp.tinsphp.symbols.constraints.OverloadBindings;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -62,12 +61,12 @@ public class BuiltInSymbolsProvider extends AProvider implements ISymbolProvider
         IMinimalMethodSymbol methodSymbol;
 
         //string x string -> (int | false)
-        collection = new OverloadBindings(overloadResolver);
-        collection.addUpperBound(T_LHS, std.stringTypeConstraint);
-        collection.addUpperBound(T_RHS, std.stringTypeConstraint);
-        collection.addLowerBound(T_RETURN, std.intOrFalseTypeConstraint);
+        collection = createBindings(std.fixTLhs, std.fixTRhs, std.fixTReturn);
+        collection.addUpperTypeBound(T_LHS, std.stringTypeSymbol);
+        collection.addUpperTypeBound(T_RHS, std.stringTypeSymbol);
+        collection.addLowerTypeBound(T_RETURN, std.intOrFalse);
         function = symbolFactory.createFunctionType(
-                "strpos", collection, std.binaryParameterIds, std.fixTypedReturnVariable);
+                "strpos", collection, std.fixBinaryParameterIds, std.fixTReturn);
         methodSymbol = symbolFactory.createMinimalMethodSymbol("strpos");
         methodSymbol.addOverload(function);
         symbols.put("\\strpos()", methodSymbol);

@@ -9,14 +9,13 @@ package ch.tsphp.tinsphp.core;
 import ch.tsphp.common.IAstHelper;
 import ch.tsphp.common.ITSPHPAst;
 import ch.tsphp.common.symbols.ITypeSymbol;
-import ch.tsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IClassTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IMethodSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
+import ch.tsphp.tinsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IVariableSymbol;
 import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class GeneratorHelper implements IGeneratorHelper
@@ -63,15 +62,14 @@ public class GeneratorHelper implements IGeneratorHelper
 
     @Override
     public IUnionTypeSymbol createUnionTypeSymbolFromPrimitives(String... types) {
-        Map<String, ITypeSymbol> unionTypes;
-        unionTypes = new HashMap<>();
+        IUnionTypeSymbol unionTypeSymbol = symbolFactory.createUnionTypeSymbol();
         for (String type : types) {
             if (primitiveTypes.containsKey(type)) {
-                unionTypes.put(type, primitiveTypes.get(type));
+                unionTypeSymbol.addTypeSymbol(primitiveTypes.get(type));
             } else {
                 throw new IllegalArgumentException(type + " was not found in the primitive types.");
             }
         }
-        return symbolFactory.createUnionTypeSymbol(unionTypes);
+        return unionTypeSymbol;
     }
 }

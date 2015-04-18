@@ -6,8 +6,12 @@
 
 package ch.tsphp.tinsphp.core;
 
-import ch.tsphp.tinsphp.common.inference.constraints.IOverloadResolver;
+import ch.tsphp.tinsphp.common.inference.constraints.IOverloadBindings;
+import ch.tsphp.tinsphp.common.inference.constraints.IVariable;
+import ch.tsphp.tinsphp.common.inference.constraints.TypeVariableConstraint;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
+import ch.tsphp.tinsphp.common.utils.IOverloadResolver;
+import ch.tsphp.tinsphp.symbols.constraints.OverloadBindings;
 
 public abstract class AProvider
 {
@@ -22,5 +26,14 @@ public abstract class AProvider
         symbolFactory = theSymbolFactory;
         overloadResolver = theOverloadResolver;
         std = standardConstraintAndVariables;
+    }
+
+    protected IOverloadBindings createBindings(IVariable... variables) {
+        OverloadBindings overloadBindings = new OverloadBindings(symbolFactory, overloadResolver);
+        for (IVariable variable : variables) {
+            overloadBindings.addVariable(
+                    variable.getAbsoluteName(), new TypeVariableConstraint(variable.getTypeVariable()));
+        }
+        return overloadBindings;
     }
 }

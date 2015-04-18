@@ -8,9 +8,9 @@ package ch.tsphp.tinsphp.core.test.integration;
 
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.ITypeSymbol;
-import ch.tsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IClassTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IMethodSymbol;
+import ch.tsphp.tinsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IVariableSymbol;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.test.integration.testutils.ATest;
@@ -18,11 +18,9 @@ import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
 import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.everyItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
-import static org.hamcrest.collection.IsIn.isIn;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.mockito.Matchers.any;
@@ -173,20 +171,20 @@ public class GeneratorHelperTest extends ATest
                 PrimitiveTypeNames.NULL,
                 PrimitiveTypeNames.TRUE,
                 PrimitiveTypeNames.FALSE,
-                PrimitiveTypeNames.BOOL,
+//                PrimitiveTypeNames.BOOL,
                 PrimitiveTypeNames.INT,
                 PrimitiveTypeNames.FLOAT,
-                PrimitiveTypeNames.NUM,
+//                PrimitiveTypeNames.NUM,
                 PrimitiveTypeNames.STRING,
-                PrimitiveTypeNames.SCALAR,
+//                PrimitiveTypeNames.SCALAR,
                 PrimitiveTypeNames.ARRAY,
-                PrimitiveTypeNames.RESOURCE,
-                PrimitiveTypeNames.MIXED
+                PrimitiveTypeNames.RESOURCE
+//                PrimitiveTypeNames.MIXED
         );
 
-        assertThat(result.getTypeSymbols().entrySet(), everyItem(isIn(primitiveTypes.entrySet())));
+        assertThat(result.getTypeSymbols().keySet(),
+                containsInAnyOrder("null", "true", "false", "int", "float", "string", "array", "resource"));
     }
-
 
     private IGeneratorHelper createGenerator() {
         return createGenerator(astHelper, symbolFactory, primitiveTypes);

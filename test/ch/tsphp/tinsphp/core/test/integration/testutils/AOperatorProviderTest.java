@@ -6,8 +6,8 @@
 
 package ch.tsphp.tinsphp.core.test.integration.testutils;
 
-import ch.tsphp.tinsphp.common.inference.constraints.IOverloadResolver;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
+import ch.tsphp.tinsphp.common.utils.IOverloadResolver;
 import ch.tsphp.tinsphp.core.IOperatorsProvider;
 import ch.tsphp.tinsphp.core.OperatorProvider;
 import ch.tsphp.tinsphp.core.StandardConstraintAndVariables;
