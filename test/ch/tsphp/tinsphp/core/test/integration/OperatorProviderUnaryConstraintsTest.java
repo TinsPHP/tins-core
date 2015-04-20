@@ -62,7 +62,12 @@ public class OperatorProviderUnaryConstraintsTest extends AOperatorProviderTest
                 {"postIncr", TokenTypes.POST_INCREMENT},
                 {"postDecr", TokenTypes.POST_DECREMENT},
                 {"clone", TokenTypes.Clone},
-                {"new", TokenTypes.New}
+                {"new", TokenTypes.New},
+                {"if", TokenTypes.If},
+                {"while", TokenTypes.While},
+                {"do", TokenTypes.Do},
+                {"for", TokenTypes.For},
+                {"switch", TokenTypes.Switch},
         });
     }
 }

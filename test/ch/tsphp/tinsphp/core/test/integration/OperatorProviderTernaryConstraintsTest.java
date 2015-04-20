@@ -52,7 +52,8 @@ public class OperatorProviderTernaryConstraintsTest extends AOperatorProviderTes
     @Parameterized.Parameters
     public static Collection<Object[]> testStrings() {
         return Arrays.asList(new Object[][]{
-                {"?", TokenTypes.QuestionMark}
+                {"?", TokenTypes.QuestionMark},
+                {"foreach", TokenTypes.Foreach},
         });
     }
 }

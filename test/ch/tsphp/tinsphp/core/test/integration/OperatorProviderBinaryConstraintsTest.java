@@ -88,7 +88,8 @@ public class OperatorProviderBinaryConstraintsTest extends AOperatorProviderTest
                 {"*", TokenTypes.Multiply},
                 {"/", TokenTypes.Divide},
                 {"%", TokenTypes.Modulo},
-                {"instanceof", TokenTypes.Instanceof}
+                {"instanceof", TokenTypes.Instanceof},
+                {"catch", TokenTypes.Catch},
         });
     }
 }

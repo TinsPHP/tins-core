@@ -32,6 +32,7 @@ public class StandardConstraintAndVariables
     public final ITypeSymbol floatTypeSymbol;
     public final ITypeSymbol numTypeSymbol;
     public final ITypeSymbol stringTypeSymbol;
+    public final ITypeSymbol scalarTypeSymbol;
     public final ITypeSymbol arrayTypeSymbol;
     public final ITypeSymbol mixedTypeSymbol;
     public final IUnionTypeSymbol numOrFalse;
@@ -62,6 +63,7 @@ public class StandardConstraintAndVariables
         floatTypeSymbol = primitiveType.get(PrimitiveTypeNames.FLOAT);
         numTypeSymbol = primitiveType.get(PrimitiveTypeNames.NUM);
         stringTypeSymbol = primitiveType.get(PrimitiveTypeNames.STRING);
+        scalarTypeSymbol = primitiveType.get(PrimitiveTypeNames.SCALAR);
         arrayTypeSymbol = primitiveType.get(PrimitiveTypeNames.ARRAY);
         mixedTypeSymbol = primitiveType.get(PrimitiveTypeNames.MIXED);
 

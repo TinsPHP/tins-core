@@ -97,6 +97,13 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"uPlus", TokenTypes.UNARY_PLUS, 2},
                 {"postIncr", TokenTypes.POST_INCREMENT, 1},
                 {"postDecr", TokenTypes.POST_DECREMENT, 1},
+                {"if", TokenTypes.If, 1},
+                {"while", TokenTypes.While, 1},
+                {"do", TokenTypes.Do, 1},
+                {"for", TokenTypes.For, 1},
+                {"foreach", TokenTypes.Foreach, 1},
+                {"switch", TokenTypes.Switch, 1},
+                {"catch", TokenTypes.Catch, 1},
         });
     }
 }

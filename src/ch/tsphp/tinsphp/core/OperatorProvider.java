@@ -51,8 +51,8 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
     private void createOperators() {
         builtInOperators = new HashMap<>();
-
         addOperatorLists();
+
         defineLogicOperators();
         defineAssignmentOperators();
         defineBitLevelOperators();
@@ -61,8 +61,10 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         defineArithmeticOperators();
         defineDotOperator();
         defineInstanceOfOperator();
-        defineAtAndCastOperator();
         defineCloneAndNewOperator();
+        defineAtAndCastOperator();
+
+        defineControlFlowOperator();
     }
 
     private void addOperatorLists() {
@@ -96,6 +98,14 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
                 pair("clone", TokenTypes.Clone), pair("new", TokenTypes.New),
                 //ternary operators
                 pair("?", TokenTypes.QuestionMark),
+                //control flow operators
+                pair("if", TokenTypes.If),
+                pair("while", TokenTypes.While),
+                pair("do", TokenTypes.Do),
+                pair("for", TokenTypes.For),
+                pair("foreach", TokenTypes.Foreach),
+                pair("switch", TokenTypes.Switch),
+                pair("catch", TokenTypes.Catch),
         };
 
         for (Pair<String, Integer> operatorType : operatorTypes) {
@@ -553,6 +563,63 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         collection.addLowerRefBound(T_RETURN, new TypeVariableConstraint(T_LHS));
         function = symbolFactory.createFunctionType("cast", collection, Arrays.asList(lhs, rhs), rtn);
         addToOperators(TokenTypes.CAST, function);
+    }
+
+    private void defineControlFlowOperator() {
+        //TODO rstoll TINS-391 - Introduce void as own type
+        //bool -> mixed
+        addToUnaryOperators(pair("if", TokenTypes.If), std.boolTypeSymbol, std.mixedTypeSymbol);
+
+        //TODO rstoll TINS-391 - Introduce void as own type
+        //bool -> mixed
+        addToUnaryOperators(pair("while", TokenTypes.While), std.boolTypeSymbol, std.mixedTypeSymbol);
+
+        //TODO rstoll TINS-391 - Introduce void as own type
+        //bool -> mixed
+        addToUnaryOperators(pair("do", TokenTypes.Do), std.boolTypeSymbol, std.mixedTypeSymbol);
+
+        //TODO rstoll TINS-391 - Introduce void as own type
+        //bool -> mixed
+        addToUnaryOperators(pair("for", TokenTypes.For), std.boolTypeSymbol, std.mixedTypeSymbol);
+
+
+        //key and value are switched
+        //array x mixed x (int|string) -> mixed
+        IUnionTypeSymbol intOrString = symbolFactory.createUnionTypeSymbol();
+        intOrString.addTypeSymbol(std.intTypeSymbol);
+        intOrString.addTypeSymbol(std.stringTypeSymbol);
+
+        IVariable arr = symbolFactory.createVariable("$arr", "Tarr");
+        arr.setHasFixedType();
+        IVariable value = symbolFactory.createVariable("$value", "Tvalue");
+        value.setHasFixedType();
+        IVariable key = symbolFactory.createVariable("$key", "Tkey");
+        key.setHasFixedType();
+        IVariable rtn = std.fixTReturn;
+        rtn.setHasFixedType();
+        IOverloadBindings collection = createBindings(arr, value, key, rtn);
+        collection.addLowerTypeBound("Tarr", std.arrayTypeSymbol);
+        collection.addUpperTypeBound("Tarr", std.arrayTypeSymbol);
+        collection.addLowerTypeBound("Tkey", intOrString);
+        collection.addUpperTypeBound("Tkey", intOrString);
+        collection.addLowerTypeBound("Tvalue", std.mixedTypeSymbol);
+        collection.addUpperTypeBound("Tvalue", std.mixedTypeSymbol);
+        IFunctionType function
+                = symbolFactory.createFunctionType("foreach", collection, Arrays.asList(arr, value, key), rtn);
+        addToOperators(TokenTypes.Foreach, function);
+
+        //TODO rstoll TINS-391 - Introduce void as own type
+        //scalar -> mixed
+        addToUnaryOperators(pair("switch", TokenTypes.Switch), std.scalarTypeSymbol, std.mixedTypeSymbol);
+
+        //Tlhs x Trhs -> Trhs \ Trhs > Tlhs
+        IVariable lhs = std.variableTLhs;
+        IVariable rhs = std.variableTRhs;
+        rtn = std.variableTReturn;
+        collection = createBindings(lhs, rhs, rtn);
+        collection.addLowerRefBound(T_RHS, new TypeVariableConstraint(T_LHS));
+        function = symbolFactory.createFunctionType("catch", collection, Arrays.asList(lhs, rhs), rtn);
+        addToOperators(TokenTypes.Catch, function);
     }
 
     private void addToBinaryOperators(
