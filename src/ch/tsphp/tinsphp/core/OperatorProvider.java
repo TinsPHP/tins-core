@@ -179,7 +179,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //Tlhs x Trhs -> Tlhs \ Tlhs > Trhs
         IVariable lhs = std.variableTLhs;
         IVariable rhs = std.variableTRhs;
-        IVariable rtn = std.variableTReturn;
+        IVariable rtn = symbolFactory.createVariable(TypeVariableNames.RETURN_VARIABLE_NAME, T_LHS);
         IOverloadBindings collection = createBindings(lhs, rhs, rtn);
         collection.addLowerRefBound(T_LHS, new TypeVariableConstraint(T_RHS));
         function = symbolFactory.createFunctionType("=", collection, Arrays.asList(lhs, rhs), rtn);
