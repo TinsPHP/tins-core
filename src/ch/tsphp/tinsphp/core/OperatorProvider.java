@@ -30,6 +30,7 @@ import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_LHS;
 import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_RETURN;
 import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_RHS;
 
+@SuppressWarnings("checkstyle:todocomment")
 public class OperatorProvider extends AProvider implements IOperatorsProvider
 {
 
