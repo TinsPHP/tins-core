@@ -44,7 +44,7 @@ public class CoreTest extends ATest
         ICore core = createCore();
         Map<Integer, IMinimalMethodSymbol> result = core.getOperators();
 
-        assertThat(result.size(), is(57));
+        assertThat(result.size(), is(60));
     }
 
     @Test

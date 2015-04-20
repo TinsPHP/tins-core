@@ -68,6 +68,9 @@ public class OperatorProviderUnaryConstraintsTest extends AOperatorProviderTest
                 {"do", TokenTypes.Do},
                 {"for", TokenTypes.For},
                 {"switch", TokenTypes.Switch},
+                {"echo", TokenTypes.Echo},
+                {"exit", TokenTypes.Exit},
+                {"throw", TokenTypes.Throw},
         });
     }
 }

@@ -47,7 +47,8 @@ public class Core implements ICore
         implicitConversions = conversionProvider.getImplicitConversions();
         explicitConversions = conversionProvider.getExplicitConversions();
 
-        IOperatorsProvider operatorsProvider = new OperatorProvider(symbolFactory, overloadResolver, std);
+        IOperatorsProvider operatorsProvider = new OperatorProvider(
+                symbolFactory, overloadResolver, std, builtInSymbolProvider.getSymbols());
         operators = operatorsProvider.getOperators();
     }
 

@@ -104,6 +104,9 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"foreach", TokenTypes.Foreach, 1},
                 {"switch", TokenTypes.Switch, 1},
                 {"catch", TokenTypes.Catch, 1},
+                {"echo", TokenTypes.Echo, 1},
+                {"exit", TokenTypes.Exit, 2},
+                {"throw", TokenTypes.Throw, 1}
         });
     }
 }

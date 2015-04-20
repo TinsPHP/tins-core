@@ -6,6 +6,7 @@
 
 package ch.tsphp.tinsphp.core;
 
+import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.inference.constraints.IFunctionType;
 import ch.tsphp.tinsphp.common.inference.constraints.IOverloadBindings;
@@ -33,12 +34,15 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 {
 
     private Map<Integer, IMinimalMethodSymbol> builtInOperators;
+    private final Map<String, ISymbol> builtInSymbols;
 
     public OperatorProvider(
             ISymbolFactory theSymbolFactory,
             IOverloadResolver theOverloadResolver,
-            StandardConstraintAndVariables standardConstraintAndVariables) {
+            StandardConstraintAndVariables standardConstraintAndVariables,
+            Map<String, ISymbol> theBuiltInSymbols) {
         super(theSymbolFactory, theOverloadResolver, standardConstraintAndVariables);
+        builtInSymbols = theBuiltInSymbols;
     }
 
     @Override
@@ -64,7 +68,8 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         defineCloneAndNewOperator();
         defineAtAndCastOperator();
 
-        defineControlFlowOperator();
+        defineControlFlowOperators();
+        defineGlobalFunctions();
     }
 
     private void addOperatorLists() {
@@ -106,6 +111,10 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
                 pair("foreach", TokenTypes.Foreach),
                 pair("switch", TokenTypes.Switch),
                 pair("catch", TokenTypes.Catch),
+                //global function
+                pair("echo", TokenTypes.Echo),
+                pair("exit", TokenTypes.Exit),
+                pair("throw", TokenTypes.Throw),
         };
 
         for (Pair<String, Integer> operatorType : operatorTypes) {
@@ -565,22 +574,30 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         addToOperators(TokenTypes.CAST, function);
     }
 
-    private void defineControlFlowOperator() {
+    private void defineControlFlowOperators() {
         //TODO rstoll TINS-391 - Introduce void as own type
         //bool -> mixed
         addToUnaryOperators(pair("if", TokenTypes.If), std.boolTypeSymbol, std.mixedTypeSymbol);
+        //TODO rstoll TINS-347 create overloads for conversion constraints
+        //~{as bool} -> void
 
         //TODO rstoll TINS-391 - Introduce void as own type
         //bool -> mixed
         addToUnaryOperators(pair("while", TokenTypes.While), std.boolTypeSymbol, std.mixedTypeSymbol);
+        //TODO rstoll TINS-347 create overloads for conversion constraints
+        //~{as bool} -> void
 
         //TODO rstoll TINS-391 - Introduce void as own type
         //bool -> mixed
         addToUnaryOperators(pair("do", TokenTypes.Do), std.boolTypeSymbol, std.mixedTypeSymbol);
+        //TODO rstoll TINS-347 create overloads for conversion constraints
+        //~{as bool} -> void
 
         //TODO rstoll TINS-391 - Introduce void as own type
         //bool -> mixed
         addToUnaryOperators(pair("for", TokenTypes.For), std.boolTypeSymbol, std.mixedTypeSymbol);
+        //TODO rstoll TINS-347 create overloads for conversion constraints
+        //~{as bool} -> void
 
 
         //key and value are switched
@@ -620,6 +637,28 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         collection.addLowerRefBound(T_RHS, new TypeVariableConstraint(T_LHS));
         function = symbolFactory.createFunctionType("catch", collection, Arrays.asList(lhs, rhs), rtn);
         addToOperators(TokenTypes.Catch, function);
+    }
+
+    private void defineGlobalFunctions() {
+        //TODO rstoll TINS-391 - Introduce void as own type
+        //string -> mixed
+        addToUnaryOperators(pair("echo", TokenTypes.Echo), std.stringTypeSymbol, std.mixedTypeSymbol);
+        //TODO rstoll TINS-347 create overloads for conversion constraints
+        //~{as string} -> void
+
+        //TODO rstoll TINS-391 - Introduce void as own type
+        //int -> mixed
+        addToUnaryOperators(pair("exit", TokenTypes.Exit), std.intTypeSymbol, std.mixedTypeSymbol);
+        //TODO rstoll TINS-391 - Introduce void as own type
+        //string -> mixed
+        addToUnaryOperators(pair("exit", TokenTypes.Exit), std.stringTypeSymbol, std.mixedTypeSymbol);
+        //TODO rstoll TINS-347 create overloads for conversion constraints
+        //~{as string} -> void
+
+        //TODO rstoll TINS-394 introduce nothing as own type
+        // Exception -> mixed
+        ITypeSymbol exception = (ITypeSymbol) builtInSymbols.get("\\Exception");
+        addToUnaryOperators(pair("throw", TokenTypes.Throw), exception, std.mixedTypeSymbol);
     }
 
     private void addToBinaryOperators(
