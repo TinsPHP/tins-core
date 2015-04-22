@@ -4,18 +4,18 @@
  * root folder or visit the project's website http://tsphp.ch/wiki/display/TINS/License
  */
 
-package ch.tsphp.tinsphp.core.test.integration;
+package ch.tsphp.tinsphp.core.test.system;
 
-import ch.tsphp.common.IAstHelper;
+import ch.tsphp.common.AstHelper;
+import ch.tsphp.common.TSPHPAstAdaptor;
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.ICore;
-import ch.tsphp.tinsphp.common.resolving.ISymbolResolver;
+import ch.tsphp.tinsphp.common.config.ICoreInitialiser;
 import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
-import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
-import ch.tsphp.tinsphp.common.utils.IOverloadResolver;
-import ch.tsphp.tinsphp.core.Core;
+import ch.tsphp.tinsphp.core.config.HardCodedCoreInitialiser;
 import ch.tsphp.tinsphp.core.test.integration.testutils.ATest;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
+import ch.tsphp.tinsphp.symbols.config.HardCodedSymbolsInitialiser;
 import org.junit.Test;
 
 import java.util.Map;
@@ -26,22 +26,13 @@ import static org.hamcrest.collection.IsMapContaining.hasKey;
 
 public class CoreTest extends ATest
 {
-    @Test
-    public void getCoreSymbolResolver_SecondCall_ReturnsSameInstanceAsFirstCall() {
-        //no arrange necessary
-
-        ICore core = createCore();
-        ISymbolResolver firstCall = core.getCoreSymbolResolver();
-        ISymbolResolver result = core.getCoreSymbolResolver();
-
-        assertThat(result, is(firstCall));
-    }
 
     @Test
     public void getOperators_Standard_ReturnsAllOperators() {
         //no arrange necessary
 
-        ICore core = createCore();
+        ICoreInitialiser initialiser = createInitialiser();
+        ICore core = initialiser.getCore();
         Map<Integer, IMinimalMethodSymbol> result = core.getOperators();
 
         assertThat(result.size(), is(60));
@@ -51,7 +42,8 @@ public class CoreTest extends ATest
     public void getPrimitiveTypes_Standard_ReturnAllTypes() {
         //no arrange necessary
 
-        ICore core = createCore();
+        ICoreInitialiser initialiser = createInitialiser();
+        ICore core = initialiser.getCore();
         Map<String, ITypeSymbol> result = core.getPrimitiveTypes();
 
         assertThat(result, hasKey(PrimitiveTypeNames.NULL));
@@ -68,12 +60,7 @@ public class CoreTest extends ATest
         assertThat(result, hasKey(PrimitiveTypeNames.MIXED));
     }
 
-    private ICore createCore() {
-        return createCore(symbolFactory, overloadResolver, astHelper);
-    }
-
-    protected ICore createCore(
-            ISymbolFactory theSymbolFactory, IOverloadResolver theOverloadResolver, IAstHelper theAstHelper) {
-        return new Core(theSymbolFactory, theOverloadResolver, theAstHelper);
+    protected ICoreInitialiser createInitialiser() {
+        return new HardCodedCoreInitialiser(new AstHelper(new TSPHPAstAdaptor()), new HardCodedSymbolsInitialiser());
     }
 }

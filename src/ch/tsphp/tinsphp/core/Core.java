@@ -6,50 +6,31 @@
 
 package ch.tsphp.tinsphp.core;
 
-import ch.tsphp.common.IAstHelper;
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.IConversionMethod;
 import ch.tsphp.tinsphp.common.ICore;
-import ch.tsphp.tinsphp.common.resolving.ISymbolResolver;
 import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
-import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
-import ch.tsphp.tinsphp.common.utils.IOverloadResolver;
-import ch.tsphp.tinsphp.core.gen.BuiltInSymbolsProvider;
-import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
 
 import java.util.Map;
 
 public class Core implements ICore
 {
-    private final ISymbolResolver coreSymbolResolver;
+
     private final Map<String, ITypeSymbol> primitiveTypes;
     private final Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> implicitConversions;
     private final Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> explicitConversions;
     private final Map<Integer, IMinimalMethodSymbol> operators;
 
-    public Core(ISymbolFactory symbolFactory, IOverloadResolver overloadResolver, IAstHelper astHelper) {
-        primitiveTypes = new PrimitiveTypesProvider(symbolFactory).getTypes();
+    public Core(
+            Map<String, ITypeSymbol> thePrimitiveTypes,
+            Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> theImplicitConversions,
+            Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> theExplicitConversions,
+            Map<Integer, IMinimalMethodSymbol> theOperators) {
 
-        symbolFactory.setMixedTypeSymbol(primitiveTypes.get(PrimitiveTypeNames.MIXED));
-
-        IGeneratorHelper generatorHelper = new GeneratorHelper(astHelper, symbolFactory, primitiveTypes);
-        StandardConstraintAndVariables std = new StandardConstraintAndVariables(symbolFactory, primitiveTypes);
-
-        ISymbolProvider builtInSymbolProvider = new BuiltInSymbolsProvider(
-                generatorHelper, symbolFactory, overloadResolver, std);
-        ISymbolProvider superGlobalSymbolResolver = new BuiltInSuperGlobalSymbolsProvider(
-                generatorHelper, symbolFactory, primitiveTypes);
-
-        coreSymbolResolver = new CoreSymbolResolver(
-                builtInSymbolProvider.getSymbols(), superGlobalSymbolResolver.getSymbols());
-
-        IConversionsProvider conversionProvider = new ConversionsProvider(primitiveTypes);
-        implicitConversions = conversionProvider.getImplicitConversions();
-        explicitConversions = conversionProvider.getExplicitConversions();
-
-        IOperatorsProvider operatorsProvider = new OperatorProvider(
-                symbolFactory, overloadResolver, std, builtInSymbolProvider.getSymbols());
-        operators = operatorsProvider.getOperators();
+        primitiveTypes = thePrimitiveTypes;
+        implicitConversions = theImplicitConversions;
+        explicitConversions = theExplicitConversions;
+        operators = theOperators;
     }
 
     @Override
@@ -70,11 +51,6 @@ public class Core implements ICore
     @Override
     public Map<String, ITypeSymbol> getPrimitiveTypes() {
         return primitiveTypes;
-    }
-
-    @Override
-    public ISymbolResolver getCoreSymbolResolver() {
-        return coreSymbolResolver;
     }
 
 
