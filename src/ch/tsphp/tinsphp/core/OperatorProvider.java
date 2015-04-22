@@ -11,7 +11,7 @@ import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.inference.constraints.IFunctionType;
 import ch.tsphp.tinsphp.common.inference.constraints.IOverloadBindings;
 import ch.tsphp.tinsphp.common.inference.constraints.IVariable;
-import ch.tsphp.tinsphp.common.inference.constraints.TypeVariableConstraint;
+import ch.tsphp.tinsphp.common.inference.constraints.TypeVariableReference;
 import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.IUnionTypeSymbol;
@@ -201,7 +201,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         IVariable rhs = std.variableTRhs;
         IVariable rtn = symbolFactory.createVariable(TypeVariableNames.RETURN_VARIABLE_NAME, T_LHS);
         IOverloadBindings collection = createBindings(lhs, rhs, rtn);
-        collection.addLowerRefBound(T_LHS, new TypeVariableConstraint(T_RHS));
+        collection.addLowerRefBound(T_LHS, new TypeVariableReference(T_RHS));
         function = symbolFactory.createFunctionType("=", collection, Arrays.asList(lhs, rhs), rtn);
         addToOperators(TokenTypes.Assign, function);
 
@@ -300,7 +300,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         conditionVariable.setHasFixedType();
         collection.addUpperTypeBound(tIf, std.mixedTypeSymbol);
         ifVariable.setHasFixedType();
-        collection.addLowerRefBound(T_RETURN, new TypeVariableConstraint(tElse));
+        collection.addLowerRefBound(T_RETURN, new TypeVariableReference(tElse));
         IFunctionType function = symbolFactory.createFunctionType(
                 "?", collection, Arrays.asList(conditionVariable, ifVariable, elseVariable), rtn);
         addToOperators(TokenTypes.QuestionMark, function);
@@ -317,7 +317,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         conditionVariable.setHasFixedType();
         collection.addUpperTypeBound(tElse, std.mixedTypeSymbol);
         elseVariable.setHasFixedType();
-        collection.addLowerRefBound(T_RETURN, new TypeVariableConstraint(tIf));
+        collection.addLowerRefBound(T_RETURN, new TypeVariableReference(tIf));
         function = symbolFactory.createFunctionType(
                 "?", collection, Arrays.asList(conditionVariable, ifVariable, elseVariable), rtn);
         addToOperators(TokenTypes.QuestionMark, function);
@@ -331,8 +331,8 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         collection = createBindings(conditionVariable, ifVariable, elseVariable, rtn);
         collection.addUpperTypeBound(tCondition, std.boolTypeSymbol);
         conditionVariable.setHasFixedType();
-        collection.addLowerRefBound(T_RETURN, new TypeVariableConstraint(tIf));
-        collection.addLowerRefBound(T_RETURN, new TypeVariableConstraint(tElse));
+        collection.addLowerRefBound(T_RETURN, new TypeVariableReference(tIf));
+        collection.addLowerRefBound(T_RETURN, new TypeVariableReference(tElse));
         function = symbolFactory.createFunctionType(
                 "?", collection, Arrays.asList(conditionVariable, ifVariable, elseVariable), rtn);
         addToOperators(TokenTypes.QuestionMark, function);
@@ -416,7 +416,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         IOverloadBindings collection = createBindings(lhs, rhs, rtn);
         collection.addLowerTypeBound("T", std.floatTypeSymbol);
         collection.addUpperTypeBound("T", std.numTypeSymbol);
-        collection.addLowerRefBound(T_RETURN, new TypeVariableConstraint("T"));
+        collection.addLowerRefBound(T_RETURN, new TypeVariableReference("T"));
         collection.addLowerTypeBound(T_RETURN, std.falseTypeSymbol);
         function = symbolFactory.createFunctionType("/", collection, Arrays.asList(lhs, rhs), rtn);
         addToOperators(TokenTypes.Divide, function);
@@ -441,7 +441,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         collection = createBindings(lhs, rhs, rtn);
         collection.addLowerTypeBound("T", std.floatTypeSymbol);
         collection.addUpperTypeBound("T", std.numTypeSymbol);
-        collection.addLowerRefBound(T_LHS, new TypeVariableConstraint("T"));
+        collection.addLowerRefBound(T_LHS, new TypeVariableReference("T"));
         collection.addLowerTypeBound(T_LHS, std.falseTypeSymbol);
         function = symbolFactory.createFunctionType("/=", collection, Arrays.asList(lhs, rhs), rtn);
         addToOperators(TokenTypes.DivideAssign, function);
@@ -570,7 +570,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         IVariable rhs = std.variableTRhs;
         rtn = std.variableTReturn;
         collection = createBindings(lhs, rhs, rtn);
-        collection.addLowerRefBound(T_RETURN, new TypeVariableConstraint(T_LHS));
+        collection.addLowerRefBound(T_RETURN, new TypeVariableReference(T_LHS));
         function = symbolFactory.createFunctionType("cast", collection, Arrays.asList(lhs, rhs), rtn);
         addToOperators(TokenTypes.CAST, function);
     }
@@ -635,7 +635,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         IVariable rhs = std.variableTRhs;
         rtn = std.variableTReturn;
         collection = createBindings(lhs, rhs, rtn);
-        collection.addLowerRefBound(T_RHS, new TypeVariableConstraint(T_LHS));
+        collection.addLowerRefBound(T_RHS, new TypeVariableReference(T_LHS));
         function = symbolFactory.createFunctionType("catch", collection, Arrays.asList(lhs, rhs), rtn);
         addToOperators(TokenTypes.Catch, function);
     }
