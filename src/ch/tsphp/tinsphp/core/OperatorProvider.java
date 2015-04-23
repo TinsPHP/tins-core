@@ -618,10 +618,12 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         IOverloadBindings collection = createBindings(arr, value, key, rtn);
         collection.addLowerTypeBound("Tarr", std.arrayTypeSymbol);
         collection.addUpperTypeBound("Tarr", std.arrayTypeSymbol);
-        collection.addLowerTypeBound("Tkey", intOrString);
-        collection.addUpperTypeBound("Tkey", intOrString);
         collection.addLowerTypeBound("Tvalue", std.mixedTypeSymbol);
         collection.addUpperTypeBound("Tvalue", std.mixedTypeSymbol);
+        collection.addLowerTypeBound("Tkey", intOrString);
+        collection.addUpperTypeBound("Tkey", intOrString);
+        collection.addLowerTypeBound(T_RETURN, std.mixedTypeSymbol);
+        collection.addUpperTypeBound(T_RETURN, std.mixedTypeSymbol);
         IFunctionType function
                 = symbolFactory.createFunctionType("foreach", collection, Arrays.asList(arr, value, key), rtn);
         addToOperators(TokenTypes.Foreach, function);
@@ -633,7 +635,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //Tlhs x Trhs -> Trhs \ Trhs > Tlhs
         IVariable lhs = std.variableTLhs;
         IVariable rhs = std.variableTRhs;
-        rtn = std.variableTReturn;
+        rtn = symbolFactory.createVariable(TypeVariableNames.RETURN_VARIABLE_NAME, T_RHS);
         collection = createBindings(lhs, rhs, rtn);
         collection.addLowerRefBound(T_RHS, new TypeVariableReference(T_LHS));
         function = symbolFactory.createFunctionType("catch", collection, Arrays.asList(lhs, rhs), rtn);
