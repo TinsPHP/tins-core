@@ -6,11 +6,11 @@
 
 package ch.tsphp.tinsphp.core.test.integration;
 
+import ch.tsphp.common.IAstHelper;
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.core.BuiltInSuperGlobalSymbolsProvider;
-import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.ISymbolProvider;
 import ch.tsphp.tinsphp.core.test.integration.testutils.ATest;
 import org.junit.Test;
@@ -50,16 +50,13 @@ public class BuiltInSuperGlobalsProviderTest extends ATest
     }
 
     private ISymbolProvider createBuiltInSuperGlobalSymbolsProvider() {
-        return createBuiltInSuperGlobalSymbolsProvider(
-                createGenerator(astHelper, symbolFactory, primitiveTypes),
-                symbolFactory,
-                primitiveTypes);
+        return createBuiltInSuperGlobalSymbolsProvider(astHelper, symbolFactory, primitiveTypes);
     }
 
     protected ISymbolProvider createBuiltInSuperGlobalSymbolsProvider(
-            IGeneratorHelper theGeneratorHelper,
+            IAstHelper theAstHelper,
             ISymbolFactory theSymbolFactory,
             Map<String, ITypeSymbol> thePrimitiveType) {
-        return new BuiltInSuperGlobalSymbolsProvider(theGeneratorHelper, theSymbolFactory, thePrimitiveType);
+        return new BuiltInSuperGlobalSymbolsProvider(theAstHelper, theSymbolFactory, thePrimitiveType);
     }
 }

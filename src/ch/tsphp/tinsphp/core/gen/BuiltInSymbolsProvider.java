@@ -61,12 +61,11 @@ public class BuiltInSymbolsProvider extends AProvider implements ISymbolProvider
         IMinimalMethodSymbol methodSymbol;
 
         //string x string -> (int | false)
-        collection = createBindings(std.fixTLhs, std.fixTRhs, std.fixTReturn);
+        collection = createFixBinaryBindings();
         collection.addUpperTypeBound(T_LHS, std.stringTypeSymbol);
         collection.addUpperTypeBound(T_RHS, std.stringTypeSymbol);
         collection.addLowerTypeBound(T_RETURN, std.intOrFalse);
-        function = symbolFactory.createFunctionType(
-                "strpos", collection, std.fixBinaryParameterIds, std.fixTReturn);
+        function = symbolFactory.createFunctionType("strpos", collection, std.binaryParameterIds);
         methodSymbol = symbolFactory.createMinimalMethodSymbol("strpos");
         methodSymbol.addOverload(function);
         symbols.put("\\strpos()", methodSymbol);

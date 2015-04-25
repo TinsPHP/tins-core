@@ -11,7 +11,6 @@ import ch.tsphp.tinsphp.common.inference.constraints.IVariable;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
-import ch.tsphp.tinsphp.symbols.TypeVariableNames;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +23,9 @@ public class StandardConstraintAndVariables
     public static final String T_RHS = "Trhs";
     public static final String T_RETURN = "Treturn";
     public static final String T_EXPR = "Texpr";
+    public static final String VAR_LHS = "$lhs";
+    public static final String VAR_RHS = "$rhs";
+    public static final String VAR_EXPR = "$expr";
 
     public final ITypeSymbol falseTypeSymbol;
     public final ITypeSymbol trueTypeSymbol;
@@ -39,21 +41,11 @@ public class StandardConstraintAndVariables
     public final IUnionTypeSymbol floatOrFalse;
     public final IUnionTypeSymbol intOrFalse;
 
-    public final List<IVariable> fixBinaryParameterIds;
-    public final List<IVariable> fixUnaryParameterId;
-    public final IVariable fixTLhs;
-    public final IVariable fixTRhs;
-    public final IVariable fixTReturn;
-    public final IVariable fixTExpr;
-
-    public final IVariable variableTLhs;
-    public final IVariable variableTRhs;
-    public final IVariable variableTReturn;
-
-    public final IVariable tLhs;
-    public final IVariable tRhs;
-    public final IVariable tReturn;
-    public final IVariable tExpr;
+    public final List<IVariable> binaryParameterIds;
+    public final List<IVariable> unaryParameterId;
+    public final IVariable lhs;
+    public final IVariable rhs;
+    public final IVariable expr;
 
     public StandardConstraintAndVariables(ISymbolFactory symbolFactory, Map<String, ITypeSymbol> primitiveType) {
         falseTypeSymbol = primitiveType.get(PrimitiveTypeNames.FALSE);
@@ -79,24 +71,11 @@ public class StandardConstraintAndVariables
         floatOrFalse.addTypeSymbol(floatTypeSymbol);
         floatOrFalse.addTypeSymbol(falseTypeSymbol);
 
-        fixTLhs = symbolFactory.createVariable("$lhs", T_LHS);
-        fixTLhs.setHasFixedType();
-        fixTRhs = symbolFactory.createVariable("$rhs", T_RHS);
-        fixTRhs.setHasFixedType();
-        fixBinaryParameterIds = Arrays.asList(fixTLhs, fixTRhs);
-        fixTReturn = symbolFactory.createVariable(TypeVariableNames.RETURN_VARIABLE_NAME, T_RETURN);
-        fixTReturn.setHasFixedType();
-        fixTExpr = symbolFactory.createVariable("$expr", T_EXPR);
-        fixTExpr.setHasFixedType();
-        fixUnaryParameterId = Arrays.asList(fixTExpr);
+        lhs = symbolFactory.createVariable(VAR_LHS);
+        rhs = symbolFactory.createVariable(VAR_RHS);
+        binaryParameterIds = Arrays.asList(lhs, rhs);
 
-        variableTLhs = symbolFactory.createVariable("$lhs", T_LHS);
-        variableTRhs = symbolFactory.createVariable("$rhs", T_RHS);
-        variableTReturn = symbolFactory.createVariable(TypeVariableNames.RETURN_VARIABLE_NAME, T_RETURN);
-
-        tLhs = symbolFactory.createVariable("$lhs", "T");
-        tRhs = symbolFactory.createVariable("$rhs", "T");
-        tReturn = symbolFactory.createVariable(TypeVariableNames.RETURN_VARIABLE_NAME, "T");
-        tExpr = symbolFactory.createVariable("$expr", "T");
+        expr = symbolFactory.createVariable(VAR_EXPR);
+        unaryParameterId = Arrays.asList(expr);
     }
 }

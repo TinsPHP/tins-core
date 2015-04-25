@@ -51,7 +51,7 @@ public class HardCodedCoreInitialiser implements ICoreInitialiser
         ISymbolProvider builtInSymbolProvider = new BuiltInSymbolsProvider(
                 generatorHelper, symbolFactory, overloadResolver, std);
         ISymbolProvider superGlobalSymbolResolver = new BuiltInSuperGlobalSymbolsProvider(
-                generatorHelper, symbolFactory, primitiveTypes);
+                astHelper, symbolFactory, primitiveTypes);
 
         coreSymbolResolver = new CoreSymbolResolver(
                 builtInSymbolProvider.getSymbols(), superGlobalSymbolResolver.getSymbols());

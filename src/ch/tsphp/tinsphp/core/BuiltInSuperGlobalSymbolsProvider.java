@@ -6,11 +6,14 @@
 
 package ch.tsphp.tinsphp.core;
 
+import ch.tsphp.common.IAstHelper;
+import ch.tsphp.common.ITSPHPAst;
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.ITypeSymbol;
-import ch.tsphp.tinsphp.common.symbols.IArrayTypeSymbol;
+import ch.tsphp.tinsphp.common.symbols.IMinimalVariableSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
+import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,16 +21,16 @@ import java.util.Map;
 public class BuiltInSuperGlobalSymbolsProvider implements ISymbolProvider
 {
 
-    private final IGeneratorHelper generatorHelper;
+    private final IAstHelper astHelper;
     private final ISymbolFactory symbolFactory;
     private final Map<String, ITypeSymbol> primitiveTypes;
     private Map<String, ISymbol> builtInSuperGlobals;
 
     public BuiltInSuperGlobalSymbolsProvider(
-            IGeneratorHelper theGeneratorHelper,
+            IAstHelper theAstHelper,
             ISymbolFactory theSymbolFactory,
             Map<String, ITypeSymbol> thePrimitiveType) {
-        generatorHelper = theGeneratorHelper;
+        astHelper = theAstHelper;
         symbolFactory = theSymbolFactory;
         primitiveTypes = thePrimitiveType;
     }
@@ -44,11 +47,10 @@ public class BuiltInSuperGlobalSymbolsProvider implements ISymbolProvider
     private Map<String, ISymbol> createSymbols() {
         Map<String, ISymbol> superGlobals = new HashMap<>();
 
-        //CHECKSTYLE:OFF:LocalVariableName
-        IArrayTypeSymbol $_GET = symbolFactory.createArrayTypeSymbol(
-                "$_GET", primitiveTypes.get(PrimitiveTypeNames.STRING), primitiveTypes.get(PrimitiveTypeNames.MIXED));
-        superGlobals.put("$_GET", $_GET);
-        //CHECKSTYLE:ON:LocalVariableName
+        ITSPHPAst variableId = astHelper.createAst(TokenTypes.VariableId, "$_GET");
+        IMinimalVariableSymbol getVariable = symbolFactory.createMinimalVariableSymbol(variableId, "$_GET");
+        getVariable.setType(primitiveTypes.get(PrimitiveTypeNames.ARRAY));
+        superGlobals.put("$_GET", getVariable);
 
         return superGlobals;
     }
