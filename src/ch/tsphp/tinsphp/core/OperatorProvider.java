@@ -697,8 +697,9 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
     }
 
     private void addToOperators(int operatorType, IFunctionType functionTypeSymbol) {
-        IMinimalMethodSymbol overloadSymbol = builtInOperators.get(operatorType);
-        overloadSymbol.addOverload(functionTypeSymbol);
+        IMinimalMethodSymbol methodSymbol = builtInOperators.get(operatorType);
+        functionTypeSymbol.fix();
+        methodSymbol.addOverload(functionTypeSymbol);
     }
 
 }

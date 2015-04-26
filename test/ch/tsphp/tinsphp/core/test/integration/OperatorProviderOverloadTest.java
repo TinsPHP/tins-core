@@ -6,19 +6,24 @@
 
 package ch.tsphp.tinsphp.core.test.integration;
 
+import ch.tsphp.tinsphp.common.inference.constraints.IFunctionType;
 import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
 import ch.tsphp.tinsphp.core.IOperatorsProvider;
 import ch.tsphp.tinsphp.core.test.integration.testutils.AOperatorProviderTest;
 import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 import org.antlr.runtime.RecognitionException;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 
 
 @RunWith(Parameterized.class)
@@ -26,12 +31,12 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
 {
     private String operatorName;
     private int operatorType;
-    private int numberOfOverloads;
+    private String[] signatures;
 
-    public OperatorProviderOverloadTest(String theOperatorName, int theOperatorType, int theNumberOfOverloads) {
+    public OperatorProviderOverloadTest(String theOperatorName, int theOperatorType, String[] theSignatures) {
         operatorName = theOperatorName;
         operatorType = theOperatorType;
-        numberOfOverloads = theNumberOfOverloads;
+        signatures = theSignatures;
     }
 
     @Test
@@ -41,72 +46,127 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
         IOperatorsProvider provider = createOperatorProvider();
         Map<Integer, IMinimalMethodSymbol> result = provider.getOperators();
 
-        Assert.assertEquals(operatorName + " failed, number of overloads different",
-                numberOfOverloads, result.get(operatorType).getOverloads().size());
+        List<IFunctionType> overloads = result.get(operatorType).getOverloads();
+        List<String> overloadSignatures = new ArrayList<>();
+        for (IFunctionType overload : overloads) {
+            overloadSignatures.add(overload.getSignature());
+        }
+
+        try {
+            assertThat(overloadSignatures, containsInAnyOrder(signatures));
+        } catch (AssertionError ex) {
+            System.out.println(operatorName + " failed:");
+            throw ex;
+        }
     }
 
     @Parameterized.Parameters
     public static Collection<Object[]> testStrings() {
         return Arrays.asList(new Object[][]{
-                {"or", TokenTypes.LogicOrWeak, 4},
-                {"xor", TokenTypes.LogicXorWeak, 5},
-                {"and", TokenTypes.LogicAndWeak, 4},
-                {"=", TokenTypes.Assign, 1},
-                {"+=", TokenTypes.PlusAssign, 2},
-                {"-=", TokenTypes.MinusAssign, 1},
-                {"*=", TokenTypes.MultiplyAssign, 1},
-                {"/=", TokenTypes.DivideAssign, 2},
-                {"%=", TokenTypes.ModuloAssign, 1},
-                {"&=", TokenTypes.BitwiseAndAssign, 2},
-                {"^=", TokenTypes.BitwiseXorAssign, 2},
-                {"|=", TokenTypes.BitwiseOrAssign, 2},
-                {">>=", TokenTypes.ShiftLeftAssign, 1},
-                {"<<=", TokenTypes.ShiftRightAssign, 1},
-                {".=", TokenTypes.DotAssign, 1},
-                {"?", TokenTypes.QuestionMark, 3},
-                {"||", TokenTypes.LogicOr, 4},
-                {"&&", TokenTypes.LogicAnd, 4},
-                {"|", TokenTypes.BitwiseOr, 2},
-                {"^", TokenTypes.BitwiseXor, 2},
-                {"&", TokenTypes.BitwiseAnd, 2},
-                {"==", TokenTypes.Equal, 1},
-                {"===", TokenTypes.Identical, 1},
-                {"!=", TokenTypes.NotEqual, 1},
-                {"!==", TokenTypes.NotIdentical, 1},
-                {"<", TokenTypes.LessThan, 1},
-                {"<=", TokenTypes.LessEqualThan, 1},
-                {">", TokenTypes.GreaterThan, 1},
-                {">=", TokenTypes.GreaterEqualThan, 1},
-                {"<<", TokenTypes.ShiftLeft, 1},
-                {">>", TokenTypes.ShiftRight, 1},
-                {"+", TokenTypes.Plus, 3},
-                {"-", TokenTypes.Minus, 2},
-                {".", TokenTypes.Dot, 1},
-                {"*", TokenTypes.Multiply, 2},
-                {"/", TokenTypes.Divide, 2},
-                {"%", TokenTypes.Modulo, 1},
-                {"instanceof", TokenTypes.Instanceof, 1},
-                {"clone", TokenTypes.Clone, 1},
-                {"new", TokenTypes.New, 1},
-                {"preIncr", TokenTypes.PRE_INCREMENT, 1},
-                {"postDecr", TokenTypes.PRE_DECREMENT, 1},
-                {"@", TokenTypes.At, 1},
-                {"~", TokenTypes.BitwiseNot, 2},
-                {"!", TokenTypes.LogicNot, 3},
-                {"uMinus", TokenTypes.UNARY_MINUS, 2},
-                {"uPlus", TokenTypes.UNARY_PLUS, 2},
-                {"postIncr", TokenTypes.POST_INCREMENT, 1},
-                {"postDecr", TokenTypes.POST_DECREMENT, 1},
-                {"if", TokenTypes.If, 1},
-                {"while", TokenTypes.While, 1},
-                {"do", TokenTypes.Do, 1},
-                {"for", TokenTypes.For, 1},
-                {"foreach", TokenTypes.Foreach, 1},
-                {"switch", TokenTypes.Switch, 1},
-                {"catch", TokenTypes.Catch, 1},
-                {"echo", TokenTypes.Echo, 1},
-                {"exit", TokenTypes.Exit, 2},
-                {"throw", TokenTypes.Throw, 1}
+                {"or", TokenTypes.LogicOrWeak, new String[]{
+                        "falseType x falseType -> falseType",
+                        "trueType x bool -> trueType",
+                        "bool x trueType -> trueType",
+                        "bool x bool -> bool"
+                }},
+                {"xor", TokenTypes.LogicXorWeak, new String[]{
+                        "falseType x trueType -> trueType",
+                        "trueType x falseType -> trueType",
+                        "falseType x falseType -> falseType",
+                        "trueType x trueType -> falseType",
+                        "bool x bool -> bool",
+                }},
+                {"and", TokenTypes.LogicAndWeak, new String[]{
+                        "falseType x bool -> falseType",
+                        "bool x falseType -> falseType",
+                        "trueType x trueType -> trueType",
+                        "bool x bool -> bool",
+                }},
+                {"=", TokenTypes.Assign, new String[]{"Tlhs x Trhs -> Tlhs \\ Trhs < Tlhs"}},
+                {"+=", TokenTypes.PlusAssign, new String[]{"T x T -> T \\ T < num", "array x array -> array"}},
+                {"-=", TokenTypes.MinusAssign, new String[]{"T x T -> T \\ T < num"}},
+                {"*=", TokenTypes.MultiplyAssign, new String[]{"T x T -> T \\ T < num"}},
+                {"/=", TokenTypes.DivideAssign, new String[]{
+                        "(bool | int) x bool -> (falseType | int)",
+                        "Tlhs x Trhs -> Tlhs \\ (falseType | float | Trhs) < Tlhs, float < Trhs < num",
+                }},
+                {"%=", TokenTypes.ModuloAssign, new String[]{"(falseType | int) x int -> (falseType | int)"}},
+                {"&=", TokenTypes.BitwiseAndAssign, new String[]{"int x int -> int", "string x string -> string"}},
+                {"^=", TokenTypes.BitwiseXorAssign, new String[]{"int x int -> int", "string x string -> string"}},
+                {"|=", TokenTypes.BitwiseOrAssign, new String[]{"int x int -> int", "string x string -> string"}},
+                {">>=", TokenTypes.ShiftLeftAssign, new String[]{"int x int -> int"}},
+                {"<<=", TokenTypes.ShiftRightAssign, new String[]{"int x int -> int"}},
+                {".=", TokenTypes.DotAssign, new String[]{"string x string -> string"}},
+                {"?", TokenTypes.QuestionMark, new String[]{
+                        "falseType x mixed x Telse -> Treturn \\ Telse < Treturn",
+                        "trueType x Tif x mixed -> Treturn \\ Tif < Treturn",
+                        "bool x Tif x Telse -> Treturn \\ (Telse | Tif) < Treturn"
+                }},
+                {"||", TokenTypes.LogicOr, new String[]{
+                        "falseType x falseType -> falseType",
+                        "trueType x bool -> trueType",
+                        "bool x trueType -> trueType",
+                        "bool x bool -> bool"
+                }},
+                {"&&", TokenTypes.LogicAnd, new String[]{
+                        "falseType x bool -> falseType",
+                        "bool x falseType -> falseType",
+                        "trueType x trueType -> trueType",
+                        "bool x bool -> bool",
+                }},
+                {"|", TokenTypes.BitwiseOr, new String[]{"int x int -> int", "string x string -> string"}},
+                {"^", TokenTypes.BitwiseXor, new String[]{"int x int -> int", "string x string -> string"}},
+                {"&", TokenTypes.BitwiseAnd, new String[]{"int x int -> int", "string x string -> string"}},
+                {"==", TokenTypes.Equal, new String[]{"mixed x mixed -> bool"}},
+                {"===", TokenTypes.Identical, new String[]{"mixed x mixed -> bool"}},
+                {"!=", TokenTypes.NotEqual, new String[]{"mixed x mixed -> bool"}},
+                {"!==", TokenTypes.NotIdentical, new String[]{"mixed x mixed -> bool"}},
+                {"<", TokenTypes.LessThan, new String[]{"mixed x mixed -> bool"}},
+                {"<=", TokenTypes.LessEqualThan, new String[]{"mixed x mixed -> bool"}},
+                {">", TokenTypes.GreaterThan, new String[]{"mixed x mixed -> bool"}},
+                {">=", TokenTypes.GreaterEqualThan, new String[]{"mixed x mixed -> bool"}},
+                {"<<", TokenTypes.ShiftLeft, new String[]{"int x int -> int"}},
+                {">>", TokenTypes.ShiftRight, new String[]{"int x int -> int"}},
+                {"+", TokenTypes.Plus, new String[]{
+                        "bool x bool -> int",
+                        "T x T -> T \\ T < num",
+                        "array x array -> array"
+                }},
+                {"-", TokenTypes.Minus, new String[]{"bool x bool -> int", "T x T -> T \\ T < num"}},
+                {".", TokenTypes.Dot, new String[]{"string x string -> string"}},
+                {"*", TokenTypes.Multiply, new String[]{"bool x bool -> int", "T x T -> T \\ T < num"}},
+                {"/", TokenTypes.Divide, new String[]{
+                        "bool x bool -> (falseType | int)",
+                        "T x T -> Treturn \\ float < T < num, (falseType | float | T) < Treturn",
+                }},
+                {"%", TokenTypes.Modulo, new String[]{"int x int -> (falseType | int)"}},
+                {"instanceof", TokenTypes.Instanceof, new String[]{"mixed x mixed -> bool"}},
+                {"cast", TokenTypes.CAST, new String[]{"Tlhs x Trhs -> Treturn \\ Tlhs < Treturn"}},
+                {"clone", TokenTypes.Clone, new String[]{"T -> T"}},
+                {"new", TokenTypes.New, new String[]{"T -> T"}},
+                {"preIncr", TokenTypes.PRE_INCREMENT, new String[]{"T -> T \\ T < (bool | num)"}},
+                {"postDecr", TokenTypes.PRE_DECREMENT, new String[]{"T -> T \\ T < (bool | num)"}},
+                {"@", TokenTypes.At, new String[]{"T -> T"}},
+                {"~", TokenTypes.BitwiseNot, new String[]{"int -> int", "string -> string"}},
+                {"!", TokenTypes.LogicNot, new String[]{
+                        "falseType -> trueType",
+                        "trueType -> falseType",
+                        "bool -> bool"
+                }},
+                {"uMinus", TokenTypes.UNARY_MINUS, new String[]{"bool -> int", "T -> T \\ T < num"}},
+                {"uPlus", TokenTypes.UNARY_PLUS, new String[]{"bool -> int", "T -> T \\ T < num"}},
+                {"postIncr", TokenTypes.POST_INCREMENT, new String[]{"T -> T \\ T < (bool | num)"}},
+                {"postDecr", TokenTypes.POST_DECREMENT, new String[]{"T -> T \\ T < (bool | num)"}},
+                {"if", TokenTypes.If, new String[]{"bool -> mixed"}},
+                {"while", TokenTypes.While, new String[]{"bool -> mixed"}},
+                {"do", TokenTypes.Do, new String[]{"bool -> mixed"}},
+                {"for", TokenTypes.For, new String[]{"bool -> mixed"}},
+                {"foreach", TokenTypes.Foreach, new String[]{"array x mixed x (int | string) -> mixed"}},
+                {"switch", TokenTypes.Switch, new String[]{"scalar -> mixed"}},
+                {"throw", TokenTypes.Throw, new String[]{"Exception -> mixed"}},
+                {"catch", TokenTypes.Catch, new String[]{"Tlhs x Trhs -> Trhs \\ Tlhs < Trhs"}},
+                {"echo", TokenTypes.Echo, new String[]{"string -> mixed"}},
+                {"exit", TokenTypes.Exit, new String[]{"int -> mixed", "string -> mixed"}},
         });
     }
 }

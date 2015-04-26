@@ -47,7 +47,6 @@ public class HardCodedCoreInitialiser implements ICoreInitialiser
         IGeneratorHelper generatorHelper = new GeneratorHelper(astHelper, symbolFactory, primitiveTypes);
         StandardConstraintAndVariables std = new StandardConstraintAndVariables(symbolFactory, primitiveTypes);
 
-
         ISymbolProvider builtInSymbolProvider = new BuiltInSymbolsProvider(
                 generatorHelper, symbolFactory, overloadResolver, std);
         ISymbolProvider superGlobalSymbolResolver = new BuiltInSuperGlobalSymbolsProvider(
