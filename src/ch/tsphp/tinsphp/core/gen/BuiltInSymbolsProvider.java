@@ -14,12 +14,12 @@ import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IVariableSymbol;
+import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
 import ch.tsphp.tinsphp.common.utils.IOverloadResolver;
 import ch.tsphp.tinsphp.core.AProvider;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.ISymbolProvider;
 import ch.tsphp.tinsphp.core.StandardConstraintAndVariables;
-import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +76,7 @@ public class BuiltInSymbolsProvider extends AProvider implements ISymbolProvider
         IClassTypeSymbol _exception = generatorHelper.createClass("Exception");
         unionTypeSymbol = generatorHelper.createUnionTypeSymbolFromPrimitives(
                 PrimitiveTypeNames.STRING,
-                PrimitiveTypeNames.NULL);
+                PrimitiveTypeNames.NULL_TYPE);
 
         generatorHelper.defineMethod(_exception, "getMessage()", unionTypeSymbol);
         symbols.put("\\Exception", _exception);

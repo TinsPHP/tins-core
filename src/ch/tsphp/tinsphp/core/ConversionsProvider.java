@@ -9,7 +9,7 @@ package ch.tsphp.tinsphp.core;
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.BuiltInConversionMethod;
 import ch.tsphp.tinsphp.common.IConversionMethod;
-import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
+import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +34,7 @@ public class ConversionsProvider implements IConversionsProvider
     }
 
     private Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> createImplicitConversions() {
-        ITypeSymbol nullTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.NULL);
+        ITypeSymbol nullTypeTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.NULL_TYPE);
         ITypeSymbol boolTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.BOOL);
         ITypeSymbol intTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.INT);
         ITypeSymbol floatTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.FLOAT);
@@ -44,11 +44,11 @@ public class ConversionsProvider implements IConversionsProvider
         ITypeSymbol mixedTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.MIXED);
 
         ITypeSymbol[][] castings = new ITypeSymbol[][]{
-                {nullTypeSymbol, boolTypeSymbol},
-                {nullTypeSymbol, intTypeSymbol},
-                {nullTypeSymbol, floatTypeSymbol},
-                {nullTypeSymbol, stringTypeSymbol},
-                {nullTypeSymbol, arrayTypeSymbol},
+                {nullTypeTypeSymbol, boolTypeSymbol},
+                {nullTypeTypeSymbol, intTypeSymbol},
+                {nullTypeTypeSymbol, floatTypeSymbol},
+                {nullTypeTypeSymbol, stringTypeSymbol},
+                {nullTypeTypeSymbol, arrayTypeSymbol},
                 //bool
                 {boolTypeSymbol, intTypeSymbol},
                 {boolTypeSymbol, floatTypeSymbol},

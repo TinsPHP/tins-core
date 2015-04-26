@@ -12,9 +12,9 @@ import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.ICore;
 import ch.tsphp.tinsphp.common.config.ICoreInitialiser;
 import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
+import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
 import ch.tsphp.tinsphp.core.config.HardCodedCoreInitialiser;
 import ch.tsphp.tinsphp.core.test.integration.testutils.ATest;
-import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
 import ch.tsphp.tinsphp.symbols.config.HardCodedSymbolsInitialiser;
 import org.junit.Test;
 
@@ -46,9 +46,10 @@ public class CoreTest extends ATest
         ICore core = initialiser.getCore();
         Map<String, ITypeSymbol> result = core.getPrimitiveTypes();
 
-        assertThat(result, hasKey(PrimitiveTypeNames.NULL));
-        assertThat(result, hasKey(PrimitiveTypeNames.TRUE));
-        assertThat(result, hasKey(PrimitiveTypeNames.FALSE));
+        assertThat(result, hasKey(PrimitiveTypeNames.NOTHING));
+        assertThat(result, hasKey(PrimitiveTypeNames.NULL_TYPE));
+        assertThat(result, hasKey(PrimitiveTypeNames.TRUE_TYPE));
+        assertThat(result, hasKey(PrimitiveTypeNames.FALSE_TYPE));
         assertThat(result, hasKey(PrimitiveTypeNames.BOOL));
         assertThat(result, hasKey(PrimitiveTypeNames.INT));
         assertThat(result, hasKey(PrimitiveTypeNames.FLOAT));

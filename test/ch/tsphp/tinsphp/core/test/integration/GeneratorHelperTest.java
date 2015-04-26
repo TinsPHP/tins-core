@@ -12,9 +12,9 @@ import ch.tsphp.tinsphp.common.symbols.IClassTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IMethodSymbol;
 import ch.tsphp.tinsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IVariableSymbol;
+import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.test.integration.testutils.ATest;
-import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
 import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 import org.junit.Test;
 
@@ -168,9 +168,9 @@ public class GeneratorHelperTest extends ATest
 
         IGeneratorHelper helper = createGenerator();
         IUnionTypeSymbol result = helper.createUnionTypeSymbolFromPrimitives(
-                PrimitiveTypeNames.NULL,
-                PrimitiveTypeNames.TRUE,
-                PrimitiveTypeNames.FALSE,
+                PrimitiveTypeNames.NULL_TYPE,
+                PrimitiveTypeNames.TRUE_TYPE,
+                PrimitiveTypeNames.FALSE_TYPE,
 //                PrimitiveTypeNames.BOOL,
                 PrimitiveTypeNames.INT,
                 PrimitiveTypeNames.FLOAT,
@@ -183,7 +183,7 @@ public class GeneratorHelperTest extends ATest
         );
 
         assertThat(result.getTypeSymbols().keySet(),
-                containsInAnyOrder("null", "true", "false", "int", "float", "string", "array", "resource"));
+                containsInAnyOrder("nullType", "trueType", "falseType", "int", "float", "string", "array", "resource"));
     }
 
     private IGeneratorHelper createGenerator() {

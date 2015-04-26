@@ -10,7 +10,7 @@ import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.inference.constraints.IVariable;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.IUnionTypeSymbol;
-import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
+import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,8 +48,8 @@ public class StandardConstraintAndVariables
     public final IVariable expr;
 
     public StandardConstraintAndVariables(ISymbolFactory symbolFactory, Map<String, ITypeSymbol> primitiveType) {
-        falseTypeSymbol = primitiveType.get(PrimitiveTypeNames.FALSE);
-        trueTypeSymbol = primitiveType.get(PrimitiveTypeNames.TRUE);
+        falseTypeSymbol = primitiveType.get(PrimitiveTypeNames.FALSE_TYPE);
+        trueTypeSymbol = primitiveType.get(PrimitiveTypeNames.TRUE_TYPE);
         boolTypeSymbol = primitiveType.get(PrimitiveTypeNames.BOOL);
         intTypeSymbol = primitiveType.get(PrimitiveTypeNames.INT);
         floatTypeSymbol = primitiveType.get(PrimitiveTypeNames.FLOAT);

@@ -10,9 +10,9 @@ import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IPseudoTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
+import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
 import ch.tsphp.tinsphp.core.ITypeSymbolProvider;
 import ch.tsphp.tinsphp.core.PrimitiveTypesProvider;
-import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -37,9 +37,10 @@ public class PrimitiveTypesProviderTest
         ITypeSymbolProvider typeSymbolProvider = createPrimitiveTypesProvider(mock(ISymbolFactory.class));
         Map<String, ITypeSymbol> result = typeSymbolProvider.getTypes();
 
-        assertThat(result, hasKey(PrimitiveTypeNames.NULL));
-        assertThat(result, hasKey(PrimitiveTypeNames.TRUE));
-        assertThat(result, hasKey(PrimitiveTypeNames.FALSE));
+        assertThat(result, hasKey(PrimitiveTypeNames.NOTHING));
+        assertThat(result, hasKey(PrimitiveTypeNames.NULL_TYPE));
+        assertThat(result, hasKey(PrimitiveTypeNames.TRUE_TYPE));
+        assertThat(result, hasKey(PrimitiveTypeNames.FALSE_TYPE));
         assertThat(result, hasKey(PrimitiveTypeNames.BOOL));
         assertThat(result, hasKey(PrimitiveTypeNames.INT));
         assertThat(result, hasKey(PrimitiveTypeNames.FLOAT));

@@ -13,6 +13,7 @@ import ch.tsphp.tinsphp.common.config.ICoreInitialiser;
 import ch.tsphp.tinsphp.common.config.ISymbolsInitialiser;
 import ch.tsphp.tinsphp.common.resolving.ISymbolResolver;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
+import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
 import ch.tsphp.tinsphp.common.utils.IOverloadResolver;
 import ch.tsphp.tinsphp.core.BuiltInSuperGlobalSymbolsProvider;
 import ch.tsphp.tinsphp.core.ConversionsProvider;
@@ -27,7 +28,6 @@ import ch.tsphp.tinsphp.core.OperatorProvider;
 import ch.tsphp.tinsphp.core.PrimitiveTypesProvider;
 import ch.tsphp.tinsphp.core.StandardConstraintAndVariables;
 import ch.tsphp.tinsphp.core.gen.BuiltInSymbolsProvider;
-import ch.tsphp.tinsphp.symbols.PrimitiveTypeNames;
 
 import java.util.Map;
 
