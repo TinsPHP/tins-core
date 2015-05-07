@@ -8,6 +8,7 @@ package ch.tsphp.tinsphp.core.test.integration;
 
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.ITypeSymbol;
+import ch.tsphp.tinsphp.common.gen.TokenTypes;
 import ch.tsphp.tinsphp.common.symbols.IClassTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IMethodSymbol;
 import ch.tsphp.tinsphp.common.symbols.IUnionTypeSymbol;
@@ -15,7 +16,6 @@ import ch.tsphp.tinsphp.common.symbols.IVariableSymbol;
 import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.test.integration.testutils.ATest;
-import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;

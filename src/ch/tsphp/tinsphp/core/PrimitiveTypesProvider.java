@@ -7,12 +7,12 @@
 package ch.tsphp.tinsphp.core;
 
 import ch.tsphp.common.symbols.ITypeSymbol;
+import ch.tsphp.tinsphp.common.gen.TokenTypes;
 import ch.tsphp.tinsphp.common.symbols.IArrayTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IPseudoTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IScalarTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
-import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 
 import java.util.HashMap;
 import java.util.Map;

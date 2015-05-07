@@ -8,6 +8,7 @@ package ch.tsphp.tinsphp.core;
 
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.ITypeSymbol;
+import ch.tsphp.tinsphp.common.gen.TokenTypes;
 import ch.tsphp.tinsphp.common.inference.constraints.IFunctionType;
 import ch.tsphp.tinsphp.common.inference.constraints.IOverloadBindings;
 import ch.tsphp.tinsphp.common.inference.constraints.IVariable;
@@ -17,7 +18,6 @@ import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.utils.IOverloadResolver;
 import ch.tsphp.tinsphp.common.utils.Pair;
-import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 
 import java.util.Arrays;
 import java.util.HashMap;

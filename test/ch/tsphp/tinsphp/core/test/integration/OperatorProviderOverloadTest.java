@@ -6,11 +6,11 @@
 
 package ch.tsphp.tinsphp.core.test.integration;
 
+import ch.tsphp.tinsphp.common.gen.TokenTypes;
 import ch.tsphp.tinsphp.common.inference.constraints.IFunctionType;
 import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
 import ch.tsphp.tinsphp.core.IOperatorsProvider;
 import ch.tsphp.tinsphp.core.test.integration.testutils.AOperatorProviderTest;
-import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 import org.antlr.runtime.RecognitionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;

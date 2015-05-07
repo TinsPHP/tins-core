@@ -10,10 +10,10 @@ import ch.tsphp.common.IAstHelper;
 import ch.tsphp.common.ITSPHPAst;
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.ITypeSymbol;
+import ch.tsphp.tinsphp.common.gen.TokenTypes;
 import ch.tsphp.tinsphp.common.symbols.IMinimalVariableSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
-import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 
 import java.util.HashMap;
 import java.util.Map;
