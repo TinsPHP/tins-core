@@ -17,7 +17,6 @@ import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.utils.IOverloadResolver;
 import ch.tsphp.tinsphp.common.utils.Pair;
-import ch.tsphp.tinsphp.symbols.constraints.OverloadBindings;
 import ch.tsphp.tinsphp.symbols.gen.TokenTypes;
 
 import java.util.Arrays;
@@ -201,12 +200,12 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         IFunctionType function;
 
         //Tlhs x Trhs -> Tlhs \ Tlhs > Trhs
-        IOverloadBindings collection = new OverloadBindings(symbolFactory, overloadResolver);
-        collection.addVariable(VAR_LHS, new TypeVariableReference(T_LHS));
-        collection.addVariable(VAR_RHS, new TypeVariableReference(T_RHS));
-        collection.addVariable(RETURN_VARIABLE_NAME, new TypeVariableReference(T_LHS));
-        collection.addLowerRefBound(T_LHS, new TypeVariableReference(T_RHS));
-        function = symbolFactory.createFunctionType("=", collection, std.binaryParameterIds);
+        IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
+        overloadBindings.addVariable(VAR_LHS, new TypeVariableReference(T_LHS));
+        overloadBindings.addVariable(VAR_RHS, new TypeVariableReference(T_RHS));
+        overloadBindings.addVariable(RETURN_VARIABLE_NAME, new TypeVariableReference(T_LHS));
+        overloadBindings.addLowerRefBound(T_LHS, new TypeVariableReference(T_RHS));
+        function = symbolFactory.createFunctionType("=", overloadBindings, std.binaryParameterIds);
         addToOperators(TokenTypes.Assign, function);
 
         //Other assignment operators can be found in the corresponding sections.
@@ -302,47 +301,47 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
         //false x mixed x Telse -> Telse
         //expanded: false x mixed x Telse -> Treturn \ Treturn > Telse
-        IOverloadBindings collection = new OverloadBindings(symbolFactory, overloadResolver);
-        collection.addVariable(varCondition, fixReference(tCondition));
-        collection.addVariable(varIf, fixReference(tIf));
-        collection.addVariable(varElse, reference(tElse));
-        collection.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
+        IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
+        overloadBindings.addVariable(varCondition, fixReference(tCondition));
+        overloadBindings.addVariable(varIf, fixReference(tIf));
+        overloadBindings.addVariable(varElse, reference(tElse));
+        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
 
-        collection.addUpperTypeBound(tCondition, std.falseTypeSymbol);
-        collection.addUpperTypeBound(tIf, std.mixedTypeSymbol);
-        collection.addLowerRefBound(T_RETURN, new TypeVariableReference(tElse));
+        overloadBindings.addUpperTypeBound(tCondition, std.falseTypeSymbol);
+        overloadBindings.addUpperTypeBound(tIf, std.mixedTypeSymbol);
+        overloadBindings.addLowerRefBound(T_RETURN, new TypeVariableReference(tElse));
 
-        IFunctionType function = symbolFactory.createFunctionType("?", collection, parameters);
+        IFunctionType function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
         addToOperators(TokenTypes.QuestionMark, function);
 
 
         //true x Tif x mixed -> Tif
         //expanded: true x Tif x mixed -> Treturn \ Treturn > Tif
-        collection = new OverloadBindings(symbolFactory, overloadResolver);
-        collection.addVariable(varCondition, fixReference(tCondition));
-        collection.addVariable(varIf, reference(tIf));
-        collection.addVariable(varElse, fixReference(tElse));
-        collection.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
+        overloadBindings = symbolFactory.createOverloadBindings();
+        overloadBindings.addVariable(varCondition, fixReference(tCondition));
+        overloadBindings.addVariable(varIf, reference(tIf));
+        overloadBindings.addVariable(varElse, fixReference(tElse));
+        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
 
-        collection.addUpperTypeBound(tCondition, std.trueTypeSymbol);
-        collection.addUpperTypeBound(tElse, std.mixedTypeSymbol);
-        collection.addLowerRefBound(T_RETURN, new TypeVariableReference(tIf));
+        overloadBindings.addUpperTypeBound(tCondition, std.trueTypeSymbol);
+        overloadBindings.addUpperTypeBound(tElse, std.mixedTypeSymbol);
+        overloadBindings.addLowerRefBound(T_RETURN, new TypeVariableReference(tIf));
 
-        function = symbolFactory.createFunctionType("?", collection, parameters);
+        function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
         addToOperators(TokenTypes.QuestionMark, function);
 
         //bool x Tif x Telse -> (Tif | Telse)
         //expanded: bool x Tif x Telse -> Treturn \ Treturn > Tif, Treturn > Telse
-        collection = new OverloadBindings(symbolFactory, overloadResolver);
-        collection.addVariable(varCondition, fixReference(tCondition));
-        collection.addVariable(varIf, reference(tIf));
-        collection.addVariable(varElse, reference(tElse));
-        collection.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
+        overloadBindings = symbolFactory.createOverloadBindings();
+        overloadBindings.addVariable(varCondition, fixReference(tCondition));
+        overloadBindings.addVariable(varIf, reference(tIf));
+        overloadBindings.addVariable(varElse, reference(tElse));
+        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
 
-        collection.addUpperTypeBound(tCondition, std.boolTypeSymbol);
-        collection.addLowerRefBound(T_RETURN, new TypeVariableReference(tIf));
-        collection.addLowerRefBound(T_RETURN, new TypeVariableReference(tElse));
-        function = symbolFactory.createFunctionType("?", collection, parameters);
+        overloadBindings.addUpperTypeBound(tCondition, std.boolTypeSymbol);
+        overloadBindings.addLowerRefBound(T_RETURN, new TypeVariableReference(tIf));
+        overloadBindings.addLowerRefBound(T_RETURN, new TypeVariableReference(tElse));
+        function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
         addToOperators(TokenTypes.QuestionMark, function);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
@@ -415,17 +414,17 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
         //T x T -> (T | false) \ float < T < num
         //expanded: T x T -> Treturn \ float < T < num, Treturn > T, Treturn > false
-        IOverloadBindings collection = new OverloadBindings(symbolFactory, overloadResolver);
-        collection.addVariable(VAR_LHS, reference("T"));
-        collection.addVariable(VAR_RHS, reference("T"));
-        collection.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
+        IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
+        overloadBindings.addVariable(VAR_LHS, reference("T"));
+        overloadBindings.addVariable(VAR_RHS, reference("T"));
+        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
 
-        collection.addLowerTypeBound("T", std.floatTypeSymbol);
-        collection.addUpperTypeBound("T", std.numTypeSymbol);
-        collection.addLowerRefBound(T_RETURN, new TypeVariableReference("T"));
-        collection.addLowerTypeBound(T_RETURN, std.falseTypeSymbol);
+        overloadBindings.addLowerTypeBound("T", std.floatTypeSymbol);
+        overloadBindings.addUpperTypeBound("T", std.numTypeSymbol);
+        overloadBindings.addLowerRefBound(T_RETURN, new TypeVariableReference("T"));
+        overloadBindings.addLowerTypeBound(T_RETURN, std.falseTypeSymbol);
 
-        function = symbolFactory.createFunctionType("/", collection, std.binaryParameterIds);
+        function = symbolFactory.createFunctionType("/", overloadBindings, std.binaryParameterIds);
         addToOperators(TokenTypes.Divide, function);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
@@ -443,17 +442,17 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //(T | false) x T -> (T | false) \ float < T < num
         //expanded: Tlhs x Trhs -> Tlhs \  (float | Trhs) < Tlhs, float < Trhs < num
 
-        collection = new OverloadBindings(symbolFactory, overloadResolver);
-        collection.addVariable(VAR_LHS, new TypeVariableReference(T_LHS));
-        collection.addVariable(VAR_RHS, new TypeVariableReference(T_RHS));
-        collection.addVariable(RETURN_VARIABLE_NAME, new TypeVariableReference(T_LHS));
+        overloadBindings = symbolFactory.createOverloadBindings();
+        overloadBindings.addVariable(VAR_LHS, new TypeVariableReference(T_LHS));
+        overloadBindings.addVariable(VAR_RHS, new TypeVariableReference(T_RHS));
+        overloadBindings.addVariable(RETURN_VARIABLE_NAME, new TypeVariableReference(T_LHS));
 
-        collection.addLowerTypeBound(T_RHS, std.floatTypeSymbol);
-        collection.addUpperTypeBound(T_RHS, std.numTypeSymbol);
-        collection.addLowerRefBound(T_LHS, new TypeVariableReference(T_RHS));
-        collection.addLowerTypeBound(T_LHS, std.falseTypeSymbol);
+        overloadBindings.addLowerTypeBound(T_RHS, std.floatTypeSymbol);
+        overloadBindings.addUpperTypeBound(T_RHS, std.numTypeSymbol);
+        overloadBindings.addLowerRefBound(T_LHS, new TypeVariableReference(T_RHS));
+        overloadBindings.addLowerTypeBound(T_LHS, std.falseTypeSymbol);
 
-        function = symbolFactory.createFunctionType("/=", collection, std.binaryParameterIds);
+        function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
         addToOperators(TokenTypes.DivideAssign, function);
 
         //TODO rstoll TINS-347 create overloads for conversion constraints
@@ -615,22 +614,22 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         IVariable value = symbolFactory.createVariable(varValue);
         IVariable key = symbolFactory.createVariable(varKey);
 
-        IOverloadBindings collection = new OverloadBindings(symbolFactory, overloadResolver);
-        collection.addVariable(varArr, fixReference(tArr));
-        collection.addVariable(varValue, fixReference(tValue));
-        collection.addVariable(varKey, fixReference(tKey));
-        collection.addVariable(RETURN_VARIABLE_NAME, fixReference(T_RETURN));
+        IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
+        overloadBindings.addVariable(varArr, fixReference(tArr));
+        overloadBindings.addVariable(varValue, fixReference(tValue));
+        overloadBindings.addVariable(varKey, fixReference(tKey));
+        overloadBindings.addVariable(RETURN_VARIABLE_NAME, fixReference(T_RETURN));
 
-        collection.addLowerTypeBound(tArr, std.arrayTypeSymbol);
-        collection.addUpperTypeBound(tArr, std.arrayTypeSymbol);
-        collection.addLowerTypeBound(tValue, std.mixedTypeSymbol);
-        collection.addUpperTypeBound(tValue, std.mixedTypeSymbol);
-        collection.addLowerTypeBound(tKey, intOrString);
-        collection.addUpperTypeBound(tKey, intOrString);
-        collection.addLowerTypeBound(T_RETURN, std.mixedTypeSymbol);
-        collection.addUpperTypeBound(T_RETURN, std.mixedTypeSymbol);
+        overloadBindings.addLowerTypeBound(tArr, std.arrayTypeSymbol);
+        overloadBindings.addUpperTypeBound(tArr, std.arrayTypeSymbol);
+        overloadBindings.addLowerTypeBound(tValue, std.mixedTypeSymbol);
+        overloadBindings.addUpperTypeBound(tValue, std.mixedTypeSymbol);
+        overloadBindings.addLowerTypeBound(tKey, intOrString);
+        overloadBindings.addUpperTypeBound(tKey, intOrString);
+        overloadBindings.addLowerTypeBound(T_RETURN, std.mixedTypeSymbol);
+        overloadBindings.addUpperTypeBound(T_RETURN, std.mixedTypeSymbol);
         IFunctionType function
-                = symbolFactory.createFunctionType("foreach", collection, Arrays.asList(arr, value, key));
+                = symbolFactory.createFunctionType("foreach", overloadBindings, Arrays.asList(arr, value, key));
         addToOperators(TokenTypes.Foreach, function);
 
         //TODO rstoll TINS-391 - Introduce void as own type
@@ -643,13 +642,13 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         addToUnaryOperators(pair("throw", TokenTypes.Throw), exception, std.mixedTypeSymbol);
 
         //Tlhs x Trhs -> Trhs \ Trhs > Tlhs
-        collection = new OverloadBindings(symbolFactory, overloadResolver);
-        collection.addVariable(VAR_LHS, reference(T_LHS));
-        collection.addVariable(VAR_RHS, reference(T_RHS));
-        collection.addVariable(RETURN_VARIABLE_NAME, reference(T_RHS));
+        overloadBindings = symbolFactory.createOverloadBindings();
+        overloadBindings.addVariable(VAR_LHS, reference(T_LHS));
+        overloadBindings.addVariable(VAR_RHS, reference(T_RHS));
+        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RHS));
 
-        collection.addLowerRefBound(T_RHS, new TypeVariableReference(T_LHS));
-        function = symbolFactory.createFunctionType("catch", collection, std.binaryParameterIds);
+        overloadBindings.addLowerRefBound(T_RHS, new TypeVariableReference(T_LHS));
+        function = symbolFactory.createFunctionType("catch", overloadBindings, std.binaryParameterIds);
         addToOperators(TokenTypes.Catch, function);
     }
 

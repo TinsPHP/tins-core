@@ -11,7 +11,6 @@ import ch.tsphp.tinsphp.common.inference.constraints.IOverloadBindings;
 import ch.tsphp.tinsphp.common.inference.constraints.TypeVariableReference;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.utils.IOverloadResolver;
-import ch.tsphp.tinsphp.symbols.constraints.OverloadBindings;
 
 import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_EXPR;
 import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_LHS;
@@ -38,7 +37,7 @@ public abstract class AProvider
     }
 
     protected IOverloadBindings createBinaryTBindings() {
-        OverloadBindings overloadBindings = new OverloadBindings(symbolFactory, overloadResolver);
+        IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
         overloadBindings.addVariable(VAR_LHS, reference("T"));
         overloadBindings.addVariable(VAR_RHS, reference("T"));
         overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference("T"));
@@ -47,14 +46,14 @@ public abstract class AProvider
 
 
     protected IOverloadBindings createUnaryTBindings() {
-        IOverloadBindings collection = new OverloadBindings(symbolFactory, overloadResolver);
-        collection.addVariable(VAR_EXPR, reference("T"));
-        collection.addVariable(RETURN_VARIABLE_NAME, reference("T"));
-        return collection;
+        IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
+        overloadBindings.addVariable(VAR_EXPR, reference("T"));
+        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference("T"));
+        return overloadBindings;
     }
 
     protected IOverloadBindings createVariableBinaryBindings() {
-        OverloadBindings overloadBindings = new OverloadBindings(symbolFactory, overloadResolver);
+        IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
         overloadBindings.addVariable(VAR_LHS, reference(T_LHS));
         overloadBindings.addVariable(VAR_RHS, reference(T_RHS));
         overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
@@ -62,7 +61,7 @@ public abstract class AProvider
     }
 
     protected IOverloadBindings createFixBinaryBindings() {
-        OverloadBindings overloadBindings = new OverloadBindings(symbolFactory, overloadResolver);
+        IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
         overloadBindings.addVariable(VAR_LHS, fixReference(T_LHS));
         overloadBindings.addVariable(VAR_RHS, fixReference(T_RHS));
         overloadBindings.addVariable(RETURN_VARIABLE_NAME, fixReference(T_RETURN));
@@ -70,7 +69,7 @@ public abstract class AProvider
     }
 
     protected IOverloadBindings createFixUnaryBindings() {
-        OverloadBindings overloadBindings = new OverloadBindings(symbolFactory, overloadResolver);
+        IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
         overloadBindings.addVariable(VAR_EXPR, fixReference(T_EXPR));
         overloadBindings.addVariable(RETURN_VARIABLE_NAME, fixReference(T_RETURN));
         return overloadBindings;
