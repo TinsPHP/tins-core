@@ -12,6 +12,7 @@ import ch.tsphp.tinsphp.common.inference.constraints.TypeVariableReference;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.utils.IOverloadResolver;
 
+import static ch.tsphp.tinsphp.common.TinsPHPConstants.RETURN_VARIABLE_NAME;
 import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_EXPR;
 import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_LHS;
 import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_RETURN;
@@ -19,7 +20,6 @@ import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_RHS;
 import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.VAR_EXPR;
 import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.VAR_LHS;
 import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.VAR_RHS;
-import static ch.tsphp.tinsphp.symbols.TypeVariableNames.RETURN_VARIABLE_NAME;
 
 public abstract class AProvider
 {
