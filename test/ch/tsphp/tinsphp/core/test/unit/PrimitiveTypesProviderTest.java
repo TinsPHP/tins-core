@@ -10,6 +10,7 @@ import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IPseudoTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
+import ch.tsphp.tinsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
 import ch.tsphp.tinsphp.core.ITypeSymbolProvider;
 import ch.tsphp.tinsphp.core.PrimitiveTypesProvider;
@@ -32,9 +33,10 @@ public class PrimitiveTypesProviderTest
 
     @Test
     public void getTypes_Standard_ContainsAllTypesAccordingToPrimitiveTypeNames() {
-        //no arrange necessary
+        ISymbolFactory symbolFactory = mock(ISymbolFactory.class);
+        when(symbolFactory.createUnionTypeSymbol()).thenReturn(mock(IUnionTypeSymbol.class));
 
-        ITypeSymbolProvider typeSymbolProvider = createPrimitiveTypesProvider(mock(ISymbolFactory.class));
+        ITypeSymbolProvider typeSymbolProvider = createPrimitiveTypesProvider(symbolFactory);
         Map<String, ITypeSymbol> result = typeSymbolProvider.getTypes();
 
         assertThat(result, hasKey(PrimitiveTypeNames.NOTHING));
@@ -57,6 +59,7 @@ public class PrimitiveTypesProviderTest
         ISymbolFactory symbolFactory = mock(ISymbolFactory.class);
         IPseudoTypeSymbol typeSymbol = mock(IPseudoTypeSymbol.class);
         when(symbolFactory.createPseudoTypeSymbol("mixed")).thenReturn(typeSymbol);
+        when(symbolFactory.createUnionTypeSymbol()).thenReturn(mock(IUnionTypeSymbol.class));
 
         ITypeSymbolProvider typeSymbolProvider = createPrimitiveTypesProvider(symbolFactory);
         Map<String, ITypeSymbol> result = typeSymbolProvider.getTypes();
@@ -67,9 +70,10 @@ public class PrimitiveTypesProviderTest
 
     @Test
     public void getTypes_SecondCall_DoesNotNeedToRecompute() {
-        //no arrange necessary
+        ISymbolFactory symbolFactory = mock(ISymbolFactory.class);
+        when(symbolFactory.createUnionTypeSymbol()).thenReturn(mock(IUnionTypeSymbol.class));
 
-        ITypeSymbolProvider typeSymbolProvider = createPrimitiveTypesProvider(mock(ISymbolFactory.class));
+        ITypeSymbolProvider typeSymbolProvider = createPrimitiveTypesProvider(symbolFactory);
         Map<String, ITypeSymbol> result1 = typeSymbolProvider.getTypes();
         Map<String, ITypeSymbol> backup = new HashMap<>(result1);
         Map<String, ITypeSymbol> result2 = typeSymbolProvider.getTypes();
