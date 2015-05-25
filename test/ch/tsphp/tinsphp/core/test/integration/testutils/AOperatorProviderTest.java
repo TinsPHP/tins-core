@@ -8,7 +8,7 @@ package ch.tsphp.tinsphp.core.test.integration.testutils;
 
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
-import ch.tsphp.tinsphp.common.utils.IOverloadResolver;
+import ch.tsphp.tinsphp.common.utils.ITypeHelper;
 import ch.tsphp.tinsphp.core.IOperatorsProvider;
 import ch.tsphp.tinsphp.core.OperatorProvider;
 import ch.tsphp.tinsphp.core.StandardConstraintAndVariables;
@@ -20,15 +20,15 @@ import java.util.Map;
 public abstract class AOperatorProviderTest extends ATest
 {
     protected IOperatorsProvider createOperatorProvider() {
-        return createOperatorProvider(symbolFactory, overloadResolver, std, builtInSymbols);
+        return createOperatorProvider(symbolFactory, typeHelper, std, builtInSymbols);
     }
 
     protected IOperatorsProvider createOperatorProvider(
             ISymbolFactory theSymbolFactory,
-            IOverloadResolver theOverloadResolver,
+            ITypeHelper theTypeHelperResolver,
             StandardConstraintAndVariables standardConstraintAndVariables,
             Map<String, ISymbol> theBuiltInSymbols) {
         return new OperatorProvider(
-                theSymbolFactory, theOverloadResolver, standardConstraintAndVariables, theBuiltInSymbols);
+                theSymbolFactory, theTypeHelperResolver, standardConstraintAndVariables, theBuiltInSymbols);
     }
 }

@@ -14,7 +14,7 @@ import ch.tsphp.tinsphp.common.config.ISymbolsInitialiser;
 import ch.tsphp.tinsphp.common.resolving.ISymbolResolver;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
-import ch.tsphp.tinsphp.common.utils.IOverloadResolver;
+import ch.tsphp.tinsphp.common.utils.ITypeHelper;
 import ch.tsphp.tinsphp.core.BuiltInSuperGlobalSymbolsProvider;
 import ch.tsphp.tinsphp.core.ConversionsProvider;
 import ch.tsphp.tinsphp.core.Core;
@@ -39,7 +39,7 @@ public class HardCodedCoreInitialiser implements ICoreInitialiser
 
     public HardCodedCoreInitialiser(IAstHelper astHelper, ISymbolsInitialiser symbolsInitialiser) {
         ISymbolFactory symbolFactory = symbolsInitialiser.getSymbolFactory();
-        IOverloadResolver overloadResolver = symbolsInitialiser.getOverloadResolver();
+        ITypeHelper typeHelper = symbolsInitialiser.getTypeHelper();
 
         Map<String, ITypeSymbol> primitiveTypes = new PrimitiveTypesProvider(symbolFactory).getTypes();
         symbolFactory.setMixedTypeSymbol(primitiveTypes.get(PrimitiveTypeNames.MIXED));
@@ -48,7 +48,7 @@ public class HardCodedCoreInitialiser implements ICoreInitialiser
         StandardConstraintAndVariables std = new StandardConstraintAndVariables(symbolFactory, primitiveTypes);
 
         ISymbolProvider builtInSymbolProvider = new BuiltInSymbolsProvider(
-                generatorHelper, symbolFactory, overloadResolver, std);
+                generatorHelper, symbolFactory, typeHelper, std);
         ISymbolProvider superGlobalSymbolResolver = new BuiltInSuperGlobalSymbolsProvider(
                 astHelper, symbolFactory, primitiveTypes);
 
@@ -57,7 +57,7 @@ public class HardCodedCoreInitialiser implements ICoreInitialiser
 
         IConversionsProvider conversionProvider = new ConversionsProvider(primitiveTypes);
         IOperatorsProvider operatorsProvider = new OperatorProvider(
-                symbolFactory, overloadResolver, std, builtInSymbolProvider.getSymbols());
+                symbolFactory, typeHelper, std, builtInSymbolProvider.getSymbols());
 
         core = new Core(primitiveTypes,
                 conversionProvider.getImplicitConversions(),

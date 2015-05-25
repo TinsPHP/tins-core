@@ -10,7 +10,7 @@ import ch.tsphp.tinsphp.common.inference.constraints.FixedTypeVariableReference;
 import ch.tsphp.tinsphp.common.inference.constraints.IOverloadBindings;
 import ch.tsphp.tinsphp.common.inference.constraints.TypeVariableReference;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
-import ch.tsphp.tinsphp.common.utils.IOverloadResolver;
+import ch.tsphp.tinsphp.common.utils.ITypeHelper;
 
 import static ch.tsphp.tinsphp.common.TinsPHPConstants.RETURN_VARIABLE_NAME;
 import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_EXPR;
@@ -24,15 +24,15 @@ import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.VAR_RHS;
 public abstract class AProvider
 {
     protected final ISymbolFactory symbolFactory;
-    protected final IOverloadResolver overloadResolver;
+    protected final ITypeHelper typeHelper;
     protected final StandardConstraintAndVariables std;
 
     public AProvider(
             ISymbolFactory theSymbolFactory,
-            IOverloadResolver theOverloadResolver,
+            ITypeHelper theTypeHelper,
             StandardConstraintAndVariables standardConstraintAndVariables) {
         symbolFactory = theSymbolFactory;
-        overloadResolver = theOverloadResolver;
+        typeHelper = theTypeHelper;
         std = standardConstraintAndVariables;
     }
 

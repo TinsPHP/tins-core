@@ -11,23 +11,20 @@ import ch.tsphp.common.IAstHelper;
 import ch.tsphp.common.TSPHPAstAdaptor;
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.ITypeSymbol;
+import ch.tsphp.tinsphp.common.config.ISymbolsInitialiser;
 import ch.tsphp.tinsphp.common.scopes.IScopeHelper;
 import ch.tsphp.tinsphp.common.symbols.IModifierHelper;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
-import ch.tsphp.tinsphp.common.utils.IOverloadResolver;
+import ch.tsphp.tinsphp.common.utils.ITypeHelper;
 import ch.tsphp.tinsphp.core.GeneratorHelper;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.PrimitiveTypesProvider;
 import ch.tsphp.tinsphp.core.StandardConstraintAndVariables;
 import ch.tsphp.tinsphp.core.gen.BuiltInSymbolsProvider;
-import ch.tsphp.tinsphp.symbols.ModifierHelper;
-import ch.tsphp.tinsphp.symbols.SymbolFactory;
-import ch.tsphp.tinsphp.symbols.utils.OverloadResolver;
+import ch.tsphp.tinsphp.symbols.config.HardCodedSymbolsInitialiser;
 import org.junit.Ignore;
 
 import java.util.Map;
-
-import static org.mockito.Mockito.mock;
 
 @Ignore
 public abstract class ATest
@@ -35,26 +32,33 @@ public abstract class ATest
     protected IAstHelper astHelper;
     protected IScopeHelper scopeHelper;
     protected IModifierHelper modifierHelper;
-    protected IOverloadResolver overloadResolver;
+    protected ITypeHelper typeHelper;
     protected ISymbolFactory symbolFactory;
     protected Map<String, ITypeSymbol> primitiveTypes;
     protected StandardConstraintAndVariables std;
     protected Map<String, ISymbol> builtInSymbols;
 
     public ATest() {
+
+        ISymbolsInitialiser symbolsInitialiser = createSymbolsInitialiser();
+
         astHelper = createAstHelper();
-        scopeHelper = createScopeHelper();
-        modifierHelper = createModifierHelper();
-        overloadResolver = createOverloadResolver();
-        symbolFactory = createSymbolFactory(scopeHelper, modifierHelper, overloadResolver);
+        scopeHelper = symbolsInitialiser.getScopeHelper();
+        modifierHelper = symbolsInitialiser.getModifierHelper();
+        typeHelper = symbolsInitialiser.getTypeHelper();
+        symbolFactory = symbolsInitialiser.getSymbolFactory();
         primitiveTypes = getPrimitiveTypes(symbolFactory);
         std = createStandardConstraintAndVariables();
         BuiltInSymbolsProvider provider = new BuiltInSymbolsProvider(
                 new GeneratorHelper(astHelper, symbolFactory, primitiveTypes),
                 symbolFactory,
-                overloadResolver,
+                typeHelper,
                 std);
         builtInSymbols = provider.getSymbols();
+    }
+
+    private HardCodedSymbolsInitialiser createSymbolsInitialiser() {
+        return new HardCodedSymbolsInitialiser();
     }
 
     private StandardConstraintAndVariables createStandardConstraintAndVariables() {
@@ -63,23 +67,6 @@ public abstract class ATest
 
     private Map<String, ITypeSymbol> getPrimitiveTypes(ISymbolFactory theSymbolFactory) {
         return new PrimitiveTypesProvider(theSymbolFactory).getTypes();
-    }
-
-    protected IScopeHelper createScopeHelper() {
-        return mock(IScopeHelper.class);
-    }
-
-    protected IModifierHelper createModifierHelper() {
-        return new ModifierHelper();
-    }
-
-    protected IOverloadResolver createOverloadResolver() {
-        return new OverloadResolver();
-    }
-
-    protected ISymbolFactory createSymbolFactory(
-            IScopeHelper scopeHelper, IModifierHelper modifierHelper, IOverloadResolver overloadResolver) {
-        return new SymbolFactory(scopeHelper, modifierHelper, overloadResolver);
     }
 
     protected IAstHelper createAstHelper() {

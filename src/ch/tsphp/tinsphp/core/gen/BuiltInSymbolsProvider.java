@@ -15,7 +15,7 @@ import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IVariableSymbol;
 import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
-import ch.tsphp.tinsphp.common.utils.IOverloadResolver;
+import ch.tsphp.tinsphp.common.utils.ITypeHelper;
 import ch.tsphp.tinsphp.core.AProvider;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.ISymbolProvider;
@@ -37,9 +37,9 @@ public class BuiltInSymbolsProvider extends AProvider implements ISymbolProvider
     public BuiltInSymbolsProvider(
             IGeneratorHelper theGeneratorHelper,
             ISymbolFactory theSymbolFactory,
-            IOverloadResolver theOverloadResolver,
+            ITypeHelper theTypeHelper,
             StandardConstraintAndVariables standardConstraintAndVariables) {
-        super(theSymbolFactory, theOverloadResolver, standardConstraintAndVariables);
+        super(theSymbolFactory, theTypeHelper, standardConstraintAndVariables);
         generatorHelper = theGeneratorHelper;
     }
 

@@ -16,7 +16,7 @@ import ch.tsphp.tinsphp.common.inference.constraints.TypeVariableReference;
 import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.IUnionTypeSymbol;
-import ch.tsphp.tinsphp.common.utils.IOverloadResolver;
+import ch.tsphp.tinsphp.common.utils.ITypeHelper;
 import ch.tsphp.tinsphp.common.utils.Pair;
 
 import java.util.Arrays;
@@ -42,10 +42,10 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
     public OperatorProvider(
             ISymbolFactory theSymbolFactory,
-            IOverloadResolver theOverloadResolver,
+            ITypeHelper theTypeHelper,
             StandardConstraintAndVariables standardConstraintAndVariables,
             Map<String, ISymbol> theBuiltInSymbols) {
-        super(theSymbolFactory, theOverloadResolver, standardConstraintAndVariables);
+        super(theSymbolFactory, theTypeHelper, standardConstraintAndVariables);
         builtInSymbols = theBuiltInSymbols;
     }
 
