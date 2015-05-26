@@ -25,6 +25,27 @@ import static org.hamcrest.collection.IsIn.isIn;
 public class ConversionsProviderTest extends ATest
 {
     @Test
+    public void getExplicitConversions_Standard_Returns8() {
+        //no arrange necessary
+
+        IConversionsProvider provider = createConversionsProvider();
+        Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> result = provider.getExplicitConversions();
+
+        assertThat(result.size(), is(9));
+    }
+
+    @Test
+    public void getImplicitConversions_Standard_Returns1() {
+        //no arrange necessary
+
+        IConversionsProvider provider = createConversionsProvider();
+        Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> result = provider.getImplicitConversions();
+
+        assertThat(result.size(), is(1));
+    }
+
+
+    @Test
     public void getExplicitConversions_SecondCall_DoesNotNeedToRecompute() {
         //no arrange necessary
 

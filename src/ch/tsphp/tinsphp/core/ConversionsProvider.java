@@ -37,32 +37,12 @@ public class ConversionsProvider implements IConversionsProvider
     }
 
     private Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> createImplicitConversions() {
-        ITypeSymbol nullTypeTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.NULL_TYPE);
-        ITypeSymbol boolTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.BOOL);
         ITypeSymbol intTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.INT);
         ITypeSymbol floatTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.FLOAT);
-        ITypeSymbol stringTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.STRING);
-        ITypeSymbol numTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.NUM);
-        ITypeSymbol arrayTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.ARRAY);
-        ITypeSymbol mixedTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.MIXED);
 
         ITypeSymbol[][] castings = new ITypeSymbol[][]{
-                {nullTypeTypeSymbol, boolTypeSymbol},
-                {nullTypeTypeSymbol, intTypeSymbol},
-                {nullTypeTypeSymbol, floatTypeSymbol},
-                {nullTypeTypeSymbol, stringTypeSymbol},
-                {nullTypeTypeSymbol, arrayTypeSymbol},
-                //bool
-                {boolTypeSymbol, intTypeSymbol},
-                {boolTypeSymbol, floatTypeSymbol},
-                {boolTypeSymbol, stringTypeSymbol},
                 //int
                 {intTypeSymbol, floatTypeSymbol},
-                //num
-                {numTypeSymbol, stringTypeSymbol},
-                //mixed
-                {mixedTypeSymbol, boolTypeSymbol},
-                {mixedTypeSymbol, arrayTypeSymbol}
         };
 
         Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> conversionsMap = new HashMap<>();
@@ -93,14 +73,50 @@ public class ConversionsProvider implements IConversionsProvider
     }
 
     private Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> createExplicitConversions() {
+        ITypeSymbol nullTypeTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.NULL_TYPE);
+        ITypeSymbol falseTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.FALSE_TYPE);
+        ITypeSymbol trueTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.TRUE_TYPE);
+        ITypeSymbol boolTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.BOOL);
         ITypeSymbol intTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.INT);
         ITypeSymbol floatTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.FLOAT);
         ITypeSymbol stringTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.STRING);
+        ITypeSymbol resourceTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.RESOURCE);
+        ITypeSymbol arrayTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.ARRAY);
+        ITypeSymbol mixedTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.MIXED);
 
         ITypeSymbol[][] castings = new ITypeSymbol[][]{
+                {nullTypeTypeSymbol, boolTypeSymbol},
+                {nullTypeTypeSymbol, intTypeSymbol},
+                {nullTypeTypeSymbol, floatTypeSymbol},
+                {nullTypeTypeSymbol, stringTypeSymbol},
+                {nullTypeTypeSymbol, arrayTypeSymbol},
+                //bool
+                {falseTypeSymbol, intTypeSymbol},
+                {falseTypeSymbol, floatTypeSymbol},
+                {falseTypeSymbol, stringTypeSymbol},
+                {trueTypeSymbol, intTypeSymbol},
+                {trueTypeSymbol, floatTypeSymbol},
+                {trueTypeSymbol, stringTypeSymbol},
+                //int
+                {intTypeSymbol, boolTypeSymbol},
+                {intTypeSymbol, stringTypeSymbol},
+                //float
+                {floatTypeSymbol, boolTypeSymbol},
                 {floatTypeSymbol, intTypeSymbol},
+                {floatTypeSymbol, stringTypeSymbol},
+                //string
+                {stringTypeSymbol, boolTypeSymbol},
                 {stringTypeSymbol, floatTypeSymbol},
-                {stringTypeSymbol, intTypeSymbol},
+                //resource
+                {resourceTypeSymbol, boolTypeSymbol},
+                {resourceTypeSymbol, intTypeSymbol},
+                {resourceTypeSymbol, floatTypeSymbol},
+                {resourceTypeSymbol, stringTypeSymbol},
+                //array
+                {arrayTypeSymbol, boolTypeSymbol},
+                //TODO rstoll TINS-332 introduce object pseudo type - change to object
+                {mixedTypeSymbol, boolTypeSymbol},
+                {mixedTypeSymbol, arrayTypeSymbol}
         };
 
         Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> conversionsMap = new HashMap<>();
