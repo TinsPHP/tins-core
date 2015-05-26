@@ -8,12 +8,13 @@ package ch.tsphp.tinsphp.core;
 
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.IConversionMethod;
+import ch.tsphp.tinsphp.common.utils.Pair;
 
 import java.util.Map;
 
 public interface IConversionsProvider
 {
-    Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> getImplicitConversions();
+    Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> getImplicitConversions();
 
-    Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> getExplicitConversions();
+    Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> getExplicitConversions();
 }

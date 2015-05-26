@@ -10,15 +10,18 @@ import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.BuiltInConversionMethod;
 import ch.tsphp.tinsphp.common.IConversionMethod;
 import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
+import ch.tsphp.tinsphp.common.utils.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static ch.tsphp.tinsphp.common.utils.Pair.pair;
+
 public class ConversionsProvider implements IConversionsProvider
 {
     private final Map<String, ITypeSymbol> primitiveTypes;
-    private Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> implicitConversions;
-    private Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> explicitConversions;
+    private Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> implicitConversions;
+    private Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> explicitConversions;
 
 
     public ConversionsProvider(Map<String, ITypeSymbol> thePrimitiveTypes) {
@@ -26,14 +29,14 @@ public class ConversionsProvider implements IConversionsProvider
     }
 
     @Override
-    public Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> getImplicitConversions() {
+    public Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> getImplicitConversions() {
         if (implicitConversions == null) {
             implicitConversions = createImplicitConversions();
         }
         return implicitConversions;
     }
 
-    private Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> createImplicitConversions() {
+    private Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> createImplicitConversions() {
         ITypeSymbol nullTypeTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.NULL_TYPE);
         ITypeSymbol boolTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.BOOL);
         ITypeSymbol intTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.INT);
@@ -62,23 +65,26 @@ public class ConversionsProvider implements IConversionsProvider
                 {mixedTypeSymbol, arrayTypeSymbol}
         };
 
-        Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> conversions = new HashMap<>();
+        Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> conversionsMap = new HashMap<>();
         for (ITypeSymbol[] fromTo : castings) {
-            addToCastings(conversions, fromTo[0], fromTo[1], new BuiltInConversionMethod(fromTo[1]));
+            addToConversions(conversionsMap, fromTo[0], fromTo[1], new BuiltInConversionMethod(fromTo[1]));
         }
-        return conversions;
+        return conversionsMap;
     }
 
-    private static void addToCastings(Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> castings,
+    private static void addToConversions(Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> conversionMap,
             ITypeSymbol from, ITypeSymbol to, IConversionMethod castingMethod) {
-        if (!castings.containsKey(from)) {
-            castings.put(from, new HashMap<ITypeSymbol, IConversionMethod>());
+        String absoluteName = from.getAbsoluteName();
+        Map<String, Pair<ITypeSymbol, IConversionMethod>> conversions = conversionMap.get(absoluteName);
+        if (conversions == null) {
+            conversions = new HashMap<>();
+            conversionMap.put(absoluteName, conversions);
         }
-        castings.get(from).put(to, castingMethod);
+        conversions.put(to.getAbsoluteName(), pair(to, castingMethod));
     }
 
     @Override
-    public Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> getExplicitConversions() {
+    public Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> getExplicitConversions() {
         if (explicitConversions == null) {
             explicitConversions = createExplicitConversions();
         }
@@ -86,7 +92,7 @@ public class ConversionsProvider implements IConversionsProvider
 
     }
 
-    private Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> createExplicitConversions() {
+    private Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> createExplicitConversions() {
         ITypeSymbol intTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.INT);
         ITypeSymbol floatTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.FLOAT);
         ITypeSymbol stringTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.STRING);
@@ -97,11 +103,11 @@ public class ConversionsProvider implements IConversionsProvider
                 {stringTypeSymbol, intTypeSymbol},
         };
 
-        Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> conversions = new HashMap<>();
+        Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> conversionsMap = new HashMap<>();
         for (ITypeSymbol[] fromTo : castings) {
-            addToCastings(conversions, fromTo[0], fromTo[1], new BuiltInConversionMethod(fromTo[1]));
+            addToConversions(conversionsMap, fromTo[0], fromTo[1], new BuiltInConversionMethod(fromTo[1]));
         }
-        return conversions;
+        return conversionsMap;
     }
 
 }

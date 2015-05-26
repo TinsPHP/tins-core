@@ -8,6 +8,7 @@ package ch.tsphp.tinsphp.core.test.integration;
 
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.IConversionMethod;
+import ch.tsphp.tinsphp.common.utils.Pair;
 import ch.tsphp.tinsphp.core.ConversionsProvider;
 import ch.tsphp.tinsphp.core.IConversionsProvider;
 import ch.tsphp.tinsphp.core.test.integration.testutils.ATest;
@@ -28,9 +29,9 @@ public class ConversionsProviderTest extends ATest
         //no arrange necessary
 
         IConversionsProvider provider = createConversionsProvider();
-        Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> result1 = provider.getExplicitConversions();
-        Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> backup = new HashMap<>(result1);
-        Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> result2 = provider.getExplicitConversions();
+        Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> result1 = provider.getExplicitConversions();
+        Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> backup = new HashMap<>(result1);
+        Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> result2 = provider.getExplicitConversions();
 
         assertThat(result1, is(result2));
         assertThat(result2.entrySet(), everyItem(isIn(backup.entrySet())));
@@ -42,9 +43,9 @@ public class ConversionsProviderTest extends ATest
         //no arrange necessary
 
         IConversionsProvider provider = createConversionsProvider();
-        Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> result1 = provider.getImplicitConversions();
-        Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> backup = new HashMap<>(result1);
-        Map<ITypeSymbol, Map<ITypeSymbol, IConversionMethod>> result2 = provider.getImplicitConversions();
+        Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> result1 = provider.getImplicitConversions();
+        Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> backup = new HashMap<>(result1);
+        Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> result2 = provider.getImplicitConversions();
 
         assertThat(result1, is(result2));
         assertThat(result2.entrySet(), everyItem(isIn(backup.entrySet())));

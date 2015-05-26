@@ -16,8 +16,7 @@ public interface IGeneratorHelper
 {
     IClassTypeSymbol createClass(String identifier);
 
-    IMethodSymbol defineMethod(
-            IClassTypeSymbol classTypeSymbol, String name, ITypeSymbol returnType);
+    IMethodSymbol defineMethod(IClassTypeSymbol classTypeSymbol, String name, ITypeSymbol returnType);
 
     IVariableSymbol createConstant(String name, ITypeSymbol typeSymbol);
 
