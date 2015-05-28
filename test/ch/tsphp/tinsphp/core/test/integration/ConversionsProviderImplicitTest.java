@@ -25,10 +25,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(Parameterized.class)
-public class ConversionsProviderImplicit extends AConversionsProvider
+public class ConversionsProviderImplicitTest extends AConversionsProvider
 {
 
-    public ConversionsProviderImplicit(String fromType, String toType, boolean result) {
+    public ConversionsProviderImplicitTest(String fromType, String toType, boolean result) {
         super(fromType, toType, result);
     }
 
