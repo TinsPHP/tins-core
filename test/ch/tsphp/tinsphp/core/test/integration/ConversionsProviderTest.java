@@ -8,9 +8,8 @@ package ch.tsphp.tinsphp.core.test.integration;
 
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.IConversionMethod;
+import ch.tsphp.tinsphp.common.core.IConversionsProvider;
 import ch.tsphp.tinsphp.common.utils.Pair;
-import ch.tsphp.tinsphp.core.ConversionsProvider;
-import ch.tsphp.tinsphp.core.IConversionsProvider;
 import ch.tsphp.tinsphp.core.test.integration.testutils.ATest;
 import org.junit.Test;
 
@@ -73,11 +72,7 @@ public class ConversionsProviderTest extends ATest
         assertThat(result2.size(), is(backup.size()));
     }
 
-    protected IConversionsProvider createConversionsProvider() {
+    private IConversionsProvider createConversionsProvider() {
         return createConversionsProvider(primitiveTypes);
-    }
-
-    protected IConversionsProvider createConversionsProvider(Map<String, ITypeSymbol> primitiveTypes) {
-        return new ConversionsProvider(primitiveTypes);
     }
 }

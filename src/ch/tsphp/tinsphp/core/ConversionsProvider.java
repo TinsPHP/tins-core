@@ -9,6 +9,7 @@ package ch.tsphp.tinsphp.core;
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.BuiltInConversionMethod;
 import ch.tsphp.tinsphp.common.IConversionMethod;
+import ch.tsphp.tinsphp.common.core.IConversionsProvider;
 import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
 import ch.tsphp.tinsphp.common.utils.Pair;
 
@@ -87,15 +88,12 @@ public class ConversionsProvider implements IConversionsProvider
         ITypeSymbol[][] castings = new ITypeSymbol[][]{
                 {nullTypeTypeSymbol, boolTypeSymbol},
                 {nullTypeTypeSymbol, intTypeSymbol},
-                {nullTypeTypeSymbol, floatTypeSymbol},
                 {nullTypeTypeSymbol, stringTypeSymbol},
                 {nullTypeTypeSymbol, arrayTypeSymbol},
                 //bool
                 {falseTypeSymbol, intTypeSymbol},
-                {falseTypeSymbol, floatTypeSymbol},
                 {falseTypeSymbol, stringTypeSymbol},
                 {trueTypeSymbol, intTypeSymbol},
-                {trueTypeSymbol, floatTypeSymbol},
                 {trueTypeSymbol, stringTypeSymbol},
                 //int
                 {intTypeSymbol, boolTypeSymbol},
@@ -110,7 +108,6 @@ public class ConversionsProvider implements IConversionsProvider
                 //resource
                 {resourceTypeSymbol, boolTypeSymbol},
                 {resourceTypeSymbol, intTypeSymbol},
-                {resourceTypeSymbol, floatTypeSymbol},
                 {resourceTypeSymbol, stringTypeSymbol},
                 //array
                 {arrayTypeSymbol, boolTypeSymbol},

@@ -7,13 +7,12 @@
 package ch.tsphp.tinsphp.core.test.integration.testutils;
 
 import ch.tsphp.common.symbols.ITypeSymbol;
-import ch.tsphp.tinsphp.common.ICore;
 import ch.tsphp.tinsphp.common.config.ISymbolsInitialiser;
+import ch.tsphp.tinsphp.common.core.IConversionsProvider;
 import ch.tsphp.tinsphp.common.symbols.IConvertibleTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.utils.ITypeHelper;
 import ch.tsphp.tinsphp.core.ConversionsProvider;
-import ch.tsphp.tinsphp.core.IConversionsProvider;
 import ch.tsphp.tinsphp.core.ITypeSymbolProvider;
 import ch.tsphp.tinsphp.core.PrimitiveTypesProvider;
 import ch.tsphp.tinsphp.symbols.config.HardCodedSymbolsInitialiser;
@@ -27,7 +26,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @Ignore
-public abstract class AConversionProviderTest
+public abstract class AConversionsProvider
 {
     private static ISymbolsInitialiser symbolsInitialiser;
 
@@ -40,7 +39,7 @@ public abstract class AConversionProviderTest
     private final String to;
     private final boolean expectedResult;
 
-    public AConversionProviderTest(String fromType, String toType, boolean result) {
+    public AConversionsProvider(String fromType, String toType, boolean result) {
         from = fromType;
         to = toType;
         expectedResult = result;
@@ -59,16 +58,15 @@ public abstract class AConversionProviderTest
         formal.addUpperTypeBound(toType);
 
         IConversionsProvider provider = createConversionsProvider(types);
-        typeHelper.setCore(createCore(provider));
+        typeHelper.setConversionsProvider(provider);
         boolean result = typeHelper.isFirstSameOrSubTypeOfSecond(actual, formal);
 
         assertThat(result, describedAs(from + " <: {as " + to + "} to be <" + String.valueOf(expectedResult) + ">",
                 is(expectedResult)));
     }
 
-    protected abstract ICore createCore(IConversionsProvider provider);
 
-    protected ConversionsProvider createConversionsProvider(Map<String, ITypeSymbol> types) {
+    protected IConversionsProvider createConversionsProvider(Map<String, ITypeSymbol> types) {
         return new ConversionsProvider(types);
     }
 

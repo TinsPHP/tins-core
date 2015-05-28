@@ -7,10 +7,8 @@
 package ch.tsphp.tinsphp.core;
 
 import ch.tsphp.common.symbols.ITypeSymbol;
-import ch.tsphp.tinsphp.common.IConversionMethod;
 import ch.tsphp.tinsphp.common.ICore;
 import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
-import ch.tsphp.tinsphp.common.utils.Pair;
 
 import java.util.Map;
 
@@ -18,19 +16,10 @@ public class Core implements ICore
 {
 
     private final Map<String, ITypeSymbol> primitiveTypes;
-    private final Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> implicitConversions;
-    private final Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> explicitConversions;
     private final Map<Integer, IMinimalMethodSymbol> operators;
 
-    public Core(
-            Map<String, ITypeSymbol> thePrimitiveTypes,
-            Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> theImplicitConversions,
-            Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> theExplicitConversions,
-            Map<Integer, IMinimalMethodSymbol> theOperators) {
-
+    public Core(Map<String, ITypeSymbol> thePrimitiveTypes, Map<Integer, IMinimalMethodSymbol> theOperators) {
         primitiveTypes = thePrimitiveTypes;
-        implicitConversions = theImplicitConversions;
-        explicitConversions = theExplicitConversions;
         operators = theOperators;
     }
 
@@ -40,19 +29,8 @@ public class Core implements ICore
     }
 
     @Override
-    public Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> getImplicitConversions() {
-        return implicitConversions;
-    }
-
-    @Override
-    public Map<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>> getExplicitConversions() {
-        return explicitConversions;
-    }
-
-    @Override
     public Map<String, ITypeSymbol> getPrimitiveTypes() {
         return primitiveTypes;
     }
-
 
 }

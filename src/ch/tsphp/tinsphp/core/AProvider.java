@@ -36,19 +36,18 @@ public abstract class AProvider
         std = standardConstraintAndVariables;
     }
 
-    protected IOverloadBindings createBinaryTBindings() {
-        IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
-        overloadBindings.addVariable(VAR_LHS, reference("T"));
-        overloadBindings.addVariable(VAR_RHS, reference("T"));
-        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference("T"));
-        return overloadBindings;
-    }
-
-
     protected IOverloadBindings createUnaryTBindings() {
         IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
         overloadBindings.addVariable(VAR_EXPR, reference("T"));
         overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference("T"));
+        return overloadBindings;
+    }
+
+    protected IOverloadBindings createAssignOverloadBindings() {
+        IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
+        overloadBindings.addVariable(VAR_LHS, reference(T_LHS));
+        overloadBindings.addVariable(VAR_RHS, reference(T_RHS));
+        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_LHS));
         return overloadBindings;
     }
 

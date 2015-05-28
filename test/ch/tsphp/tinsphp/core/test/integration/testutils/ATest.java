@@ -12,10 +12,12 @@ import ch.tsphp.common.TSPHPAstAdaptor;
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.config.ISymbolsInitialiser;
+import ch.tsphp.tinsphp.common.core.IConversionsProvider;
 import ch.tsphp.tinsphp.common.scopes.IScopeHelper;
 import ch.tsphp.tinsphp.common.symbols.IModifierHelper;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.utils.ITypeHelper;
+import ch.tsphp.tinsphp.core.ConversionsProvider;
 import ch.tsphp.tinsphp.core.GeneratorHelper;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.PrimitiveTypesProvider;
@@ -37,6 +39,7 @@ public abstract class ATest
     protected Map<String, ITypeSymbol> primitiveTypes;
     protected StandardConstraintAndVariables std;
     protected Map<String, ISymbol> builtInSymbols;
+    protected IConversionsProvider conversionsProvider;
 
     public ATest() {
 
@@ -55,6 +58,9 @@ public abstract class ATest
                 typeHelper,
                 std);
         builtInSymbols = provider.getSymbols();
+
+        conversionsProvider = createConversionsProvider(primitiveTypes);
+        typeHelper.setConversionsProvider(conversionsProvider);
     }
 
     private HardCodedSymbolsInitialiser createSymbolsInitialiser() {
@@ -78,4 +84,7 @@ public abstract class ATest
         return new GeneratorHelper(astHelper, symbolFactory, primitiveTypes);
     }
 
+    protected IConversionsProvider createConversionsProvider(Map<String, ITypeSymbol> primitiveTypes) {
+        return new ConversionsProvider(primitiveTypes);
+    }
 }

@@ -8,12 +8,10 @@ package ch.tsphp.tinsphp.core.test.integration;
 
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.IConversionMethod;
-import ch.tsphp.tinsphp.common.ICore;
+import ch.tsphp.tinsphp.common.core.IConversionsProvider;
 import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
 import ch.tsphp.tinsphp.common.utils.Pair;
-import ch.tsphp.tinsphp.core.Core;
-import ch.tsphp.tinsphp.core.IConversionsProvider;
-import ch.tsphp.tinsphp.core.test.integration.testutils.AConversionProviderTest;
+import ch.tsphp.tinsphp.core.test.integration.testutils.AConversionsProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -23,11 +21,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 @RunWith(Parameterized.class)
-public class ConversionProviderImplicitTest extends AConversionProviderTest
+public class ConversionsProviderImplicit extends AConversionsProvider
 {
 
-    public ConversionProviderImplicitTest(String fromType, String toType, boolean result) {
+    public ConversionsProviderImplicit(String fromType, String toType, boolean result) {
         super(fromType, toType, result);
     }
 
@@ -45,11 +46,12 @@ public class ConversionProviderImplicitTest extends AConversionProviderTest
     }
 
     @Override
-    protected ICore createCore(IConversionsProvider provider) {
-        return new Core(
-                null,
-                provider.getImplicitConversions(),
-                new HashMap<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>>(),
-                null);
+    protected IConversionsProvider createConversionsProvider(Map<String, ITypeSymbol> types) {
+        IConversionsProvider conversionsProvider1 = super.createConversionsProvider(types);
+        IConversionsProvider conversionsProvider = mock(IConversionsProvider.class);
+        when(conversionsProvider.getExplicitConversions()).thenReturn(
+                new HashMap<String, Map<String, Pair<ITypeSymbol, IConversionMethod>>>());
+        when(conversionsProvider.getImplicitConversions()).thenReturn(conversionsProvider1.getImplicitConversions());
+        return conversionsProvider;
     }
 }

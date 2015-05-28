@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 
 
 @RunWith(Parameterized.class)
@@ -55,7 +55,10 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
         try {
             assertThat(overloadSignatures, containsInAnyOrder(signatures));
         } catch (AssertionError ex) {
-            System.out.println(operatorName + " failed:");
+            System.out.println(operatorName + " failed. Overloads where:");
+            for (String overloadSignature : overloadSignatures) {
+                System.out.println(overloadSignature);
+            }
             throw ex;
         }
     }
@@ -66,8 +69,12 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"or", TokenTypes.LogicOrWeak, new String[]{
                         "falseType x falseType -> falseType",
                         "trueType x (falseType | trueType) -> trueType",
+                        "trueType x {as (falseType | trueType)} -> trueType",
                         "(falseType | trueType) x trueType -> trueType",
-                        "(falseType | trueType) x (falseType | trueType) -> (falseType | trueType)"
+                        "{as (falseType | trueType)} x trueType -> trueType",
+                        "(falseType | trueType) x (falseType | trueType) -> (falseType | trueType)",
+                        "{as (falseType | trueType)} x {as (falseType | trueType)} -> (falseType | trueType)",
+
                 }},
                 {"xor", TokenTypes.LogicXorWeak, new String[]{
                         "falseType x trueType -> trueType",
@@ -75,50 +82,113 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                         "falseType x falseType -> falseType",
                         "trueType x trueType -> falseType",
                         "(falseType | trueType) x (falseType | trueType) -> (falseType | trueType)",
+                        "{as (falseType | trueType)} x {as (falseType | trueType)} -> (falseType | trueType)",
                 }},
                 {"and", TokenTypes.LogicAndWeak, new String[]{
                         "falseType x (falseType | trueType) -> falseType",
+                        "falseType x {as (falseType | trueType)} -> falseType",
                         "(falseType | trueType) x falseType -> falseType",
+                        "{as (falseType | trueType)} x falseType -> falseType",
                         "trueType x trueType -> trueType",
                         "(falseType | trueType) x (falseType | trueType) -> (falseType | trueType)",
+                        "{as (falseType | trueType)} x {as (falseType | trueType)} -> (falseType | trueType)",
                 }},
-                {"=", TokenTypes.Assign, new String[]{"Tlhs x Trhs -> Tlhs \\ Trhs < Tlhs"}},
+                {"=", TokenTypes.Assign, new String[]{"Tlhs x Trhs -> Tlhs \\ Trhs <: Tlhs"}},
                 {"+=", TokenTypes.PlusAssign, new String[]{
-                        "T x T -> T \\ T < (float | int)", "array x array -> array"
+                        "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
+                        "Tlhs x float -> Tlhs \\ float <: Tlhs <: float",
+                        "Tlhs x Trhs -> Tlhs \\ Tlhs <: (float | int), Trhs <: {as Tlhs}",
+                        "Tlhs x Trhs -> Tlhs \\ Tlhs <: {as Trhs}, Trhs <: (float | int)",
+                        "Tlhs x array -> Tlhs \\ array <: Tlhs <: array"
                 }},
-                {"-=", TokenTypes.MinusAssign, new String[]{"T x T -> T \\ T < (float | int)"}},
-                {"*=", TokenTypes.MultiplyAssign, new String[]{"T x T -> T \\ T < (float | int)"}},
+                {"-=", TokenTypes.MinusAssign, new String[]{
+                        "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
+                        "Tlhs x float -> Tlhs \\ float <: Tlhs <: float",
+                        "Tlhs x Trhs -> Tlhs \\ Tlhs <: (float | int), Trhs <: {as Tlhs}",
+                        "Tlhs x Trhs -> Tlhs \\ Tlhs <: {as Trhs}, Trhs <: (float | int)",
+                }},
+                {"*=", TokenTypes.MultiplyAssign, new String[]{
+                        "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
+                        "Tlhs x float -> Tlhs \\ float <: Tlhs <: float",
+                        "Tlhs x Trhs -> Tlhs \\ Tlhs <: (float | int), Trhs <: {as Tlhs}",
+                        "Tlhs x Trhs -> Tlhs \\ Tlhs <: {as Trhs}, Trhs <: (float | int)",
+                }},
                 {"/=", TokenTypes.DivideAssign, new String[]{
-                        "(falseType | int | trueType) x (falseType | trueType) -> (falseType | int)",
-                        "Tlhs x Trhs -> Tlhs \\ (falseType | float | Trhs) < Tlhs, float < Trhs < (float | int)",
+                        "Tlhs x float -> Tlhs \\ (falseType | float) <: Tlhs <: (falseType | float)",
+                        "Tlhs x {as float} -> Tlhs \\ (falseType | float) <: Tlhs <: (falseType | float)",
+                        "Tlhs x float -> Tlhs \\ (falseType | float) <: Tlhs <: {as float}",
+                        "Tlhs x {as (float | int)} -> Tlhs \\ (falseType | float | int) <: Tlhs <: {as (float | int)}"
                 }},
-                {"%=", TokenTypes.ModuloAssign, new String[]{"(falseType | int) x int -> (falseType | int)"}},
-                {"&=", TokenTypes.BitwiseAndAssign, new String[]{"int x int -> int", "string x string -> string"}},
-                {"^=", TokenTypes.BitwiseXorAssign, new String[]{"int x int -> int", "string x string -> string"}},
-                {"|=", TokenTypes.BitwiseOrAssign, new String[]{"int x int -> int", "string x string -> string"}},
-                {">>=", TokenTypes.ShiftLeftAssign, new String[]{"int x int -> int"}},
-                {"<<=", TokenTypes.ShiftRightAssign, new String[]{"int x int -> int"}},
-                {".=", TokenTypes.DotAssign, new String[]{"string x string -> string"}},
+                {"%=", TokenTypes.ModuloAssign, new String[]{
+                        "Tlhs x int -> Tlhs \\ (falseType | int) <: Tlhs <: (falseType | int)",
+                        "Tlhs x {as int} -> Tlhs \\ (falseType | int) <: Tlhs <: {as int}",
+                }},
+                {"&=", TokenTypes.BitwiseAndAssign, new String[]{
+                        "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
+                        "Tlhs x {as int} -> Tlhs \\ int <: Tlhs <: {as int}",
+                        "Tlhs x string -> Tlhs \\ string <: Tlhs <: string",
+                }},
+                {"^=", TokenTypes.BitwiseXorAssign, new String[]{
+                        "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
+                        "Tlhs x {as int} -> Tlhs \\ int <: Tlhs <: {as int}",
+                        "Tlhs x string -> Tlhs \\ string <: Tlhs <: string",
+                }},
+                {"|=", TokenTypes.BitwiseOrAssign, new String[]{
+                        "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
+                        "Tlhs x {as int} -> Tlhs \\ int <: Tlhs <: {as int}",
+                        "Tlhs x string -> Tlhs \\ string <: Tlhs <: string",
+                }},
+                {">>=", TokenTypes.ShiftLeftAssign, new String[]{
+                        "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
+                        "Tlhs x {as int} -> Tlhs \\ int <: Tlhs <: {as int}"
+                }},
+                {"<<=", TokenTypes.ShiftRightAssign, new String[]{
+                        "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
+                        "Tlhs x {as int} -> Tlhs \\ int <: Tlhs <: {as int}"
+                }},
+                {".=", TokenTypes.DotAssign, new String[]{
+                        "Tlhs x string -> Tlhs \\ string <: Tlhs <: string",
+                        "Tlhs x {as string} -> Tlhs \\ string <: Tlhs <: {as string}"
+                }},
                 {"?", TokenTypes.QuestionMark, new String[]{
-                        "falseType x mixed x Telse -> Treturn \\ Telse < Treturn",
-                        "trueType x Tif x mixed -> Treturn \\ Tif < Treturn",
-                        "(falseType | trueType) x Tif x Telse -> Treturn \\ (Telse | Tif) < Treturn"
+                        "falseType x mixed x Telse -> Treturn \\ Telse <: Treturn",
+                        "trueType x Tif x mixed -> Treturn \\ Tif <: Treturn",
+                        "(falseType | trueType) x Tif x Telse -> Treturn \\ (Telse | Tif) <: Treturn",
+                        "{as (falseType | trueType)} x Tif x Telse -> Treturn \\ (Telse | Tif) <: Treturn"
                 }},
                 {"||", TokenTypes.LogicOr, new String[]{
                         "falseType x falseType -> falseType",
                         "trueType x (falseType | trueType) -> trueType",
+                        "trueType x {as (falseType | trueType)} -> trueType",
                         "(falseType | trueType) x trueType -> trueType",
-                        "(falseType | trueType) x (falseType | trueType) -> (falseType | trueType)"
+                        "{as (falseType | trueType)} x trueType -> trueType",
+                        "(falseType | trueType) x (falseType | trueType) -> (falseType | trueType)",
+                        "{as (falseType | trueType)} x {as (falseType | trueType)} -> (falseType | trueType)",
                 }},
                 {"&&", TokenTypes.LogicAnd, new String[]{
                         "falseType x (falseType | trueType) -> falseType",
+                        "falseType x {as (falseType | trueType)} -> falseType",
                         "(falseType | trueType) x falseType -> falseType",
+                        "{as (falseType | trueType)} x falseType -> falseType",
                         "trueType x trueType -> trueType",
                         "(falseType | trueType) x (falseType | trueType) -> (falseType | trueType)",
+                        "{as (falseType | trueType)} x {as (falseType | trueType)} -> (falseType | trueType)",
                 }},
-                {"|", TokenTypes.BitwiseOr, new String[]{"int x int -> int", "string x string -> string"}},
-                {"^", TokenTypes.BitwiseXor, new String[]{"int x int -> int", "string x string -> string"}},
-                {"&", TokenTypes.BitwiseAnd, new String[]{"int x int -> int", "string x string -> string"}},
+                {"|", TokenTypes.BitwiseOr, new String[]{
+                        "int x int -> int",
+                        "{as int} x {as int} -> int",
+                        "string x string -> string"
+                }},
+                {"^", TokenTypes.BitwiseXor, new String[]{
+                        "int x int -> int",
+                        "{as int} x {as int} -> int",
+                        "string x string -> string"
+                }},
+                {"&", TokenTypes.BitwiseAnd, new String[]{
+                        "int x int -> int",
+                        "{as int} x {as int} -> int",
+                        "string x string -> string"
+                }},
                 {"==", TokenTypes.Equal, new String[]{"mixed x mixed -> (falseType | trueType)"}},
                 {"===", TokenTypes.Identical, new String[]{"mixed x mixed -> (falseType | trueType)"}},
                 {"!=", TokenTypes.NotEqual, new String[]{"mixed x mixed -> (falseType | trueType)"}},
@@ -127,68 +197,110 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"<=", TokenTypes.LessEqualThan, new String[]{"mixed x mixed -> (falseType | trueType)"}},
                 {">", TokenTypes.GreaterThan, new String[]{"mixed x mixed -> (falseType | trueType)"}},
                 {">=", TokenTypes.GreaterEqualThan, new String[]{"mixed x mixed -> (falseType | trueType)"}},
-                {"<<", TokenTypes.ShiftLeft, new String[]{"int x int -> int"}},
-                {">>", TokenTypes.ShiftRight, new String[]{"int x int -> int"}},
+                {"<<", TokenTypes.ShiftLeft, new String[]{"int x int -> int", "{as int} x {as int} -> int"}},
+                {">>", TokenTypes.ShiftRight, new String[]{"int x int -> int", "{as int} x {as int} -> int"}},
                 {"+", TokenTypes.Plus, new String[]{
-                        "(falseType | trueType) x (falseType | trueType) -> int",
-                        "T x T -> T \\ T < (float | int)",
+                        "int x int -> int",
+                        "float x float -> float",
+                        "T1 x T2 -> T1 \\ T1 <: (float | int), T2 <: {as T1}",
+                        "T1 x T2 -> T2 \\ T1 <: {as T2}, T2 <: (float | int)",
+                        "T1 x T1 -> T2 \\ T1 <: {as T2}, T2 <: (float | int)",
                         "array x array -> array"
                 }},
                 {"-", TokenTypes.Minus, new String[]{
-                        "(falseType | trueType) x (falseType | trueType) -> int",
-                        "T x T -> T \\ T < (float | int)"
+                        "int x int -> int",
+                        "float x float -> float",
+                        "T1 x T2 -> T1 \\ T1 <: (float | int), T2 <: {as T1}",
+                        "T1 x T2 -> T2 \\ T1 <: {as T2}, T2 <: (float | int)",
+                        "T1 x T1 -> T2 \\ T1 <: {as T2}, T2 <: (float | int)",
+
                 }},
-                {".", TokenTypes.Dot, new String[]{"string x string -> string"}},
+                {".", TokenTypes.Dot, new String[]{
+                        "string x string -> string",
+                        "{as string} x {as string} -> string"
+                }},
                 {"*", TokenTypes.Multiply, new String[]{
-                        "(falseType | trueType) x (falseType | trueType) -> int",
-                        "T x T -> T \\ T < (float | int)"
+                        "int x int -> int",
+                        "float x float -> float",
+                        "T1 x T2 -> T1 \\ T1 <: (float | int), T2 <: {as T1}",
+                        "T1 x T2 -> T2 \\ T1 <: {as T2}, T2 <: (float | int)",
+                        "T1 x T1 -> T2 \\ T1 <: {as T2}, T2 <: (float | int)",
                 }},
                 {"/", TokenTypes.Divide, new String[]{
-                        "(falseType | trueType) x (falseType | trueType) -> (falseType | int)",
-                        "T x T -> Treturn \\ float < T < (float | int), (falseType | float | T) < Treturn",
+                        "float x float -> (falseType | float)",
+                        "float x {as float} -> (falseType | float)",
+                        "{as float} x float -> (falseType | float)",
+                        "{as (float | int)} x {as (float | int)} -> (falseType | float | int)"
                 }},
-                {"%", TokenTypes.Modulo, new String[]{"int x int -> (falseType | int)"}},
+                {"%", TokenTypes.Modulo, new String[]{
+                        "int x int -> (falseType | int)",
+                        "{as int} x {as int} -> (falseType | int)"
+                }},
                 {"instanceof", TokenTypes.Instanceof, new String[]{"mixed x mixed -> (falseType | trueType)"}},
-                {"cast", TokenTypes.CAST, new String[]{"Tlhs x Trhs -> Treturn \\ Tlhs < Treturn"}},
-                {"clone", TokenTypes.Clone, new String[]{"T -> T"}},
-                {"new", TokenTypes.New, new String[]{"T -> T"}},
                 {"preIncr", TokenTypes.PRE_INCREMENT, new String[]{
-                        "T -> T \\ T < (falseType | float | int | trueType)"
+                        "T -> T \\ int <: T <: int",
+                        "T -> T \\ float <: T <: float",
+                        "T -> T \\ (float | int | string) <: T <: (float | int | string)",
+                        "T -> T \\ (int | nullType) <: T <: (int | nullType)",
+                        "T -> T"
                 }},
-                {"postDecr", TokenTypes.PRE_DECREMENT, new String[]{
-                        "T -> T \\ T < (falseType | float | int | trueType)"
+                {"preDecr", TokenTypes.PRE_DECREMENT, new String[]{
+                        "T -> T \\ int <: T <: int",
+                        "T -> T \\ float <: T <: float",
+                        "T -> T \\ (float | int | string) <: T <: (float | int | string)",
+                        "T -> T"
                 }},
+                {"cast", TokenTypes.CAST, new String[]{"Tlhs x Trhs -> Treturn \\ Tlhs <: Treturn"}},
                 {"@", TokenTypes.At, new String[]{"T -> T"}},
-                {"~", TokenTypes.BitwiseNot, new String[]{"int -> int", "string -> string"}},
+                {"~", TokenTypes.BitwiseNot, new String[]{"int -> int", "float -> int", "string -> string"}},
                 {"!", TokenTypes.LogicNot, new String[]{
                         "falseType -> trueType",
                         "trueType -> falseType",
                         "(falseType | trueType) -> (falseType | trueType)"
                 }},
                 {"uMinus", TokenTypes.UNARY_MINUS, new String[]{
-                        "(falseType | trueType) -> int",
-                        "T -> T \\ T < (float | int)"
+                        "T -> T \\ T <: (falseType | float | int | nullType | string | trueType)"
                 }},
                 {"uPlus", TokenTypes.UNARY_PLUS, new String[]{
-                        "(falseType | trueType) -> int",
-                        "T -> T \\ T < (float | int)"
+                        "T -> T \\ T <: (falseType | float | int | nullType | string | trueType)"
                 }},
+                {"clone", TokenTypes.Clone, new String[]{"T -> T"}},
+                {"new", TokenTypes.New, new String[]{"T -> T"}},
                 {"postIncr", TokenTypes.POST_INCREMENT, new String[]{
-                        "T -> T \\ T < (falseType | float | int | trueType)"
+                        "T -> T \\ int <: T <: int",
+                        "T -> T \\ float <: T <: float",
+                        "T -> T \\ (float | int | string) <: T <: (float | int | string)",
+                        "T -> T \\ (int | nullType) <: T <: (int | nullType)",
+                        "T -> T"
                 }},
                 {"postDecr", TokenTypes.POST_DECREMENT, new String[]{
-                        "T -> T \\ T < (falseType | float | int | trueType)"
+                        "T -> T \\ int <: T <: int",
+                        "T -> T \\ float <: T <: float",
+                        "T -> T \\ (float | int | string) <: T <: (float | int | string)",
+                        "T -> T"
                 }},
-                {"if", TokenTypes.If, new String[]{"(falseType | trueType) -> mixed"}},
-                {"while", TokenTypes.While, new String[]{"(falseType | trueType) -> mixed"}},
-                {"do", TokenTypes.Do, new String[]{"(falseType | trueType) -> mixed"}},
-                {"for", TokenTypes.For, new String[]{"(falseType | trueType) -> mixed"}},
+                {"if", TokenTypes.If, new String[]{
+                        "(falseType | trueType) -> mixed",
+                        "{as (falseType | trueType)} -> mixed",
+                }},
+                {"while", TokenTypes.While, new String[]{
+                        "(falseType | trueType) -> mixed",
+                        "{as (falseType | trueType)} -> mixed",
+                }},
+                {"do", TokenTypes.Do, new String[]{
+                        "(falseType | trueType) -> mixed",
+                        "{as (falseType | trueType)} -> mixed",
+                }},
+                {"for", TokenTypes.For, new String[]{
+                        "(falseType | trueType) -> mixed",
+                        "{as (falseType | trueType)} -> mixed",
+                }},
                 {"foreach", TokenTypes.Foreach, new String[]{"array x mixed x (int | string) -> mixed"}},
                 {"switch", TokenTypes.Switch, new String[]{"(falseType | float | int | string | trueType) -> mixed"}},
                 {"throw", TokenTypes.Throw, new String[]{"Exception -> mixed"}},
-                {"catch", TokenTypes.Catch, new String[]{"Tlhs x Trhs -> Trhs \\ Tlhs < Trhs"}},
-                {"echo", TokenTypes.Echo, new String[]{"string -> mixed"}},
-                {"exit", TokenTypes.Exit, new String[]{"int -> mixed", "string -> mixed"}},
+                {"catch", TokenTypes.Catch, new String[]{"Tlhs x Trhs -> Trhs \\ Tlhs <: Trhs"}},
+                {"echo", TokenTypes.Echo, new String[]{"string -> mixed", "{as string} -> mixed"}},
+                {"exit", TokenTypes.Exit, new String[]{"int -> mixed", "string -> mixed", "{as string} -> mixed"}},
         });
     }
 }

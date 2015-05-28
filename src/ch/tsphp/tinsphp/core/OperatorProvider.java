@@ -13,6 +13,7 @@ import ch.tsphp.tinsphp.common.inference.constraints.IFunctionType;
 import ch.tsphp.tinsphp.common.inference.constraints.IOverloadBindings;
 import ch.tsphp.tinsphp.common.inference.constraints.IVariable;
 import ch.tsphp.tinsphp.common.inference.constraints.TypeVariableReference;
+import ch.tsphp.tinsphp.common.symbols.IConvertibleTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.IUnionTypeSymbol;
@@ -135,21 +136,21 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         for (Pair<String, Integer> operator : orOperators) {
             //false x false -> false
             addToBinaryOperators(operator, std.falseTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol);
+
             //true x bool -> true
             addToBinaryOperators(operator, std.trueTypeSymbol, std.boolTypeSymbol, std.trueTypeSymbol);
-            //TODO rstoll TINS-347 create overloads for conversion constraints
-            //true x ~{as bool} -> true
+            //true x {as bool} -> true
+            addToBinaryOperators(operator, std.trueTypeSymbol, std.asBoolTypeSymbol, std.trueTypeSymbol);
 
             //bool x true -> true
             addToBinaryOperators(operator, std.boolTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol);
-            //TODO rstoll TINS-347 create overloads for conversion constraints
-            //~{as bool} x true -> true
+            //{as bool} x true -> true
+            addToBinaryOperators(operator, std.asBoolTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol);
 
             //bool x bool -> bool
             addToBinaryOperators(operator, std.boolTypeSymbol, std.boolTypeSymbol, std.boolTypeSymbol);
-            //TODO rstoll TINS-347 create overloads for conversion constraints
-            //~{as bool} x ~{as bool} -> bool
-
+            //{as bool} x {as bool} -> bool
+            addToBinaryOperators(operator, std.asBoolTypeSymbol, std.asBoolTypeSymbol, std.boolTypeSymbol);
         }
 
         Pair<String, Integer> xorWeak = pair("xor", TokenTypes.LogicXorWeak);
@@ -163,8 +164,8 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         addToBinaryOperators(xorWeak, std.trueTypeSymbol, std.trueTypeSymbol, std.falseTypeSymbol);
         //bool x bool -> bool
         addToBinaryOperators(xorWeak, std.boolTypeSymbol, std.boolTypeSymbol, std.boolTypeSymbol);
-        //TODO rstoll TINS-347 create overloads for conversion constraints
-        //~{as bool} x ~{as bool} -> bool
+        //{as bool} x {as bool} -> bool
+        addToBinaryOperators(xorWeak, std.asBoolTypeSymbol, std.asBoolTypeSymbol, std.boolTypeSymbol);
 
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] andOperators = new Pair[]{
@@ -174,20 +175,20 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         for (Pair<String, Integer> operator : andOperators) {
             //false x bool -> false
             addToBinaryOperators(operator, std.falseTypeSymbol, std.boolTypeSymbol, std.falseTypeSymbol);
-            //TODO rstoll TINS-347 create overloads for conversion constraints
-            //false x ~{as bool} -> false
+            //false x {as bool} -> false
+            addToBinaryOperators(operator, std.falseTypeSymbol, std.asBoolTypeSymbol, std.falseTypeSymbol);
 
             //bool x false -> false
             addToBinaryOperators(operator, std.boolTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol);
-            //TODO rstoll TINS-347 create overloads for conversion constraints
-            //~{bool} x false -> false
+            //{as bool} x false -> false
+            addToBinaryOperators(operator, std.asBoolTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol);
 
             //true x true -> true
             addToBinaryOperators(operator, std.trueTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol);
             //bool x bool -> bool
             addToBinaryOperators(operator, std.boolTypeSymbol, std.boolTypeSymbol, std.boolTypeSymbol);
-            //TODO rstoll TINS-347 create overloads for conversion constraints
-            //~{as bool} x ~{as bool} -> bool
+            //{as bool} x {as bool} -> bool
+            addToBinaryOperators(operator, std.asBoolTypeSymbol, std.asBoolTypeSymbol, std.boolTypeSymbol);
         }
 
         Pair<String, Integer> logicNot = new Pair<>("!", TokenTypes.LogicNot);
@@ -199,11 +200,8 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
     private void defineAssignmentOperators() {
         IFunctionType function;
 
-        //Tlhs x Trhs -> Tlhs \ Tlhs > Trhs
-        IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
-        overloadBindings.addVariable(VAR_LHS, new TypeVariableReference(T_LHS));
-        overloadBindings.addVariable(VAR_RHS, new TypeVariableReference(T_RHS));
-        overloadBindings.addVariable(RETURN_VARIABLE_NAME, new TypeVariableReference(T_LHS));
+        //Tlhs x Trhs -> Tlhs \ Trhs <: Tlhs
+        IOverloadBindings overloadBindings = createAssignOverloadBindings();
         overloadBindings.addLowerRefBound(T_LHS, new TypeVariableReference(T_RHS));
         function = symbolFactory.createFunctionType("=", overloadBindings, std.binaryParameterIds);
         addToOperators(TokenTypes.Assign, function);
@@ -213,6 +211,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
     }
 
     private void defineBitLevelOperators() {
+        IFunctionType function;
 
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] intResultingNonAssignOperators = new Pair[]{
@@ -225,8 +224,8 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         for (Pair<String, Integer> operator : intResultingNonAssignOperators) {
             //int x int -> int
             addToBinaryOperators(operator, std.intTypeSymbol, std.intTypeSymbol, std.intTypeSymbol);
-            //TODO rstoll TINS-347 create overloads for conversion constraints
-            //~{as int} x ~{as int} -> int
+            //{as int} x {as int} -> int
+            addToBinaryOperators(operator, std.asIntTypeSymbol, std.asIntTypeSymbol, std.intTypeSymbol);
         }
 
         @SuppressWarnings("unchecked")
@@ -238,33 +237,58 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
                 pair(">>=", TokenTypes.ShiftRightAssign),
         };
         for (Pair<String, Integer> operator : intResultingAssignOperators) {
-            //int x int -> int
-            addToBinaryOperators(operator, std.intTypeSymbol, std.intTypeSymbol, std.intTypeSymbol);
-            //TODO rstoll TINS-347 create overloads for conversion constraints
-            //(int | ~{as int}) x ~{as int} -> int
+            //Tlhs x int -> Tlhs \ int <: Tlhs <: int
+            IOverloadBindings overloadBindings = createAssignOverloadBindings();
+            overloadBindings.addLowerTypeBound(T_LHS, std.intTypeSymbol);
+            overloadBindings.addUpperTypeBound(T_LHS, std.intTypeSymbol);
+            overloadBindings.addUpperTypeBound(T_RHS, std.intTypeSymbol);
+            overloadBindings.fixType(VAR_RHS);
+            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            addToOperators(operator.second, function);
+
+            //Tlhs x {as int} -> Tlhs \ int <: Tlhs <: {as int}
+            overloadBindings = createAssignOverloadBindings();
+            overloadBindings.addLowerTypeBound(T_LHS, std.intTypeSymbol);
+            overloadBindings.addUpperTypeBound(T_LHS, std.asIntTypeSymbol);
+            overloadBindings.addUpperTypeBound(T_RHS, std.asIntTypeSymbol);
+            overloadBindings.fixType(VAR_RHS);
+            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            addToOperators(operator.second, function);
         }
 
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] stringResultingOperators = new Pair[]{
                 pair("|", TokenTypes.BitwiseOr),
                 pair("^", TokenTypes.BitwiseXor),
-                pair("&", TokenTypes.BitwiseAnd),
-                pair("|=", TokenTypes.BitwiseOrAssign),
-                pair("^=", TokenTypes.BitwiseXorAssign),
-                pair("&=", TokenTypes.BitwiseAndAssign),
+                pair("&", TokenTypes.BitwiseAnd)
         };
         for (Pair<String, Integer> operator : stringResultingOperators) {
             //string x string -> string
-            addToBinaryOperators(
-                    operator, std.stringTypeSymbol, std.stringTypeSymbol, std.stringTypeSymbol);
+            addToBinaryOperators(operator, std.stringTypeSymbol, std.stringTypeSymbol, std.stringTypeSymbol);
+        }
+
+        @SuppressWarnings("unchecked")
+        Pair<String, Integer>[] stringResultingAssignOperators = new Pair[]{
+                pair("|=", TokenTypes.BitwiseOrAssign),
+                pair("^=", TokenTypes.BitwiseXorAssign),
+                pair("&=", TokenTypes.BitwiseAndAssign)
+        };
+        for (Pair<String, Integer> operator : stringResultingAssignOperators) {
+            //Tlhs x string -> Tlhs \ string <: Tlhs <: string
+            IOverloadBindings overloadBindings = createAssignOverloadBindings();
+            overloadBindings.addLowerTypeBound(T_LHS, std.stringTypeSymbol);
+            overloadBindings.addUpperTypeBound(T_LHS, std.stringTypeSymbol);
+            overloadBindings.addUpperTypeBound(T_RHS, std.stringTypeSymbol);
+            overloadBindings.fixType(VAR_RHS);
+            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            addToOperators(operator.second, function);
         }
 
         Pair<String, Integer> bitwiseNot = pair("~", TokenTypes.BitwiseNot);
         //int -> int
         addToUnaryOperators(bitwiseNot, std.intTypeSymbol, std.intTypeSymbol);
-        //TODO rstoll TINS-347 create overloads for conversion constraints
-        //~{as int} -> int
-
+        //float -> int
+        addToUnaryOperators(bitwiseNot, std.floatTypeSymbol, std.intTypeSymbol);
         //string -> string
         addToUnaryOperators(bitwiseNot, std.stringTypeSymbol, std.stringTypeSymbol);
     }
@@ -300,7 +324,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         List<IVariable> parameters = Arrays.asList(conditionVariable, ifVariable, elseVariable);
 
         //false x mixed x Telse -> Telse
-        //expanded: false x mixed x Telse -> Treturn \ Treturn > Telse
+        //expanded: false x mixed x Telse -> Treturn \ Treturn :> Telse
         IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
         overloadBindings.addVariable(varCondition, fixReference(tCondition));
         overloadBindings.addVariable(varIf, fixReference(tIf));
@@ -309,14 +333,14 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
         overloadBindings.addUpperTypeBound(tCondition, std.falseTypeSymbol);
         overloadBindings.addUpperTypeBound(tIf, std.mixedTypeSymbol);
-        overloadBindings.addLowerRefBound(T_RETURN, new TypeVariableReference(tElse));
+        overloadBindings.addLowerRefBound(T_RETURN, reference(tElse));
 
         IFunctionType function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
         addToOperators(TokenTypes.QuestionMark, function);
 
 
         //true x Tif x mixed -> Tif
-        //expanded: true x Tif x mixed -> Treturn \ Treturn > Tif
+        //expanded: true x Tif x mixed -> Treturn \ Treturn :> Tif
         overloadBindings = symbolFactory.createOverloadBindings();
         overloadBindings.addVariable(varCondition, fixReference(tCondition));
         overloadBindings.addVariable(varIf, reference(tIf));
@@ -325,13 +349,14 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
         overloadBindings.addUpperTypeBound(tCondition, std.trueTypeSymbol);
         overloadBindings.addUpperTypeBound(tElse, std.mixedTypeSymbol);
-        overloadBindings.addLowerRefBound(T_RETURN, new TypeVariableReference(tIf));
+        overloadBindings.addLowerRefBound(T_RETURN, reference(tIf));
 
         function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
         addToOperators(TokenTypes.QuestionMark, function);
 
+
         //bool x Tif x Telse -> (Tif | Telse)
-        //expanded: bool x Tif x Telse -> Treturn \ Treturn > Tif, Treturn > Telse
+        //expanded: bool x Tif x Telse -> Treturn \ Treturn :> Tif, Treturn :> Telse
         overloadBindings = symbolFactory.createOverloadBindings();
         overloadBindings.addVariable(varCondition, fixReference(tCondition));
         overloadBindings.addVariable(varIf, reference(tIf));
@@ -339,49 +364,119 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
 
         overloadBindings.addUpperTypeBound(tCondition, std.boolTypeSymbol);
-        overloadBindings.addLowerRefBound(T_RETURN, new TypeVariableReference(tIf));
-        overloadBindings.addLowerRefBound(T_RETURN, new TypeVariableReference(tElse));
+        overloadBindings.addLowerRefBound(T_RETURN, reference(tIf));
+        overloadBindings.addLowerRefBound(T_RETURN, reference(tElse));
+
         function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
         addToOperators(TokenTypes.QuestionMark, function);
 
-        //TODO rstoll TINS-347 create overloads for conversion constraints
-        //~{as bool} x Tif x Telse -> (Tif | Telse)
+
+        //{as bool} x Tif x Telse -> (Tif | Telse)
+        //expanded: {as bool} x Tif x Telse -> Treturn \ Treturn :> Tif, Treturn :> Telse
+        overloadBindings = symbolFactory.createOverloadBindings();
+        overloadBindings.addVariable(varCondition, fixReference(tCondition));
+        overloadBindings.addVariable(varIf, reference(tIf));
+        overloadBindings.addVariable(varElse, reference(tElse));
+        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
+
+        overloadBindings.addUpperTypeBound(tCondition, std.asBoolTypeSymbol);
+        overloadBindings.addLowerRefBound(T_RETURN, reference(tIf));
+        overloadBindings.addLowerRefBound(T_RETURN, reference(tElse));
+
+        function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
+        addToOperators(TokenTypes.QuestionMark, function);
     }
 
     private void defineArithmeticOperators() {
-        @SuppressWarnings("unchecked")
-        Pair<String, Integer>[] operators = new Pair[]{
-                pair("+", TokenTypes.Plus),
-                pair("-", TokenTypes.Minus),
-                pair("*", TokenTypes.Multiply),
-                pair("+=", TokenTypes.PlusAssign),
-                pair("-=", TokenTypes.MinusAssign),
-                pair("*=", TokenTypes.MultiplyAssign),
-        };
+        createArithmeticNonAssignOperators();
+        createArithmeticAssignOperators();
 
-        for (Pair<String, Integer> operator : operators) {
-            //T x T -> T \ T < num
-            IOverloadBindings collection = createBinaryTBindings();
-            collection.addUpperTypeBound("T", std.numTypeSymbol);
-            IFunctionType function = symbolFactory.createFunctionType(
-                    operator.first, collection, std.binaryParameterIds);
-            addToOperators(operator.second, function);
-        }
+        createModuloOperators();
+        createUnaryArithmeticOperators();
+    }
 
+    private void createArithmeticNonAssignOperators() {
+        IFunctionType function;
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] nonAssignOperators = new Pair[]{
                 pair("+", TokenTypes.Plus),
                 pair("-", TokenTypes.Minus),
                 pair("*", TokenTypes.Multiply)
         };
-        for (Pair<String, Integer> operator : nonAssignOperators) {
-            //bool x bool -> int
-            addToBinaryOperators(operator, std.boolTypeSymbol, std.boolTypeSymbol, std.intTypeSymbol);
 
-            //TODO rstoll TINS-347 create overloads for conversion constraints
-            //~{as T} x ~{as T} -> T \ T < num
+        for (Pair<String, Integer> operator : nonAssignOperators) {
+            //int x int -> int
+            addToBinaryOperators(operator, std.intTypeSymbol, std.intTypeSymbol, std.intTypeSymbol);
+            //float x float -> float
+            addToBinaryOperators(operator, std.floatTypeSymbol, std.floatTypeSymbol, std.floatTypeSymbol);
+
+            //T x {as T} -> T \ T <: num
+            //expanded: T1 x T2 -> T1 \ T1 <: num, T2 <: {as T1}
+            IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
+            overloadBindings.addVariable(VAR_LHS, reference("T1"));
+            overloadBindings.addVariable(VAR_RHS, reference("T2"));
+            overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference("T1"));
+            //bind convertible type to Tlhs
+            IConvertibleTypeSymbol asT1 = symbolFactory.createConvertibleTypeSymbol();
+            asT1.setOverloadBindings(overloadBindings, "T1");
+            overloadBindings.addUpperTypeBound("T1", std.numTypeSymbol);
+            overloadBindings.addUpperTypeBound("T2", asT1);
+            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            addToOperators(operator.second, function);
+
+            //{as T} x T -> T \ T <: num
+            //expanded: {as T2} x T2 -> T2 \ T1 <: {as T2}, T2 <: num
+            overloadBindings = symbolFactory.createOverloadBindings();
+            overloadBindings.addVariable(VAR_LHS, reference("T1"));
+            overloadBindings.addVariable(VAR_RHS, reference("T2"));
+            overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference("T2"));
+            //bind convertible type to Tlhs
+            IConvertibleTypeSymbol asT2 = symbolFactory.createConvertibleTypeSymbol();
+            asT2.setOverloadBindings(overloadBindings, "T2");
+            overloadBindings.addUpperTypeBound("T1", asT2);
+            overloadBindings.addUpperTypeBound("T2", std.numTypeSymbol);
+            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            addToOperators(operator.second, function);
+
+            //{as T} x {as T} -> T \ T <: num
+            //expanded: T1 x T1 -> T2 \ T1 <: {as T2}, T2 <: num
+            overloadBindings = symbolFactory.createOverloadBindings();
+            overloadBindings.addVariable(VAR_LHS, reference("T1"));
+            overloadBindings.addVariable(VAR_RHS, reference("T1"));
+            overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference("T2"));
+            //bind convertible type to T2
+            asT2 = symbolFactory.createConvertibleTypeSymbol();
+            asT2.setOverloadBindings(overloadBindings, "T2");
+            overloadBindings.addUpperTypeBound("T1", asT2);
+            overloadBindings.addUpperTypeBound("T2", std.numTypeSymbol);
+            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            addToOperators(operator.second, function);
         }
 
+        //array x array -> array
+        addToBinaryOperators(pair("+", TokenTypes.Plus), std.arrayTypeSymbol, std.arrayTypeSymbol, std.arrayTypeSymbol);
+
+        createDivOperator();
+    }
+
+    private void createDivOperator() {
+        //float x float -> (float | falseType)
+        addToBinaryOperators(pair("/", TokenTypes.Divide), std.floatTypeSymbol, std.floatTypeSymbol, std.floatOrFalse);
+
+        //float x {as float} -> (float | falseType)
+        addToBinaryOperators(pair("/", TokenTypes.Divide), std.floatTypeSymbol, std.asFloatTypeSymbol,
+                std.floatOrFalse);
+
+        //{as float} x float -> (float | falseType)
+        addToBinaryOperators(pair("/", TokenTypes.Divide), std.asFloatTypeSymbol, std.floatTypeSymbol,
+                std.floatOrFalse);
+
+        //{as num} x {as num} -> (num | falseType)
+        addToBinaryOperators(pair("/", TokenTypes.Divide), std.asNumTypeSymbol, std.asNumTypeSymbol, std.numOrFalse);
+    }
+
+    private void createArithmeticAssignOperators() {
+        IFunctionType function;
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] assignOperators = new Pair[]{
                 pair("+=", TokenTypes.PlusAssign),
@@ -389,91 +484,140 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
                 pair("*=", TokenTypes.MultiplyAssign),
         };
         for (Pair<String, Integer> operator : assignOperators) {
-            //TODO rstoll TINS-347 create overloads for conversion constraints
-            //(T | ~{as T}) x T -> T \ T < num
-            //(T | ~{as T}) x ~{as T} -> T \ T < num
+            //Tlhs x int -> Tlhs \ int <: Tlhs <: int
+            IOverloadBindings overloadBindings = createAssignOverloadBindings();
+            overloadBindings.addLowerTypeBound(T_LHS, std.intTypeSymbol);
+            overloadBindings.addUpperTypeBound(T_LHS, std.intTypeSymbol);
+            overloadBindings.addUpperTypeBound(T_RHS, std.intTypeSymbol);
+            overloadBindings.fixType(VAR_RHS);
+            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            addToOperators(operator.second, function);
+
+            //Tlhs x float -> Tlhs \ float <: Tlhs <: float
+            overloadBindings = createAssignOverloadBindings();
+            overloadBindings.addLowerTypeBound(T_LHS, std.floatTypeSymbol);
+            overloadBindings.addUpperTypeBound(T_LHS, std.floatTypeSymbol);
+            overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
+            overloadBindings.fixType(VAR_RHS);
+            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            addToOperators(operator.second, function);
+
+            //Tlhs x {as Tlhs} -> Tlhs \ Tlhs <: num
+            overloadBindings = createAssignOverloadBindings();
+            //bind convertible type to Tlhs
+            IConvertibleTypeSymbol asTlhs = symbolFactory.createConvertibleTypeSymbol();
+            asTlhs.setOverloadBindings(overloadBindings, T_LHS);
+            overloadBindings.addUpperTypeBound(T_LHS, std.numTypeSymbol);
+            overloadBindings.addUpperTypeBound(T_RHS, asTlhs);
+            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            addToOperators(operator.second, function);
+
+            //Tlhs x Trhs -> Tlhs \ Tlhs <: {as Trhs}, Trhs <: num
+            overloadBindings = createAssignOverloadBindings();
+            //bind convertible type to Trhs
+            IConvertibleTypeSymbol asTrhs = symbolFactory.createConvertibleTypeSymbol();
+            asTrhs.setOverloadBindings(overloadBindings, T_RHS);
+            overloadBindings.addUpperTypeBound(T_LHS, asTrhs);
+            overloadBindings.addUpperTypeBound(T_RHS, std.numTypeSymbol);
+            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            addToOperators(operator.second, function);
+
         }
 
-        //array x array -> array
-        addToBinaryOperators(pair("+", TokenTypes.Plus),
-                std.arrayTypeSymbol, std.arrayTypeSymbol, std.arrayTypeSymbol);
-        addToBinaryOperators(pair("+=", TokenTypes.PlusAssign),
-                std.arrayTypeSymbol, std.arrayTypeSymbol, std.arrayTypeSymbol);
+        //Tlhs x array -> Tlhs \ array <: Tlhs <: array
+        IOverloadBindings overloadBindings = createAssignOverloadBindings();
+        overloadBindings.addLowerTypeBound(T_LHS, std.arrayTypeSymbol);
+        overloadBindings.addUpperTypeBound(T_LHS, std.arrayTypeSymbol);
+        overloadBindings.addUpperTypeBound(T_RHS, std.arrayTypeSymbol);
+        overloadBindings.fixType(VAR_RHS);
+        function = symbolFactory.createFunctionType("+=", overloadBindings, std.binaryParameterIds);
+        addToOperators(TokenTypes.PlusAssign, function);
 
-        createDivOperators();
-        createModuloOperators();
-        createUnaryArithmeticOperators();
+        createDivAssignOperator();
     }
 
-    private void createDivOperators() {
+    private void createDivAssignOperator() {
         IFunctionType function;
 
-        //bool x bool -> (int | false)
-        addToBinaryOperators(pair("/", TokenTypes.Divide), std.boolTypeSymbol, std.boolTypeSymbol, std.intOrFalse);
-
-
-        //T x T -> (T | false) \ float < T < num
-        //expanded: T x T -> Treturn \ float < T < num, Treturn > T, Treturn > false
-        IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
-        overloadBindings.addVariable(VAR_LHS, reference("T"));
-        overloadBindings.addVariable(VAR_RHS, reference("T"));
-        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
-
-        overloadBindings.addLowerTypeBound("T", std.floatTypeSymbol);
-        overloadBindings.addUpperTypeBound("T", std.numTypeSymbol);
-        overloadBindings.addLowerRefBound(T_RETURN, new TypeVariableReference("T"));
-        overloadBindings.addLowerTypeBound(T_RETURN, std.falseTypeSymbol);
-
-        function = symbolFactory.createFunctionType("/", overloadBindings, std.binaryParameterIds);
-        addToOperators(TokenTypes.Divide, function);
-
-        //TODO rstoll TINS-347 create overloads for conversion constraints
-        //float x ~{as float} -> (float | false)
-        //~{as float} x float -> (float | false)
-        //~{as num} x ~{as num} -> (num | false)
-
-
-        //(int | bool) x bool -> (int | false)
-        IUnionTypeSymbol intOrBool = symbolFactory.createUnionTypeSymbol();
-        intOrBool.addTypeSymbol(std.intTypeSymbol);
-        intOrBool.addTypeSymbol(std.boolTypeSymbol);
-        addToBinaryOperators(pair("/=", TokenTypes.DivideAssign), intOrBool, std.boolTypeSymbol, std.intOrFalse);
-
-        //(T | false) x T -> (T | false) \ float < T < num
-        //expanded: Tlhs x Trhs -> Tlhs \  (float | Trhs) < Tlhs, float < Trhs < num
-
-        overloadBindings = symbolFactory.createOverloadBindings();
-        overloadBindings.addVariable(VAR_LHS, new TypeVariableReference(T_LHS));
-        overloadBindings.addVariable(VAR_RHS, new TypeVariableReference(T_RHS));
-        overloadBindings.addVariable(RETURN_VARIABLE_NAME, new TypeVariableReference(T_LHS));
-
-        overloadBindings.addLowerTypeBound(T_RHS, std.floatTypeSymbol);
-        overloadBindings.addUpperTypeBound(T_RHS, std.numTypeSymbol);
-        overloadBindings.addLowerRefBound(T_LHS, new TypeVariableReference(T_RHS));
-        overloadBindings.addLowerTypeBound(T_LHS, std.falseTypeSymbol);
-
+        //Tlhs x float -> Tlhs \ (float | falseType) <: Tlhs <: (float | falseType)
+        IOverloadBindings overloadBindings = createAssignOverloadBindings();
+        overloadBindings.addLowerTypeBound(T_LHS, std.floatOrFalse);
+        overloadBindings.addUpperTypeBound(T_LHS, std.floatOrFalse);
+        overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
+        overloadBindings.fixType(VAR_RHS);
         function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
         addToOperators(TokenTypes.DivideAssign, function);
 
-        //TODO rstoll TINS-347 create overloads for conversion constraints
-        //(T | ~{as T}) x ~{as T} -> (T | false) \ float < T < num
+        //Tlhs x {as float} -> Tlhs \ (float | falseType) <: Tlhs <: (float | falseType)
+        overloadBindings = createAssignOverloadBindings();
+        overloadBindings.addLowerTypeBound(T_LHS, std.floatOrFalse);
+        overloadBindings.addUpperTypeBound(T_LHS, std.floatOrFalse);
+        overloadBindings.addUpperTypeBound(T_RHS, std.asFloatTypeSymbol);
+        overloadBindings.fixType(VAR_RHS);
+        function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
+        addToOperators(TokenTypes.DivideAssign, function);
+
+
+        //Tlhs x float -> Tlhs \ (float | falseType) <: Tlhs <: {as float}
+        overloadBindings = createAssignOverloadBindings();
+        overloadBindings.addLowerTypeBound(T_LHS, std.floatOrFalse);
+        overloadBindings.addUpperTypeBound(T_LHS, std.asFloatTypeSymbol);
+        overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
+        overloadBindings.fixType(VAR_RHS);
+        function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
+        addToOperators(TokenTypes.DivideAssign, function);
+
+        //Tlhs x {as num} -> Tlhs \ (num | falseType) <: Tlhs <: {as num}
+        overloadBindings = createAssignOverloadBindings();
+        overloadBindings.addLowerTypeBound(T_LHS, std.numOrFalse);
+        overloadBindings.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
+        overloadBindings.addUpperTypeBound(T_RHS, std.asNumTypeSymbol);
+        overloadBindings.fixType(VAR_RHS);
+        function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
+        addToOperators(TokenTypes.DivideAssign, function);
     }
 
     private void createModuloOperators() {
+        IFunctionType function;
+
         //int x int -> (int | false)
         addToBinaryOperators(pair("%", TokenTypes.Modulo), std.intTypeSymbol, std.intTypeSymbol, std.intOrFalse);
 
-        //TODO rstoll TINS-347 create overloads for conversion constraints
-        //~{as int} x ~{as int} -> (int | false)
+        //{as int} x {as int} -> (int | false)
+        addToBinaryOperators(pair("%", TokenTypes.Modulo), std.asIntTypeSymbol, std.asIntTypeSymbol, std.intOrFalse);
 
-        //(int | false) x int -> (int | false)
-        addToBinaryOperators(pair("%=", TokenTypes.ModuloAssign), std.intOrFalse, std.intTypeSymbol, std.intOrFalse);
 
-        //TODO rstoll TINS-347 create overloads for conversion constraints
-        //(int | ~{as int}) x ~{as int} -> (int | false)
+        //Tlhs x int -> Tlhs \ (int | falseType) <: Tlhs <: (int | falseType)
+        IOverloadBindings overloadBindings = createAssignOverloadBindings();
+        overloadBindings.addLowerTypeBound(T_LHS, std.intOrFalse);
+        overloadBindings.addUpperTypeBound(T_LHS, std.intOrFalse);
+        overloadBindings.addUpperTypeBound(T_RHS, std.intTypeSymbol);
+        overloadBindings.fixType(VAR_RHS);
+        function = symbolFactory.createFunctionType("%=", overloadBindings, std.binaryParameterIds);
+        addToOperators(TokenTypes.ModuloAssign, function);
+
+        //Tlhs x {as int} -> Tlhs \ (int | falseType) <: Tlhs <: {as int}
+        overloadBindings = createAssignOverloadBindings();
+        overloadBindings.addLowerTypeBound(T_LHS, std.intOrFalse);
+        overloadBindings.addUpperTypeBound(T_LHS, std.asIntTypeSymbol);
+        overloadBindings.addUpperTypeBound(T_RHS, std.asIntTypeSymbol);
+        overloadBindings.fixType(VAR_RHS);
+        function = symbolFactory.createFunctionType("%=", overloadBindings, std.binaryParameterIds);
+        addToOperators(TokenTypes.ModuloAssign, function);
     }
 
     private void createUnaryArithmeticOperators() {
+        IFunctionType function;
+
+        IUnionTypeSymbol stringOrIntOrFloat = symbolFactory.createUnionTypeSymbol();
+        stringOrIntOrFloat.addTypeSymbol(std.stringTypeSymbol);
+        stringOrIntOrFloat.addTypeSymbol(std.intTypeSymbol);
+        stringOrIntOrFloat.addTypeSymbol(std.floatTypeSymbol);
+
+        IUnionTypeSymbol nullOrInt = symbolFactory.createUnionTypeSymbol();
+        nullOrInt.addTypeSymbol(std.nullTypeSymbol);
+        nullOrInt.addTypeSymbol(std.intTypeSymbol);
+
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] incrDecrOperators = new Pair[]{
                 pair("++", TokenTypes.PRE_INCREMENT),
@@ -481,24 +625,27 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
                 pair("--", TokenTypes.PRE_DECREMENT),
                 pair("--", TokenTypes.POST_DECREMENT),
         };
-
-        IUnionTypeSymbol numOrBool = symbolFactory.createUnionTypeSymbol();
-        numOrBool.addTypeSymbol(std.numTypeSymbol);
-        numOrBool.addTypeSymbol(std.boolTypeSymbol);
-
         for (Pair<String, Integer> operator : incrDecrOperators) {
-            //T -> T \ T < (num | bool)
-
-            IOverloadBindings collection = createUnaryTBindings();
-
-            collection.addUpperTypeBound("T", numOrBool);
-            IFunctionType function = symbolFactory.createFunctionType(
-                    operator.first, collection, std.unaryParameterId);
+            //T -> T \ int <: T <: int
+            createIncrDecrOverload(operator, std.intTypeSymbol);
+            //T -> T \ float <: T <: float
+            createIncrDecrOverload(operator, std.floatTypeSymbol);
+            //T -> T \ (string | int | float) <: T <: (string | int | float)
+            createIncrDecrOverload(operator, stringOrIntOrFloat);
+            //T -> T
+            IOverloadBindings overloadBindings = createUnaryTBindings();
+            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.unaryParameterId);
             addToOperators(operator.second, function);
-
-            //TODO rstoll TINS-347 create overloads for conversion constraints
-            //(T | ~T) -> T \ T < num
         }
+
+        //T -> T \ (nullType | int) <: T <: (nullType | int)
+        createIncrDecrOverload(pair("++", TokenTypes.PRE_INCREMENT), nullOrInt);
+        createIncrDecrOverload(pair("++", TokenTypes.POST_INCREMENT), nullOrInt);
+
+        //TODO rstoll TINS-332 introduce object pseudo type
+        IUnionTypeSymbol scalarOrNullOrObject = symbolFactory.createUnionTypeSymbol();
+        scalarOrNullOrObject.addTypeSymbol(std.scalarTypeSymbol);
+        scalarOrNullOrObject.addTypeSymbol(std.nullTypeSymbol);
 
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] unaryPlusMinusOperators = new Pair[]{
@@ -506,43 +653,61 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
                 pair("+", TokenTypes.UNARY_PLUS)
         };
         for (Pair<String, Integer> operator : unaryPlusMinusOperators) {
-            //bool x int
-            addToUnaryOperators(operator, std.boolTypeSymbol, std.intTypeSymbol);
-            //T -> T \ T < num
-            IOverloadBindings collection = createUnaryTBindings();
-            collection.addUpperTypeBound("T", std.numTypeSymbol);
-            IFunctionType function = symbolFactory.createFunctionType(operator.first, collection, std.unaryParameterId);
+            //T -> T \ T <: (scalar | nullType | object)
+            IOverloadBindings overloadBindings = createUnaryTBindings();
+            overloadBindings.addUpperTypeBound("T", scalarOrNullOrObject);
+            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.unaryParameterId);
             addToOperators(operator.second, function);
-
-            //TODO rstoll TINS-347 create overloads for conversion constraints
-            //~{as num} -> num
         }
     }
 
+    private void createIncrDecrOverload(Pair<String, Integer> operator, ITypeSymbol typeSymbol) {
+        IFunctionType function;
+        IOverloadBindings overloadBindings = createUnaryTBindings();
+        overloadBindings.addLowerTypeBound("T", typeSymbol);
+        overloadBindings.addUpperTypeBound("T", typeSymbol);
+        function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.unaryParameterId);
+        addToOperators(operator.second, function);
+    }
+
     private void defineDotOperator() {
+        //string x string -> string
         addToBinaryOperators(
                 pair(".", TokenTypes.Dot), std.stringTypeSymbol, std.stringTypeSymbol, std.stringTypeSymbol);
+        //{as string} x {as string} -> string
         addToBinaryOperators(
-                pair(".=", TokenTypes.DotAssign), std.stringTypeSymbol, std.stringTypeSymbol, std.stringTypeSymbol);
+                pair(".", TokenTypes.Dot), std.asStringTypeSymbol, std.asStringTypeSymbol, std.stringTypeSymbol);
 
-        //TODO rstoll TINS-347 create overloads for conversion constraints
-        //~{as string} x ~{as string} -> string
+        //Tlhs x string -> Tlhs \ string <: Tlhs <: string
+        IOverloadBindings overloadBindings = createAssignOverloadBindings();
+        overloadBindings.addLowerTypeBound(T_LHS, std.stringTypeSymbol);
+        overloadBindings.addUpperTypeBound(T_LHS, std.stringTypeSymbol);
+        overloadBindings.addUpperTypeBound(T_RHS, std.stringTypeSymbol);
+        overloadBindings.fixType(VAR_RHS);
+        IFunctionType function = symbolFactory.createFunctionType(".=", overloadBindings, std.binaryParameterIds);
+        addToOperators(TokenTypes.DotAssign, function);
 
-        //TODO rstoll TINS-347 create overloads for conversion constraints
-        //(string | ~{as string}) x ~{as string} -> string
+        //Tlhs x {as string} -> Tlhs \ string <: Tlhs <: {as string}
+        overloadBindings = createAssignOverloadBindings();
+        overloadBindings.addLowerTypeBound(T_LHS, std.stringTypeSymbol);
+        overloadBindings.addUpperTypeBound(T_LHS, std.asStringTypeSymbol);
+        overloadBindings.addUpperTypeBound(T_RHS, std.asStringTypeSymbol);
+        overloadBindings.fixType(VAR_RHS);
+        function = symbolFactory.createFunctionType(".=", overloadBindings, std.binaryParameterIds);
+        addToOperators(TokenTypes.DotAssign, function);
     }
 
     private void defineInstanceOfOperator() {
         //TODO rstoll TINS-332 introduce object pseudo type
         //more precise would be: object x mixed -> bool
-        //mixed x mixed -> bool
+        //mixed x (object | string) -> bool
         Pair<String, Integer> instanceOf = pair("instanceof", TokenTypes.Instanceof);
         addToBinaryOperators(instanceOf, std.mixedTypeSymbol, std.mixedTypeSymbol, std.boolTypeSymbol);
     }
 
     private void defineCloneAndNewOperator() {
         //TODO rstoll TINS-332 introduce object pseudo type
-        //more precise would be: T -> T \ T < object
+        //more precise would be: T -> T \ T <: object
         //T -> T
         IOverloadBindings collection = createUnaryTBindings();
         IFunctionType function = symbolFactory.createFunctionType("clone", collection, std.unaryParameterId);
@@ -563,11 +728,13 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         IFunctionType function = symbolFactory.createFunctionType("@", collection, std.unaryParameterId);
         addToOperators(TokenTypes.At, function);
 
+        //TODO TINS-481 - rewrite casts in AST to function calls - remove the cast operator entirely
+
         //TODO rstoll TINS-347 create overloads for conversion constraints
-        //T1 x T2 -> T1 \ T2 < ~{as T1}
-        //simplified version for now: T1 x T2 -> T1 or expanded: Tlhs x Trhs -> Treturn \ Treturn > Tlhs
+        //T1 x T2 -> T1 \ T2 <: ~{as T1}
+        //simplified version for now: T1 x T2 -> T1 or expanded: Tlhs x Trhs -> Treturn \ Treturn :> Tlhs
         collection = createVariableBinaryBindings();
-        collection.addLowerRefBound(T_RETURN, new TypeVariableReference(T_LHS));
+        collection.addLowerRefBound(T_RETURN, reference(T_LHS));
         function = symbolFactory.createFunctionType("cast", collection, std.binaryParameterIds);
         addToOperators(TokenTypes.CAST, function);
     }
@@ -576,27 +743,26 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //TODO rstoll TINS-391 - Introduce void as own type
         //bool -> mixed
         addToUnaryOperators(pair("if", TokenTypes.If), std.boolTypeSymbol, std.mixedTypeSymbol);
-        //TODO rstoll TINS-347 create overloads for conversion constraints
-        //~{as bool} -> void
+        //{as bool} -> void
+        addToUnaryOperators(pair("if", TokenTypes.If), std.asBoolTypeSymbol, std.mixedTypeSymbol);
 
         //TODO rstoll TINS-391 - Introduce void as own type
         //bool -> mixed
         addToUnaryOperators(pair("while", TokenTypes.While), std.boolTypeSymbol, std.mixedTypeSymbol);
-        //TODO rstoll TINS-347 create overloads for conversion constraints
-        //~{as bool} -> void
+        //{as bool} -> void
+        addToUnaryOperators(pair("while", TokenTypes.While), std.asBoolTypeSymbol, std.mixedTypeSymbol);
 
         //TODO rstoll TINS-391 - Introduce void as own type
         //bool -> mixed
         addToUnaryOperators(pair("do", TokenTypes.Do), std.boolTypeSymbol, std.mixedTypeSymbol);
-        //TODO rstoll TINS-347 create overloads for conversion constraints
-        //~{as bool} -> void
+        //{as bool} -> void
+        addToUnaryOperators(pair("do", TokenTypes.Do), std.asBoolTypeSymbol, std.mixedTypeSymbol);
 
         //TODO rstoll TINS-391 - Introduce void as own type
         //bool -> mixed
         addToUnaryOperators(pair("for", TokenTypes.For), std.boolTypeSymbol, std.mixedTypeSymbol);
-        //TODO rstoll TINS-347 create overloads for conversion constraints
         //~{as bool} -> void
-
+        addToUnaryOperators(pair("for", TokenTypes.For), std.asBoolTypeSymbol, std.mixedTypeSymbol);
 
         //key and value are switched
         //array x mixed x (int|string) -> mixed
@@ -641,13 +807,13 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         ITypeSymbol exception = (ITypeSymbol) builtInSymbols.get("\\Exception");
         addToUnaryOperators(pair("throw", TokenTypes.Throw), exception, std.mixedTypeSymbol);
 
-        //Tlhs x Trhs -> Trhs \ Trhs > Tlhs
+        //Tlhs x Trhs -> Trhs \ Trhs :> Tlhs
         overloadBindings = symbolFactory.createOverloadBindings();
         overloadBindings.addVariable(VAR_LHS, reference(T_LHS));
         overloadBindings.addVariable(VAR_RHS, reference(T_RHS));
         overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RHS));
 
-        overloadBindings.addLowerRefBound(T_RHS, new TypeVariableReference(T_LHS));
+        overloadBindings.addLowerRefBound(T_RHS, reference(T_LHS));
         function = symbolFactory.createFunctionType("catch", overloadBindings, std.binaryParameterIds);
         addToOperators(TokenTypes.Catch, function);
     }
@@ -656,17 +822,17 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //TODO rstoll TINS-391 - Introduce void as own type
         //string -> mixed
         addToUnaryOperators(pair("echo", TokenTypes.Echo), std.stringTypeSymbol, std.mixedTypeSymbol);
-        //TODO rstoll TINS-347 create overloads for conversion constraints
-        //~{as string} -> void
+        //{as string} -> void
+        addToUnaryOperators(pair("echo", TokenTypes.Echo), std.asStringTypeSymbol, std.mixedTypeSymbol);
 
         //TODO rstoll TINS-391 - Introduce void as own type
-        //int -> mixed
+        //int -> void
         addToUnaryOperators(pair("exit", TokenTypes.Exit), std.intTypeSymbol, std.mixedTypeSymbol);
         //TODO rstoll TINS-391 - Introduce void as own type
-        //string -> mixed
+        //string -> void
         addToUnaryOperators(pair("exit", TokenTypes.Exit), std.stringTypeSymbol, std.mixedTypeSymbol);
-        //TODO rstoll TINS-347 create overloads for conversion constraints
-        //~{as string} -> void
+        //{as string} -> void
+        addToUnaryOperators(pair("exit", TokenTypes.Exit), std.asStringTypeSymbol, std.mixedTypeSymbol);
     }
 
     private void addToBinaryOperators(

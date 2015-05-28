@@ -8,6 +8,7 @@ package ch.tsphp.tinsphp.core;
 
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.inference.constraints.IVariable;
+import ch.tsphp.tinsphp.common.symbols.IConvertibleTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.IUnionTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
@@ -27,6 +28,7 @@ public class StandardConstraintAndVariables
     public static final String VAR_RHS = "$rhs";
     public static final String VAR_EXPR = "$expr";
 
+    public final ITypeSymbol nullTypeSymbol;
     public final ITypeSymbol falseTypeSymbol;
     public final ITypeSymbol trueTypeSymbol;
     public final ITypeSymbol boolTypeSymbol;
@@ -37,9 +39,16 @@ public class StandardConstraintAndVariables
     public final ITypeSymbol scalarTypeSymbol;
     public final ITypeSymbol arrayTypeSymbol;
     public final ITypeSymbol mixedTypeSymbol;
-    public final IUnionTypeSymbol numOrFalse;
-    public final IUnionTypeSymbol floatOrFalse;
+
     public final IUnionTypeSymbol intOrFalse;
+    public final IUnionTypeSymbol floatOrFalse;
+    public final IUnionTypeSymbol numOrFalse;
+
+    public final IConvertibleTypeSymbol asBoolTypeSymbol;
+    public final IConvertibleTypeSymbol asIntTypeSymbol;
+    public final IConvertibleTypeSymbol asFloatTypeSymbol;
+    public final IConvertibleTypeSymbol asNumTypeSymbol;
+    public final IConvertibleTypeSymbol asStringTypeSymbol;
 
     public final List<IVariable> binaryParameterIds;
     public final List<IVariable> unaryParameterId;
@@ -48,6 +57,7 @@ public class StandardConstraintAndVariables
     public final IVariable expr;
 
     public StandardConstraintAndVariables(ISymbolFactory symbolFactory, Map<String, ITypeSymbol> primitiveType) {
+        nullTypeSymbol = primitiveType.get(PrimitiveTypeNames.NULL_TYPE);
         falseTypeSymbol = primitiveType.get(PrimitiveTypeNames.FALSE_TYPE);
         trueTypeSymbol = primitiveType.get(PrimitiveTypeNames.TRUE_TYPE);
         boolTypeSymbol = primitiveType.get(PrimitiveTypeNames.BOOL);
@@ -59,10 +69,6 @@ public class StandardConstraintAndVariables
         arrayTypeSymbol = primitiveType.get(PrimitiveTypeNames.ARRAY);
         mixedTypeSymbol = primitiveType.get(PrimitiveTypeNames.MIXED);
 
-        numOrFalse = symbolFactory.createUnionTypeSymbol();
-        numOrFalse.addTypeSymbol(numTypeSymbol);
-        numOrFalse.addTypeSymbol(falseTypeSymbol);
-
         intOrFalse = symbolFactory.createUnionTypeSymbol();
         intOrFalse.addTypeSymbol(intTypeSymbol);
         intOrFalse.addTypeSymbol(falseTypeSymbol);
@@ -70,6 +76,30 @@ public class StandardConstraintAndVariables
         floatOrFalse = symbolFactory.createUnionTypeSymbol();
         floatOrFalse.addTypeSymbol(floatTypeSymbol);
         floatOrFalse.addTypeSymbol(falseTypeSymbol);
+
+        numOrFalse = symbolFactory.createUnionTypeSymbol();
+        numOrFalse.addTypeSymbol(numTypeSymbol);
+        numOrFalse.addTypeSymbol(falseTypeSymbol);
+
+        asBoolTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
+        asBoolTypeSymbol.addLowerTypeBound(boolTypeSymbol);
+        asBoolTypeSymbol.addUpperTypeBound(boolTypeSymbol);
+
+        asIntTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
+        asIntTypeSymbol.addLowerTypeBound(intTypeSymbol);
+        asIntTypeSymbol.addUpperTypeBound(intTypeSymbol);
+
+        asFloatTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
+        asFloatTypeSymbol.addLowerTypeBound(floatTypeSymbol);
+        asFloatTypeSymbol.addUpperTypeBound(floatTypeSymbol);
+
+        asNumTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
+        asNumTypeSymbol.addLowerTypeBound(numTypeSymbol);
+        asNumTypeSymbol.addUpperTypeBound(numTypeSymbol);
+
+        asStringTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
+        asStringTypeSymbol.addLowerTypeBound(stringTypeSymbol);
+        asStringTypeSymbol.addUpperTypeBound(stringTypeSymbol);
 
         lhs = symbolFactory.createVariable(VAR_LHS);
         rhs = symbolFactory.createVariable(VAR_RHS);

@@ -11,6 +11,7 @@ import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.ICore;
 import ch.tsphp.tinsphp.common.config.ICoreInitialiser;
 import ch.tsphp.tinsphp.common.config.ISymbolsInitialiser;
+import ch.tsphp.tinsphp.common.core.IConversionsProvider;
 import ch.tsphp.tinsphp.common.resolving.ISymbolResolver;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
 import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
@@ -20,7 +21,6 @@ import ch.tsphp.tinsphp.core.ConversionsProvider;
 import ch.tsphp.tinsphp.core.Core;
 import ch.tsphp.tinsphp.core.CoreSymbolResolver;
 import ch.tsphp.tinsphp.core.GeneratorHelper;
-import ch.tsphp.tinsphp.core.IConversionsProvider;
 import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.IOperatorsProvider;
 import ch.tsphp.tinsphp.core.ISymbolProvider;
@@ -55,14 +55,12 @@ public class HardCodedCoreInitialiser implements ICoreInitialiser
         coreSymbolResolver = new CoreSymbolResolver(
                 builtInSymbolProvider.getSymbols(), superGlobalSymbolResolver.getSymbols());
 
-        IConversionsProvider conversionProvider = new ConversionsProvider(primitiveTypes);
+        IConversionsProvider conversionsProvider = new ConversionsProvider(primitiveTypes);
+        typeHelper.setConversionsProvider(conversionsProvider);
         IOperatorsProvider operatorsProvider = new OperatorProvider(
                 symbolFactory, typeHelper, std, builtInSymbolProvider.getSymbols());
 
-        core = new Core(primitiveTypes,
-                conversionProvider.getImplicitConversions(),
-                conversionProvider.getExplicitConversions(),
-                operatorsProvider.getOperators());
+        core = new Core(primitiveTypes, operatorsProvider.getOperators());
     }
 
     @Override
