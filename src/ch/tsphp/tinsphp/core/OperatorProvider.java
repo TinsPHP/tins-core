@@ -211,8 +211,11 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
     }
 
     private void defineBitLevelOperators() {
-        IFunctionType function;
+        createBitLevelNonAssignOperators();
+        createBitLevelAssignOperators();
+    }
 
+    private void createBitLevelNonAssignOperators() {
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] intResultingNonAssignOperators = new Pair[]{
                 pair("|", TokenTypes.BitwiseOr),
@@ -227,6 +230,29 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             //{as int} x {as int} -> int
             addToBinaryOperators(operator, std.asIntTypeSymbol, std.asIntTypeSymbol, std.intTypeSymbol);
         }
+
+        @SuppressWarnings("unchecked")
+        Pair<String, Integer>[] stringResultingOperators = new Pair[]{
+                pair("|", TokenTypes.BitwiseOr),
+                pair("^", TokenTypes.BitwiseXor),
+                pair("&", TokenTypes.BitwiseAnd)
+        };
+        for (Pair<String, Integer> operator : stringResultingOperators) {
+            //string x string -> string
+            addToBinaryOperators(operator, std.stringTypeSymbol, std.stringTypeSymbol, std.stringTypeSymbol);
+        }
+
+        Pair<String, Integer> bitwiseNot = pair("~", TokenTypes.BitwiseNot);
+        //int -> int
+        addToUnaryOperators(bitwiseNot, std.intTypeSymbol, std.intTypeSymbol);
+        //float -> int
+        addToUnaryOperators(bitwiseNot, std.floatTypeSymbol, std.intTypeSymbol);
+        //string -> string
+        addToUnaryOperators(bitwiseNot, std.stringTypeSymbol, std.stringTypeSymbol);
+    }
+
+    private void createBitLevelAssignOperators() {
+        IFunctionType function;
 
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] intResultingAssignOperators = new Pair[]{
@@ -257,17 +283,6 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         }
 
         @SuppressWarnings("unchecked")
-        Pair<String, Integer>[] stringResultingOperators = new Pair[]{
-                pair("|", TokenTypes.BitwiseOr),
-                pair("^", TokenTypes.BitwiseXor),
-                pair("&", TokenTypes.BitwiseAnd)
-        };
-        for (Pair<String, Integer> operator : stringResultingOperators) {
-            //string x string -> string
-            addToBinaryOperators(operator, std.stringTypeSymbol, std.stringTypeSymbol, std.stringTypeSymbol);
-        }
-
-        @SuppressWarnings("unchecked")
         Pair<String, Integer>[] stringResultingAssignOperators = new Pair[]{
                 pair("|=", TokenTypes.BitwiseOrAssign),
                 pair("^=", TokenTypes.BitwiseXorAssign),
@@ -283,14 +298,6 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
             addToOperators(operator.second, function);
         }
-
-        Pair<String, Integer> bitwiseNot = pair("~", TokenTypes.BitwiseNot);
-        //int -> int
-        addToUnaryOperators(bitwiseNot, std.intTypeSymbol, std.intTypeSymbol);
-        //float -> int
-        addToUnaryOperators(bitwiseNot, std.floatTypeSymbol, std.intTypeSymbol);
-        //string -> string
-        addToUnaryOperators(bitwiseNot, std.stringTypeSymbol, std.stringTypeSymbol);
     }
 
     private void defineComparisonOperators() {
