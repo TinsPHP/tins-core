@@ -425,7 +425,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference("T1"));
             //bind convertible type to Tlhs
             IConvertibleTypeSymbol asT1 = symbolFactory.createConvertibleTypeSymbol();
-            asT1.setOverloadBindings(overloadBindings, "T1");
+            overloadBindings.bind(asT1, Arrays.asList("T1"));
             overloadBindings.addUpperTypeBound("T1", std.numTypeSymbol);
             overloadBindings.addUpperTypeBound("T2", asT1);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
@@ -439,7 +439,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference("T2"));
             //bind convertible type to Tlhs
             IConvertibleTypeSymbol asT2 = symbolFactory.createConvertibleTypeSymbol();
-            asT2.setOverloadBindings(overloadBindings, "T2");
+            overloadBindings.bind(asT2, Arrays.asList("T2"));
             overloadBindings.addUpperTypeBound("T1", asT2);
             overloadBindings.addUpperTypeBound("T2", std.numTypeSymbol);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
@@ -453,7 +453,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference("T2"));
             //bind convertible type to T2
             asT2 = symbolFactory.createConvertibleTypeSymbol();
-            asT2.setOverloadBindings(overloadBindings, "T2");
+            overloadBindings.bind(asT2, Arrays.asList("T2"));
             overloadBindings.addUpperTypeBound("T1", asT2);
             overloadBindings.addUpperTypeBound("T2", std.numTypeSymbol);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
@@ -513,7 +513,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings = createAssignOverloadBindings();
             //bind convertible type to Tlhs
             IConvertibleTypeSymbol asTlhs = symbolFactory.createConvertibleTypeSymbol();
-            asTlhs.setOverloadBindings(overloadBindings, T_LHS);
+            overloadBindings.bind(asTlhs, Arrays.asList(T_LHS));
             overloadBindings.addUpperTypeBound(T_LHS, std.numTypeSymbol);
             overloadBindings.addUpperTypeBound(T_RHS, asTlhs);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
@@ -523,7 +523,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings = createAssignOverloadBindings();
             //bind convertible type to Trhs
             IConvertibleTypeSymbol asTrhs = symbolFactory.createConvertibleTypeSymbol();
-            asTrhs.setOverloadBindings(overloadBindings, T_RHS);
+            overloadBindings.bind(asTrhs, Arrays.asList(T_RHS));
             overloadBindings.addUpperTypeBound(T_LHS, asTrhs);
             overloadBindings.addUpperTypeBound(T_RHS, std.numTypeSymbol);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
