@@ -97,20 +97,20 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"+=", TokenTypes.PlusAssign, new String[]{
                         "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
                         "Tlhs x float -> Tlhs \\ float <: Tlhs <: float",
-                        "Tlhs x Trhs -> Tlhs \\ Tlhs <: (float | int), Trhs <: {as Tlhs}",
+                        "Tlhs x {as Tlhs} -> Tlhs \\ Tlhs <: (float | int)",
                         "Tlhs x Trhs -> Tlhs \\ Tlhs <: {as Trhs}, Trhs <: (float | int)",
                         "Tlhs x array -> Tlhs \\ array <: Tlhs <: array"
                 }},
                 {"-=", TokenTypes.MinusAssign, new String[]{
                         "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
                         "Tlhs x float -> Tlhs \\ float <: Tlhs <: float",
-                        "Tlhs x Trhs -> Tlhs \\ Tlhs <: (float | int), Trhs <: {as Tlhs}",
+                        "Tlhs x {as Tlhs} -> Tlhs \\ Tlhs <: (float | int)",
                         "Tlhs x Trhs -> Tlhs \\ Tlhs <: {as Trhs}, Trhs <: (float | int)",
                 }},
                 {"*=", TokenTypes.MultiplyAssign, new String[]{
                         "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
                         "Tlhs x float -> Tlhs \\ float <: Tlhs <: float",
-                        "Tlhs x Trhs -> Tlhs \\ Tlhs <: (float | int), Trhs <: {as Tlhs}",
+                        "Tlhs x {as Tlhs} -> Tlhs \\ Tlhs <: (float | int)",
                         "Tlhs x Trhs -> Tlhs \\ Tlhs <: {as Trhs}, Trhs <: (float | int)",
                 }},
                 {"/=", TokenTypes.DivideAssign, new String[]{
@@ -202,18 +202,17 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"+", TokenTypes.Plus, new String[]{
                         "int x int -> int",
                         "float x float -> float",
-                        "T1 x T2 -> T1 \\ T1 <: (float | int), T2 <: {as T1}",
-                        "T1 x T2 -> T2 \\ T1 <: {as T2}, T2 <: (float | int)",
-                        "T1 x T1 -> T2 \\ T1 <: {as T2}, T2 <: (float | int)",
+                        "T x {as T} -> T \\ T <: (float | int)",
+                        "{as T} x T -> T \\ T <: (float | int)",
+                        "{as T} x {as T} -> T \\ T <: (float | int)",
                         "array x array -> array"
                 }},
                 {"-", TokenTypes.Minus, new String[]{
                         "int x int -> int",
                         "float x float -> float",
-                        "T1 x T2 -> T1 \\ T1 <: (float | int), T2 <: {as T1}",
-                        "T1 x T2 -> T2 \\ T1 <: {as T2}, T2 <: (float | int)",
-                        "T1 x T1 -> T2 \\ T1 <: {as T2}, T2 <: (float | int)",
-
+                        "T x {as T} -> T \\ T <: (float | int)",
+                        "{as T} x T -> T \\ T <: (float | int)",
+                        "{as T} x {as T} -> T \\ T <: (float | int)",
                 }},
                 {".", TokenTypes.Dot, new String[]{
                         "string x string -> string",
@@ -222,9 +221,9 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"*", TokenTypes.Multiply, new String[]{
                         "int x int -> int",
                         "float x float -> float",
-                        "T1 x T2 -> T1 \\ T1 <: (float | int), T2 <: {as T1}",
-                        "T1 x T2 -> T2 \\ T1 <: {as T2}, T2 <: (float | int)",
-                        "T1 x T1 -> T2 \\ T1 <: {as T2}, T2 <: (float | int)",
+                        "T x {as T} -> T \\ T <: (float | int)",
+                        "{as T} x T -> T \\ T <: (float | int)",
+                        "{as T} x {as T} -> T \\ T <: (float | int)",
                 }},
                 {"/", TokenTypes.Divide, new String[]{
                         "float x float -> (falseType | float)",
@@ -250,7 +249,7 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                         "T -> T \\ (float | int | string) <: T <: (float | int | string)",
                         "T -> T"
                 }},
-                {"cast", TokenTypes.CAST, new String[]{"Tlhs x Trhs -> Treturn \\ Tlhs <: Treturn"}},
+                {"cast", TokenTypes.CAST, new String[]{"T x {as T} -> T"}},
                 {"@", TokenTypes.At, new String[]{"T -> T"}},
                 {"~", TokenTypes.BitwiseNot, new String[]{"int -> int", "float -> int", "string -> string"}},
                 {"!", TokenTypes.LogicNot, new String[]{
