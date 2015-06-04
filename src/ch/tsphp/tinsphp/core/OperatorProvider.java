@@ -21,6 +21,7 @@ import ch.tsphp.tinsphp.common.utils.ITypeHelper;
 import ch.tsphp.tinsphp.common.utils.Pair;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -207,10 +208,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         IOverloadBindings overloadBindings = createAssignOverloadBindings();
         overloadBindings.addLowerRefBound(T_LHS, new TypeVariableReference(T_RHS));
         function = symbolFactory.createFunctionType("=", overloadBindings, std.binaryParameterIds);
-        Set<String> nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add(T_LHS);
-        nonFixedTypeParameters.add(T_RHS);
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set(T_LHS, T_RHS));
         addToOperators(TokenTypes.Assign, function);
 
         //Other assignment operators can be found in the corresponding sections.
@@ -277,9 +275,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound(T_RHS, std.intTypeSymbol);
             overloadBindings.fixType(VAR_RHS);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            Set<String> nonFixedTypeParameters = new HashSet<>();
-            nonFixedTypeParameters.add(T_LHS);
-            function.simplified(nonFixedTypeParameters);
+            function.simplified(set(T_LHS));
             addToOperators(operator.second, function);
 
             //Tlhs x {as int} -> Tlhs \ int <: Tlhs <: {as int}
@@ -289,9 +285,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound(T_RHS, std.asIntTypeSymbol);
             overloadBindings.fixType(VAR_RHS);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            nonFixedTypeParameters = new HashSet<>();
-            nonFixedTypeParameters.add(T_LHS);
-            function.simplified(nonFixedTypeParameters);
+            function.simplified(set(T_LHS));
             addToOperators(operator.second, function);
         }
 
@@ -309,9 +303,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound(T_RHS, std.stringTypeSymbol);
             overloadBindings.fixType(VAR_RHS);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            Set<String> nonFixedTypeParameters = new HashSet<>();
-            nonFixedTypeParameters.add(T_LHS);
-            function.simplified(nonFixedTypeParameters);
+            function.simplified(set(T_LHS));
             addToOperators(operator.second, function);
         }
     }
@@ -353,16 +345,11 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addVariable(varIf, fixReference(tIf));
         overloadBindings.addVariable(varElse, reference(tElse));
         overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
-
         overloadBindings.addUpperTypeBound(tCondition, std.falseTypeSymbol);
         overloadBindings.addUpperTypeBound(tIf, std.mixedTypeSymbol);
         overloadBindings.addLowerRefBound(T_RETURN, reference(tElse));
-
         IFunctionType function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
-        Set<String> nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add(tElse);
-        nonFixedTypeParameters.add(T_RETURN);
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set(tElse, T_RETURN));
         addToOperators(TokenTypes.QuestionMark, function);
 
 
@@ -373,16 +360,11 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addVariable(varIf, reference(tIf));
         overloadBindings.addVariable(varElse, fixReference(tElse));
         overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
-
         overloadBindings.addUpperTypeBound(tCondition, std.trueTypeSymbol);
         overloadBindings.addUpperTypeBound(tElse, std.mixedTypeSymbol);
         overloadBindings.addLowerRefBound(T_RETURN, reference(tIf));
-
         function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
-        nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add(tIf);
-        nonFixedTypeParameters.add(T_RETURN);
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set(tIf, T_RETURN));
         addToOperators(TokenTypes.QuestionMark, function);
 
 
@@ -393,17 +375,11 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addVariable(varIf, reference(tIf));
         overloadBindings.addVariable(varElse, reference(tElse));
         overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
-
         overloadBindings.addUpperTypeBound(tCondition, std.boolTypeSymbol);
         overloadBindings.addLowerRefBound(T_RETURN, reference(tIf));
         overloadBindings.addLowerRefBound(T_RETURN, reference(tElse));
-
         function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
-        nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add(tIf);
-        nonFixedTypeParameters.add(tElse);
-        nonFixedTypeParameters.add(T_RETURN);
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set(tIf, tElse, T_RETURN));
         addToOperators(TokenTypes.QuestionMark, function);
 
 
@@ -414,17 +390,11 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addVariable(varIf, reference(tIf));
         overloadBindings.addVariable(varElse, reference(tElse));
         overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
-
         overloadBindings.addUpperTypeBound(tCondition, std.asBoolTypeSymbol);
         overloadBindings.addLowerRefBound(T_RETURN, reference(tIf));
         overloadBindings.addLowerRefBound(T_RETURN, reference(tElse));
-
         function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
-        nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add(tIf);
-        nonFixedTypeParameters.add(tElse);
-        nonFixedTypeParameters.add(T_RETURN);
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set(tIf, tElse, T_RETURN));
         addToOperators(TokenTypes.QuestionMark, function);
     }
 
@@ -462,9 +432,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound("T", std.numTypeSymbol);
             overloadBindings.addUpperTypeBound(T_RHS, asT);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            Set<String> nonFixedTypeParameters = new HashSet<>();
-            nonFixedTypeParameters.add("T");
-            function.simplified(nonFixedTypeParameters);
+            function.simplified(set("T"));
             addToOperators(operator.second, function);
 
             //{as T} x T -> T \ T <: num
@@ -478,9 +446,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound(T_LHS, asT);
             overloadBindings.addUpperTypeBound("T", std.numTypeSymbol);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            nonFixedTypeParameters = new HashSet<>();
-            nonFixedTypeParameters.add("T");
-            function.simplified(nonFixedTypeParameters);
+            function.simplified(set("T"));
             addToOperators(operator.second, function);
 
             //{as T} x {as T} -> T \ T <: num
@@ -495,9 +461,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound(T_RHS, asT);
             overloadBindings.addUpperTypeBound("T", std.numTypeSymbol);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            nonFixedTypeParameters = new HashSet<>();
-            nonFixedTypeParameters.add("T");
-            function.simplified(nonFixedTypeParameters);
+            function.simplified(set("T"));
             addToOperators(operator.second, function);
         }
 
@@ -539,9 +503,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound(T_RHS, std.intTypeSymbol);
             overloadBindings.fixType(VAR_RHS);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            Set<String> nonFixedTypeParameters = new HashSet<>();
-            nonFixedTypeParameters.add(T_LHS);
-            function.simplified(nonFixedTypeParameters);
+            function.simplified(set(T_LHS));
             addToOperators(operator.second, function);
 
             //Tlhs x float -> Tlhs \ float <: Tlhs <: float
@@ -551,9 +513,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
             overloadBindings.fixType(VAR_RHS);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            nonFixedTypeParameters = new HashSet<>();
-            nonFixedTypeParameters.add(T_LHS);
-            function.simplified(nonFixedTypeParameters);
+            function.simplified(set(T_LHS));
             addToOperators(operator.second, function);
 
             //Tlhs x {as Tlhs} -> Tlhs \ Tlhs <: num
@@ -565,9 +525,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound(T_RHS, asTlhs);
             overloadBindings.fixType(VAR_RHS);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            nonFixedTypeParameters = new HashSet<>();
-            nonFixedTypeParameters.add(T_LHS);
-            function.simplified(nonFixedTypeParameters);
+            function.simplified(set(T_LHS));
             addToOperators(operator.second, function);
 
             //Tlhs x Trhs -> Tlhs \ Tlhs <: {as Trhs}, Trhs <: num
@@ -578,10 +536,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound(T_LHS, asTrhs);
             overloadBindings.addUpperTypeBound(T_RHS, std.numTypeSymbol);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            nonFixedTypeParameters = new HashSet<>();
-            nonFixedTypeParameters.add(T_LHS);
-            nonFixedTypeParameters.add(T_RHS);
-            function.simplified(nonFixedTypeParameters);
+            function.simplified(set(T_LHS, T_RHS));
             addToOperators(operator.second, function);
         }
 
@@ -592,9 +547,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_RHS, std.arrayTypeSymbol);
         overloadBindings.fixType(VAR_RHS);
         function = symbolFactory.createFunctionType("+=", overloadBindings, std.binaryParameterIds);
-        Set<String> nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add(T_LHS);
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set(T_LHS));
         addToOperators(TokenTypes.PlusAssign, function);
 
         createDivAssignOperator();
@@ -610,9 +563,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
         overloadBindings.fixType(VAR_RHS);
         function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
-        Set<String> nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add(T_LHS);
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set(T_LHS));
         addToOperators(TokenTypes.DivideAssign, function);
 
         //Tlhs x {as float} -> Tlhs \ (float | falseType) <: Tlhs <: (float | falseType)
@@ -622,9 +573,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_RHS, std.asFloatTypeSymbol);
         overloadBindings.fixType(VAR_RHS);
         function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
-        nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add(T_LHS);
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set(T_LHS));
         addToOperators(TokenTypes.DivideAssign, function);
 
 
@@ -635,9 +584,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
         overloadBindings.fixType(VAR_RHS);
         function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
-        nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add(T_LHS);
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set(T_LHS));
         addToOperators(TokenTypes.DivideAssign, function);
 
         //Tlhs x {as num} -> Tlhs \ (num | falseType) <: Tlhs <: {as num}
@@ -647,9 +594,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_RHS, std.asNumTypeSymbol);
         overloadBindings.fixType(VAR_RHS);
         function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
-        nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add(T_LHS);
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set(T_LHS));
         addToOperators(TokenTypes.DivideAssign, function);
     }
 
@@ -670,9 +615,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_RHS, std.intTypeSymbol);
         overloadBindings.fixType(VAR_RHS);
         function = symbolFactory.createFunctionType("%=", overloadBindings, std.binaryParameterIds);
-        Set<String> nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add(T_LHS);
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set(T_LHS));
         addToOperators(TokenTypes.ModuloAssign, function);
 
         //Tlhs x {as int} -> Tlhs \ (int | falseType) <: Tlhs <: {as int}
@@ -682,9 +625,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_RHS, std.asIntTypeSymbol);
         overloadBindings.fixType(VAR_RHS);
         function = symbolFactory.createFunctionType("%=", overloadBindings, std.binaryParameterIds);
-        nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add(T_LHS);
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set(T_LHS));
         addToOperators(TokenTypes.ModuloAssign, function);
     }
 
@@ -717,9 +658,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             //T -> T
             IOverloadBindings overloadBindings = createUnaryTBindings();
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.unaryParameterId);
-            Set<String> nonFixedTypeParameters = new HashSet<>();
-            nonFixedTypeParameters.add("T");
-            function.simplified(nonFixedTypeParameters);
+            function.simplified(set("T"));
             addToOperators(operator.second, function);
         }
 
@@ -742,9 +681,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             IOverloadBindings overloadBindings = createUnaryTBindings();
             overloadBindings.addUpperTypeBound("T", scalarOrNullOrObject);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.unaryParameterId);
-            Set<String> nonFixedTypeParameters = new HashSet<>();
-            nonFixedTypeParameters.add("T");
-            function.simplified(nonFixedTypeParameters);
+            function.simplified(set("T"));
             addToOperators(operator.second, function);
         }
     }
@@ -755,9 +692,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addLowerTypeBound("T", typeSymbol);
         overloadBindings.addUpperTypeBound("T", typeSymbol);
         function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.unaryParameterId);
-        Set<String> nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add("T");
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set("T"));
         addToOperators(operator.second, function);
     }
 
@@ -776,9 +711,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_RHS, std.stringTypeSymbol);
         overloadBindings.fixType(VAR_RHS);
         IFunctionType function = symbolFactory.createFunctionType(".=", overloadBindings, std.binaryParameterIds);
-        Set<String> nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add(T_LHS);
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set(T_LHS));
         addToOperators(TokenTypes.DotAssign, function);
 
         //Tlhs x {as string} -> Tlhs \ string <: Tlhs <: {as string}
@@ -788,9 +721,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_RHS, std.asStringTypeSymbol);
         overloadBindings.fixType(VAR_RHS);
         function = symbolFactory.createFunctionType(".=", overloadBindings, std.binaryParameterIds);
-        nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add(T_LHS);
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set(T_LHS));
         addToOperators(TokenTypes.DotAssign, function);
     }
 
@@ -808,9 +739,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //T -> T
         IOverloadBindings collection = createUnaryTBindings();
         IFunctionType function = symbolFactory.createFunctionType("clone", collection, std.unaryParameterId);
-        Set<String> nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add("T");
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set("T"));
         addToOperators(TokenTypes.Clone, function);
 
         //TODO TINS-349 structural constraints
@@ -819,9 +748,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //T -> T
         collection = createUnaryTBindings();
         function = symbolFactory.createFunctionType("new", collection, std.unaryParameterId);
-        nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add("T");
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set("T"));
         addToOperators(TokenTypes.New, function);
     }
 
@@ -829,9 +756,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //T -> T
         IOverloadBindings overloadBindings = createUnaryTBindings();
         IFunctionType function = symbolFactory.createFunctionType("@", overloadBindings, std.unaryParameterId);
-        Set<String> nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add("T");
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set("T"));
         addToOperators(TokenTypes.At, function);
 
         //TODO TINS-481 - rewrite casts in AST to function calls - remove the cast operator entirely
@@ -846,9 +771,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.bind(asT, Arrays.asList("T"));
         overloadBindings.addUpperTypeBound(T_RHS, asT);
         function = symbolFactory.createFunctionType("cast", overloadBindings, std.binaryParameterIds);
-        nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add("T");
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set("T"));
         addToOperators(TokenTypes.CAST, function);
     }
 
@@ -929,10 +852,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
         overloadBindings.addLowerRefBound(T_RHS, reference(T_LHS));
         function = symbolFactory.createFunctionType("catch", overloadBindings, std.binaryParameterIds);
-        Set<String> nonFixedTypeParameters = new HashSet<>();
-        nonFixedTypeParameters.add(T_LHS);
-        nonFixedTypeParameters.add(T_RHS);
-        function.simplified(nonFixedTypeParameters);
+        function.simplified(set(T_LHS, T_RHS));
         addToOperators(TokenTypes.Catch, function);
     }
 
@@ -986,5 +906,10 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         methodSymbol.addOverload(functionTypeSymbol);
     }
 
+    private Set<String> set(String... typeVariables) {
+        Set<String> set = new HashSet<>();
+        Collections.addAll(set, typeVariables);
+        return set;
+    }
 }
 
