@@ -10,8 +10,9 @@ import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.IConversionMethod;
 import ch.tsphp.tinsphp.common.core.IConversionsProvider;
 import ch.tsphp.tinsphp.common.symbols.PrimitiveTypeNames;
+import ch.tsphp.tinsphp.common.utils.ERelation;
 import ch.tsphp.tinsphp.common.utils.Pair;
-import ch.tsphp.tinsphp.core.test.integration.testutils.AConversionsProvider;
+import ch.tsphp.tinsphp.core.test.integration.testutils.AConversionsProviderTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -25,10 +26,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(Parameterized.class)
-public class ConversionsProviderImplicitTest extends AConversionsProvider
+public class ConversionsProviderImplicitTest extends AConversionsProviderTest
 {
 
-    public ConversionsProviderImplicitTest(String fromType, String toType, boolean result) {
+    public ConversionsProviderImplicitTest(String fromType, String toType, ERelation result) {
         super(fromType, toType, result);
     }
 
@@ -40,8 +41,8 @@ public class ConversionsProviderImplicitTest extends AConversionsProvider
     @Parameterized.Parameters
     public static Collection<Object[]> testStrings() {
         return Arrays.asList(new Object[][]{
-                {PrimitiveTypeNames.INT, PrimitiveTypeNames.FLOAT, true},
-                {PrimitiveTypeNames.FLOAT, PrimitiveTypeNames.INT, false},
+                {PrimitiveTypeNames.INT, PrimitiveTypeNames.FLOAT, ERelation.HAS_RELATION},
+                {PrimitiveTypeNames.FLOAT, PrimitiveTypeNames.INT, ERelation.HAS_NO_RELATION},
         });
     }
 
