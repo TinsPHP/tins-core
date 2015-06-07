@@ -199,6 +199,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         addToUnaryOperators(logicNot, std.falseTypeSymbol, std.trueTypeSymbol);
         addToUnaryOperators(logicNot, std.trueTypeSymbol, std.falseTypeSymbol);
         addToUnaryOperators(logicNot, std.boolTypeSymbol, std.boolTypeSymbol);
+        addToUnaryOperators(logicNot, std.asBoolTypeSymbol, std.boolTypeSymbol);
     }
 
     private void defineAssignmentOperators() {

@@ -261,7 +261,8 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"!", TokenTypes.LogicNot, new String[]{
                         "falseType -> trueType",
                         "trueType -> falseType",
-                        "(falseType | trueType) -> (falseType | trueType)"
+                        "(falseType | trueType) -> (falseType | trueType)",
+                        "{as (falseType | trueType)} -> (falseType | trueType)"
                 }},
                 {"uMinus", TokenTypes.UNARY_MINUS, new String[]{
                         "T -> T \\ T <: (falseType | float | int | nullType | string | trueType)"
