@@ -55,9 +55,9 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
         try {
             assertThat(overloadSignatures, containsInAnyOrder(signatures));
         } catch (AssertionError ex) {
-            System.out.println(operatorName + " failed. Overloads where:");
+            System.err.println(operatorName + " failed. Overloads where:");
             for (String overloadSignature : overloadSignatures) {
-                System.out.println(overloadSignature);
+                System.err.println(overloadSignature);
             }
             throw ex;
         }
@@ -123,30 +123,30 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 }},
                 {"%=", TokenTypes.ModuloAssign, new String[]{
                         "Tlhs x int -> Tlhs \\ (falseType | int) <: Tlhs <: (falseType | int)",
-                        "Tlhs x {as int} -> Tlhs \\ (falseType | int) <: Tlhs <: {as int}",
+                        "Tlhs x {as (float | int)} -> Tlhs \\ (falseType | int) <: Tlhs <: {as (float | int)}",
                 }},
                 {"&=", TokenTypes.BitwiseAndAssign, new String[]{
                         "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
-                        "Tlhs x {as int} -> Tlhs \\ int <: Tlhs <: {as int}",
+                        "Tlhs x {as (float | int)} -> Tlhs \\ int <: Tlhs <: {as (float | int)}",
                         "Tlhs x string -> Tlhs \\ string <: Tlhs <: string",
                 }},
                 {"^=", TokenTypes.BitwiseXorAssign, new String[]{
                         "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
-                        "Tlhs x {as int} -> Tlhs \\ int <: Tlhs <: {as int}",
+                        "Tlhs x {as (float | int)} -> Tlhs \\ int <: Tlhs <: {as (float | int)}",
                         "Tlhs x string -> Tlhs \\ string <: Tlhs <: string",
                 }},
                 {"|=", TokenTypes.BitwiseOrAssign, new String[]{
                         "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
-                        "Tlhs x {as int} -> Tlhs \\ int <: Tlhs <: {as int}",
+                        "Tlhs x {as (float | int)} -> Tlhs \\ int <: Tlhs <: {as (float | int)}",
                         "Tlhs x string -> Tlhs \\ string <: Tlhs <: string",
                 }},
                 {">>=", TokenTypes.ShiftLeftAssign, new String[]{
                         "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
-                        "Tlhs x {as int} -> Tlhs \\ int <: Tlhs <: {as int}"
+                        "Tlhs x {as (float | int)} -> Tlhs \\ int <: Tlhs <: {as (float | int)}"
                 }},
                 {"<<=", TokenTypes.ShiftRightAssign, new String[]{
                         "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
-                        "Tlhs x {as int} -> Tlhs \\ int <: Tlhs <: {as int}"
+                        "Tlhs x {as (float | int)} -> Tlhs \\ int <: Tlhs <: {as (float | int)}"
                 }},
                 {".=", TokenTypes.DotAssign, new String[]{
                         "Tlhs x string -> Tlhs \\ string <: Tlhs <: string",
@@ -178,17 +178,17 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 }},
                 {"|", TokenTypes.BitwiseOr, new String[]{
                         "int x int -> int",
-                        "{as int} x {as int} -> int",
+                        "{as (float | int)} x {as (float | int)} -> int",
                         "string x string -> string"
                 }},
                 {"^", TokenTypes.BitwiseXor, new String[]{
                         "int x int -> int",
-                        "{as int} x {as int} -> int",
+                        "{as (float | int)} x {as (float | int)} -> int",
                         "string x string -> string"
                 }},
                 {"&", TokenTypes.BitwiseAnd, new String[]{
                         "int x int -> int",
-                        "{as int} x {as int} -> int",
+                        "{as (float | int)} x {as (float | int)} -> int",
                         "string x string -> string"
                 }},
                 {"==", TokenTypes.Equal, new String[]{"mixed x mixed -> (falseType | trueType)"}},
@@ -199,8 +199,10 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"<=", TokenTypes.LessEqualThan, new String[]{"mixed x mixed -> (falseType | trueType)"}},
                 {">", TokenTypes.GreaterThan, new String[]{"mixed x mixed -> (falseType | trueType)"}},
                 {">=", TokenTypes.GreaterEqualThan, new String[]{"mixed x mixed -> (falseType | trueType)"}},
-                {"<<", TokenTypes.ShiftLeft, new String[]{"int x int -> int", "{as int} x {as int} -> int"}},
-                {">>", TokenTypes.ShiftRight, new String[]{"int x int -> int", "{as int} x {as int} -> int"}},
+                {"<<", TokenTypes.ShiftLeft, new String[]{"int x int -> int", "{as (float | int)} x {as (float | int)" +
+                        "} -> int"}},
+                {">>", TokenTypes.ShiftRight, new String[]{"int x int -> int", "{as (float | int)} x {as (float | " +
+                        "int)} -> int"}},
                 {"+", TokenTypes.Plus, new String[]{
                         "int x int -> int",
                         "float x float -> float",
@@ -235,7 +237,7 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 }},
                 {"%", TokenTypes.Modulo, new String[]{
                         "int x int -> (falseType | int)",
-                        "{as int} x {as int} -> (falseType | int)"
+                        "{as (float | int)} x {as (float | int)} -> (falseType | int)"
                 }},
                 {"instanceof", TokenTypes.Instanceof, new String[]{"mixed x mixed -> (falseType | trueType)"}},
                 {"preIncr", TokenTypes.PRE_INCREMENT, new String[]{

@@ -80,6 +80,7 @@ public class ConversionsProvider implements IConversionsProvider
         ITypeSymbol boolTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.BOOL);
         ITypeSymbol intTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.INT);
         ITypeSymbol floatTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.FLOAT);
+        ITypeSymbol numTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.NUM);
         ITypeSymbol stringTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.STRING);
         ITypeSymbol resourceTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.RESOURCE);
         ITypeSymbol arrayTypeSymbol = primitiveTypes.get(PrimitiveTypeNames.ARRAY);
@@ -104,7 +105,7 @@ public class ConversionsProvider implements IConversionsProvider
                 {floatTypeSymbol, stringTypeSymbol},
                 //string
                 {stringTypeSymbol, boolTypeSymbol},
-                {stringTypeSymbol, floatTypeSymbol},
+                {stringTypeSymbol, numTypeSymbol},
                 //resource
                 {resourceTypeSymbol, boolTypeSymbol},
                 {resourceTypeSymbol, intTypeSymbol},

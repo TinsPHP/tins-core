@@ -232,8 +232,8 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         for (Pair<String, Integer> operator : intResultingNonAssignOperators) {
             //int x int -> int
             addToBinaryOperators(operator, std.intTypeSymbol, std.intTypeSymbol, std.intTypeSymbol);
-            //{as int} x {as int} -> int
-            addToBinaryOperators(operator, std.asIntTypeSymbol, std.asIntTypeSymbol, std.intTypeSymbol);
+            //{as num} x {as num} -> int
+            addToBinaryOperators(operator, std.asNumTypeSymbol, std.asNumTypeSymbol, std.intTypeSymbol);
         }
 
         @SuppressWarnings("unchecked")
@@ -273,17 +273,15 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addLowerTypeBound(T_LHS, std.intTypeSymbol);
             overloadBindings.addUpperTypeBound(T_LHS, std.intTypeSymbol);
             overloadBindings.addUpperTypeBound(T_RHS, std.intTypeSymbol);
-            overloadBindings.fixType(VAR_RHS);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
             function.simplified(set(T_LHS));
             addToOperators(operator.second, function);
 
-            //Tlhs x {as int} -> Tlhs \ int <: Tlhs <: {as int}
+            //Tlhs x {as num} -> Tlhs \ int <: Tlhs <: {as int}
             overloadBindings = createAssignOverloadBindings();
             overloadBindings.addLowerTypeBound(T_LHS, std.intTypeSymbol);
-            overloadBindings.addUpperTypeBound(T_LHS, std.asIntTypeSymbol);
-            overloadBindings.addUpperTypeBound(T_RHS, std.asIntTypeSymbol);
-            overloadBindings.fixType(VAR_RHS);
+            overloadBindings.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
+            overloadBindings.addUpperTypeBound(T_RHS, std.asNumTypeSymbol);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
             function.simplified(set(T_LHS));
             addToOperators(operator.second, function);
@@ -301,7 +299,6 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addLowerTypeBound(T_LHS, std.stringTypeSymbol);
             overloadBindings.addUpperTypeBound(T_LHS, std.stringTypeSymbol);
             overloadBindings.addUpperTypeBound(T_RHS, std.stringTypeSymbol);
-            overloadBindings.fixType(VAR_RHS);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
             function.simplified(set(T_LHS));
             addToOperators(operator.second, function);
@@ -480,7 +477,6 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addLowerTypeBound(T_LHS, std.intTypeSymbol);
             overloadBindings.addUpperTypeBound(T_LHS, std.intTypeSymbol);
             overloadBindings.addUpperTypeBound(T_RHS, std.intTypeSymbol);
-            overloadBindings.fixType(VAR_RHS);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
             function.simplified(set(T_LHS));
             addToOperators(operator.second, function);
@@ -490,7 +486,6 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addLowerTypeBound(T_LHS, std.floatTypeSymbol);
             overloadBindings.addUpperTypeBound(T_LHS, std.floatTypeSymbol);
             overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
-            overloadBindings.fixType(VAR_RHS);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
             function.simplified(set(T_LHS));
             addToOperators(operator.second, function);
@@ -500,7 +495,6 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addLowerTypeBound(T_LHS, std.floatTypeSymbol);
             overloadBindings.addUpperTypeBound(T_LHS, std.floatTypeSymbol);
             overloadBindings.addUpperTypeBound(T_RHS, std.asNumTypeSymbol);
-            overloadBindings.fixType(VAR_RHS);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
             function.simplified(set(T_LHS));
             addToOperators(operator.second, function);
@@ -510,12 +504,11 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addLowerTypeBound(T_LHS, std.floatTypeSymbol);
             overloadBindings.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
             overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
-            overloadBindings.fixType(VAR_RHS);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
             function.simplified(set(T_LHS));
             addToOperators(operator.second, function);
 
-            //Tlhs x Trhs -> Tlhs \ T <: Tlhs <: {as T}, Trhs <: {as T}, T <: num
+            //Tlhs x {as T} -> Tlhs \ T <: Tlhs <: {as T}, T <: num
             overloadBindings = createAssignOverloadBindings();
             TypeVariableReference tHelper = reference("T");
             overloadBindings.addVariable("!help0", tHelper);
@@ -526,7 +519,6 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound(T_LHS, asT);
             overloadBindings.addUpperTypeBound(T_RHS, asT);
             overloadBindings.addUpperTypeBound("T", std.numTypeSymbol);
-            overloadBindings.fixType(VAR_RHS);
 
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
             function.simplified(set(T_LHS, "T"));
@@ -538,7 +530,6 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addLowerTypeBound(T_LHS, std.arrayTypeSymbol);
         overloadBindings.addUpperTypeBound(T_LHS, std.arrayTypeSymbol);
         overloadBindings.addUpperTypeBound(T_RHS, std.arrayTypeSymbol);
-        overloadBindings.fixType(VAR_RHS);
         function = symbolFactory.createFunctionType("+=", overloadBindings, std.binaryParameterIds);
         function.simplified(set(T_LHS));
         addToOperators(TokenTypes.PlusAssign, function);
@@ -554,7 +545,6 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addLowerTypeBound(T_LHS, std.floatOrFalse);
         overloadBindings.addUpperTypeBound(T_LHS, std.floatOrFalse);
         overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
-        overloadBindings.fixType(VAR_RHS);
         function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
         function.simplified(set(T_LHS));
         addToOperators(TokenTypes.DivideAssign, function);
@@ -564,7 +554,6 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addLowerTypeBound(T_LHS, std.floatOrFalse);
         overloadBindings.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
         overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
-        overloadBindings.fixType(VAR_RHS);
         function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
         function.simplified(set(T_LHS));
         addToOperators(TokenTypes.DivideAssign, function);
@@ -574,7 +563,6 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addLowerTypeBound(T_LHS, std.numOrFalse);
         overloadBindings.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
         overloadBindings.addUpperTypeBound(T_RHS, std.asNumTypeSymbol);
-        overloadBindings.fixType(VAR_RHS);
         function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
         function.simplified(set(T_LHS));
         addToOperators(TokenTypes.DivideAssign, function);
@@ -586,8 +574,8 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //int x int -> (int | false)
         addToBinaryOperators(pair("%", TokenTypes.Modulo), std.intTypeSymbol, std.intTypeSymbol, std.intOrFalse);
 
-        //{as int} x {as int} -> (int | false)
-        addToBinaryOperators(pair("%", TokenTypes.Modulo), std.asIntTypeSymbol, std.asIntTypeSymbol, std.intOrFalse);
+        //{as num} x {as num} -> (int | false)
+        addToBinaryOperators(pair("%", TokenTypes.Modulo), std.asNumTypeSymbol, std.asNumTypeSymbol, std.intOrFalse);
 
 
         //Tlhs x int -> Tlhs \ (int | falseType) <: Tlhs <: (int | falseType)
@@ -595,17 +583,15 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addLowerTypeBound(T_LHS, std.intOrFalse);
         overloadBindings.addUpperTypeBound(T_LHS, std.intOrFalse);
         overloadBindings.addUpperTypeBound(T_RHS, std.intTypeSymbol);
-        overloadBindings.fixType(VAR_RHS);
         function = symbolFactory.createFunctionType("%=", overloadBindings, std.binaryParameterIds);
         function.simplified(set(T_LHS));
         addToOperators(TokenTypes.ModuloAssign, function);
 
-        //Tlhs x {as int} -> Tlhs \ (int | falseType) <: Tlhs <: {as int}
+        //Tlhs x {as num} -> Tlhs \ (int | falseType) <: Tlhs <: {as num}
         overloadBindings = createAssignOverloadBindings();
         overloadBindings.addLowerTypeBound(T_LHS, std.intOrFalse);
-        overloadBindings.addUpperTypeBound(T_LHS, std.asIntTypeSymbol);
-        overloadBindings.addUpperTypeBound(T_RHS, std.asIntTypeSymbol);
-        overloadBindings.fixType(VAR_RHS);
+        overloadBindings.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
+        overloadBindings.addUpperTypeBound(T_RHS, std.asNumTypeSymbol);
         function = symbolFactory.createFunctionType("%=", overloadBindings, std.binaryParameterIds);
         function.simplified(set(T_LHS));
         addToOperators(TokenTypes.ModuloAssign, function);
@@ -697,7 +683,6 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addLowerTypeBound(T_LHS, std.stringTypeSymbol);
         overloadBindings.addUpperTypeBound(T_LHS, std.stringTypeSymbol);
         overloadBindings.addUpperTypeBound(T_RHS, std.stringTypeSymbol);
-        overloadBindings.fixType(VAR_RHS);
         IFunctionType function = symbolFactory.createFunctionType(".=", overloadBindings, std.binaryParameterIds);
         function.simplified(set(T_LHS));
         addToOperators(TokenTypes.DotAssign, function);
@@ -707,7 +692,6 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addLowerTypeBound(T_LHS, std.stringTypeSymbol);
         overloadBindings.addUpperTypeBound(T_LHS, std.asStringTypeSymbol);
         overloadBindings.addUpperTypeBound(T_RHS, std.asStringTypeSymbol);
-        overloadBindings.fixType(VAR_RHS);
         function = symbolFactory.createFunctionType(".=", overloadBindings, std.binaryParameterIds);
         function.simplified(set(T_LHS));
         addToOperators(TokenTypes.DotAssign, function);

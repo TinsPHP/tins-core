@@ -45,7 +45,6 @@ public class StandardConstraintAndVariables
     public final IUnionTypeSymbol numOrFalse;
 
     public final IConvertibleTypeSymbol asBoolTypeSymbol;
-    public final IConvertibleTypeSymbol asIntTypeSymbol;
     public final IConvertibleTypeSymbol asNumTypeSymbol;
     public final IConvertibleTypeSymbol asStringTypeSymbol;
 
@@ -83,10 +82,6 @@ public class StandardConstraintAndVariables
         asBoolTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
         asBoolTypeSymbol.addLowerTypeBound(boolTypeSymbol);
         asBoolTypeSymbol.addUpperTypeBound(boolTypeSymbol);
-
-        asIntTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
-        asIntTypeSymbol.addLowerTypeBound(intTypeSymbol);
-        asIntTypeSymbol.addUpperTypeBound(intTypeSymbol);
 
         asNumTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
         asNumTypeSymbol.addLowerTypeBound(numTypeSymbol);

@@ -43,19 +43,12 @@ public abstract class AProvider
         return overloadBindings;
     }
 
+
     protected IOverloadBindings createAssignOverloadBindings() {
         IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
         overloadBindings.addVariable(VAR_LHS, reference(T_LHS));
-        overloadBindings.addVariable(VAR_RHS, reference(T_RHS));
+        overloadBindings.addVariable(VAR_RHS, fixReference(T_RHS));
         overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_LHS));
-        return overloadBindings;
-    }
-
-    protected IOverloadBindings createVariableBinaryBindings() {
-        IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
-        overloadBindings.addVariable(VAR_LHS, reference(T_LHS));
-        overloadBindings.addVariable(VAR_RHS, reference(T_RHS));
-        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
         return overloadBindings;
     }
 
