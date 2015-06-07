@@ -559,17 +559,6 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         function.simplified(set(T_LHS));
         addToOperators(TokenTypes.DivideAssign, function);
 
-        //Tlhs x {as num} -> Tlhs \ (float | falseType) <: Tlhs <: (float | falseType)
-        overloadBindings = createAssignOverloadBindings();
-        overloadBindings.addLowerTypeBound(T_LHS, std.floatOrFalse);
-        overloadBindings.addUpperTypeBound(T_LHS, std.floatOrFalse);
-        overloadBindings.addUpperTypeBound(T_RHS, std.asNumTypeSymbol);
-        overloadBindings.fixType(VAR_RHS);
-        function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
-        function.simplified(set(T_LHS));
-        addToOperators(TokenTypes.DivideAssign, function);
-
-
         //Tlhs x float -> Tlhs \ (float | falseType) <: Tlhs <: {as num}
         overloadBindings = createAssignOverloadBindings();
         overloadBindings.addLowerTypeBound(T_LHS, std.floatOrFalse);

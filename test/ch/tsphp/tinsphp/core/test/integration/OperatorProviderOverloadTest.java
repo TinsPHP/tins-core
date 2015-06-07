@@ -118,7 +118,6 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 }},
                 {"/=", TokenTypes.DivideAssign, new String[]{
                         "Tlhs x float -> Tlhs \\ (falseType | float) <: Tlhs <: (falseType | float)",
-                        "Tlhs x {as (float | int)} -> Tlhs \\ (falseType | float) <: Tlhs <: (falseType | float)",
                         "Tlhs x float -> Tlhs \\ (falseType | float) <: Tlhs <: {as (float | int)}",
                         "Tlhs x {as (float | int)} -> Tlhs \\ (falseType | float | int) <: Tlhs <: {as (float | int)}"
                 }},
