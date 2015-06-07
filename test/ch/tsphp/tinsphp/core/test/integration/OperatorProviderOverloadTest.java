@@ -97,20 +97,24 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"+=", TokenTypes.PlusAssign, new String[]{
                         "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
                         "Tlhs x float -> Tlhs \\ float <: Tlhs <: float",
-                        "Tlhs x Trhs -> Tlhs \\ Tlhs <: {as Trhs}, Trhs <: (float | int)",
+                        "Tlhs x {as (float | int)} -> Tlhs \\ float <: Tlhs <: float",
+                        "Tlhs x float -> Tlhs \\ float <: Tlhs <: {as (float | int)}",
+                        "Tlhs x {as T} -> Tlhs \\ T <: Tlhs <: {as T}, T <: (float | int)",
                         "Tlhs x array -> Tlhs \\ array <: Tlhs <: array"
                 }},
                 {"-=", TokenTypes.MinusAssign, new String[]{
                         "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
                         "Tlhs x float -> Tlhs \\ float <: Tlhs <: float",
-                        "Tlhs x {as Tlhs} -> Tlhs \\ Tlhs <: (float | int)",
-                        "Tlhs x Trhs -> Tlhs \\ Tlhs <: {as Trhs}, Trhs <: (float | int)",
+                        "Tlhs x {as (float | int)} -> Tlhs \\ float <: Tlhs <: float",
+                        "Tlhs x float -> Tlhs \\ float <: Tlhs <: {as (float | int)}",
+                        "Tlhs x {as T} -> Tlhs \\ T <: Tlhs <: {as T}, T <: (float | int)",
                 }},
                 {"*=", TokenTypes.MultiplyAssign, new String[]{
                         "Tlhs x int -> Tlhs \\ int <: Tlhs <: int",
                         "Tlhs x float -> Tlhs \\ float <: Tlhs <: float",
-                        "Tlhs x {as Tlhs} -> Tlhs \\ Tlhs <: (float | int)",
-                        "Tlhs x Trhs -> Tlhs \\ Tlhs <: {as Trhs}, Trhs <: (float | int)",
+                        "Tlhs x {as (float | int)} -> Tlhs \\ float <: Tlhs <: float",
+                        "Tlhs x float -> Tlhs \\ float <: Tlhs <: {as (float | int)}",
+                        "Tlhs x {as T} -> Tlhs \\ T <: Tlhs <: {as T}, T <: (float | int)",
                 }},
                 {"/=", TokenTypes.DivideAssign, new String[]{
                         "Tlhs x float -> Tlhs \\ (falseType | float) <: Tlhs <: (falseType | float)",
@@ -201,16 +205,16 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"+", TokenTypes.Plus, new String[]{
                         "int x int -> int",
                         "float x float -> float",
-//                        "T x {as T} -> T \\ T <: (float | int)",
-//                        "{as T} x T -> T \\ T <: (float | int)",
+                        "float x {as (float | int)} -> float",
+                        "{as (float | int)} x float -> float",
                         "{as T} x {as T} -> T \\ T <: (float | int)",
                         "array x array -> array"
                 }},
                 {"-", TokenTypes.Minus, new String[]{
                         "int x int -> int",
                         "float x float -> float",
-//                        "T x {as T} -> T \\ T <: (float | int)",
-//                        "{as T} x T -> T \\ T <: (float | int)",
+                        "float x {as (float | int)} -> float",
+                        "{as (float | int)} x float -> float",
                         "{as T} x {as T} -> T \\ T <: (float | int)",
                 }},
                 {".", TokenTypes.Dot, new String[]{
@@ -220,8 +224,8 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"*", TokenTypes.Multiply, new String[]{
                         "int x int -> int",
                         "float x float -> float",
-//                        "T x {as T} -> T \\ T <: (float | int)",
-//                        "{as T} x T -> T \\ T <: (float | int)",
+                        "float x {as (float | int)} -> float",
+                        "{as (float | int)} x float -> float",
                         "{as T} x {as T} -> T \\ T <: (float | int)",
                 }},
                 {"/", TokenTypes.Divide, new String[]{

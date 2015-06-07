@@ -418,44 +418,23 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         for (Pair<String, Integer> operator : nonAssignOperators) {
             //int x int -> int
             addToBinaryOperators(operator, std.intTypeSymbol, std.intTypeSymbol, std.intTypeSymbol);
+
             //float x float -> float
             addToBinaryOperators(operator, std.floatTypeSymbol, std.floatTypeSymbol, std.floatTypeSymbol);
 
-            //T x {as T} -> T \ T <: num
-            IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
-            overloadBindings.addVariable(VAR_LHS, reference("T"));
-            overloadBindings.addVariable(VAR_RHS, fixReference(T_RHS));
-            overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference("T"));
-            //bind convertible type to T
-            IConvertibleTypeSymbol asT = symbolFactory.createConvertibleTypeSymbol();
-            overloadBindings.bind(asT, Arrays.asList("T"));
-            overloadBindings.addUpperTypeBound("T", std.numTypeSymbol);
-            overloadBindings.addUpperTypeBound(T_RHS, asT);
-            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            function.simplified(set("T"));
-            addToOperators(operator.second, function);
+            //float x {as num} -> float
+            addToBinaryOperators(operator, std.floatTypeSymbol, std.asNumTypeSymbol, std.floatTypeSymbol);
 
-            //{as T} x T -> T \ T <: num
-            overloadBindings = symbolFactory.createOverloadBindings();
-            overloadBindings.addVariable(VAR_LHS, fixReference(T_LHS));
-            overloadBindings.addVariable(VAR_RHS, reference("T"));
-            overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference("T"));
-            //bind convertible type to T
-            asT = symbolFactory.createConvertibleTypeSymbol();
-            overloadBindings.bind(asT, Arrays.asList("T"));
-            overloadBindings.addUpperTypeBound(T_LHS, asT);
-            overloadBindings.addUpperTypeBound("T", std.numTypeSymbol);
-            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            function.simplified(set("T"));
-            addToOperators(operator.second, function);
+            //{as num} x float -> float
+            addToBinaryOperators(operator, std.asNumTypeSymbol, std.floatTypeSymbol, std.floatTypeSymbol);
 
             //{as T} x {as T} -> T \ T <: num
-            overloadBindings = symbolFactory.createOverloadBindings();
+            IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
             overloadBindings.addVariable(VAR_LHS, fixReference(T_LHS));
             overloadBindings.addVariable(VAR_RHS, fixReference(T_RHS));
             overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference("T"));
             //bind convertible type to Treturn
-            asT = symbolFactory.createConvertibleTypeSymbol();
+            IConvertibleTypeSymbol asT = symbolFactory.createConvertibleTypeSymbol();
             overloadBindings.bind(asT, Arrays.asList("T"));
             overloadBindings.addUpperTypeBound(T_LHS, asT);
             overloadBindings.addUpperTypeBound(T_RHS, asT);
@@ -516,27 +495,41 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             function.simplified(set(T_LHS));
             addToOperators(operator.second, function);
 
-            //Tlhs x {as Tlhs} -> Tlhs \ Tlhs <: num
+            //Tlhs x {as num} -> Tlhs \ float <: Tlhs <: float
             overloadBindings = createAssignOverloadBindings();
-            //bind convertible type to Tlhs
-            IConvertibleTypeSymbol asTlhs = symbolFactory.createConvertibleTypeSymbol();
-            overloadBindings.bind(asTlhs, Arrays.asList(T_LHS));
-            overloadBindings.addUpperTypeBound(T_LHS, std.numTypeSymbol);
-            overloadBindings.addUpperTypeBound(T_RHS, asTlhs);
+            overloadBindings.addLowerTypeBound(T_LHS, std.floatTypeSymbol);
+            overloadBindings.addUpperTypeBound(T_LHS, std.floatTypeSymbol);
+            overloadBindings.addUpperTypeBound(T_RHS, std.asNumTypeSymbol);
             overloadBindings.fixType(VAR_RHS);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
             function.simplified(set(T_LHS));
             addToOperators(operator.second, function);
 
-            //Tlhs x Trhs -> Tlhs \ Tlhs <: {as Trhs}, Trhs <: num
+            //Tlhs x float -> Tlhs \ float <: Tlhs <: float
             overloadBindings = createAssignOverloadBindings();
-            //bind convertible type to Trhs
-            IConvertibleTypeSymbol asTrhs = symbolFactory.createConvertibleTypeSymbol();
-            overloadBindings.bind(asTrhs, Arrays.asList(T_RHS));
-            overloadBindings.addUpperTypeBound(T_LHS, asTrhs);
-            overloadBindings.addUpperTypeBound(T_RHS, std.numTypeSymbol);
+            overloadBindings.addLowerTypeBound(T_LHS, std.floatTypeSymbol);
+            overloadBindings.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
+            overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
+            overloadBindings.fixType(VAR_RHS);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            function.simplified(set(T_LHS, T_RHS));
+            function.simplified(set(T_LHS));
+            addToOperators(operator.second, function);
+
+            //Tlhs x Trhs -> Tlhs \ T <: Tlhs <: {as T}, Trhs <: {as T}, T <: num
+            overloadBindings = createAssignOverloadBindings();
+            TypeVariableReference tHelper = reference("T");
+            overloadBindings.addVariable("!help0", tHelper);
+            //bind convertible type to T
+            IConvertibleTypeSymbol asT = symbolFactory.createConvertibleTypeSymbol();
+            overloadBindings.bind(asT, Arrays.asList("T"));
+            overloadBindings.addLowerRefBound(T_LHS, tHelper);
+            overloadBindings.addUpperTypeBound(T_LHS, asT);
+            overloadBindings.addUpperTypeBound(T_RHS, asT);
+            overloadBindings.addUpperTypeBound("T", std.numTypeSymbol);
+            overloadBindings.fixType(VAR_RHS);
+
+            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            function.simplified(set(T_LHS, "T"));
             addToOperators(operator.second, function);
         }
 
