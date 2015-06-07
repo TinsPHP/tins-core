@@ -118,8 +118,8 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 }},
                 {"/=", TokenTypes.DivideAssign, new String[]{
                         "Tlhs x float -> Tlhs \\ (falseType | float) <: Tlhs <: (falseType | float)",
-                        "Tlhs x {as float} -> Tlhs \\ (falseType | float) <: Tlhs <: (falseType | float)",
-                        "Tlhs x float -> Tlhs \\ (falseType | float) <: Tlhs <: {as float}",
+                        "Tlhs x {as (float | int)} -> Tlhs \\ (falseType | float) <: Tlhs <: (falseType | float)",
+                        "Tlhs x float -> Tlhs \\ (falseType | float) <: Tlhs <: {as (float | int)}",
                         "Tlhs x {as (float | int)} -> Tlhs \\ (falseType | float | int) <: Tlhs <: {as (float | int)}"
                 }},
                 {"%=", TokenTypes.ModuloAssign, new String[]{
@@ -230,8 +230,8 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 }},
                 {"/", TokenTypes.Divide, new String[]{
                         "float x float -> (falseType | float)",
-                        "float x {as float} -> (falseType | float)",
-                        "{as float} x float -> (falseType | float)",
+                        "float x {as (float | int)} -> (falseType | float)",
+                        "{as (float | int)} x float -> (falseType | float)",
                         "{as (float | int)} x {as (float | int)} -> (falseType | float | int)"
                 }},
                 {"%", TokenTypes.Modulo, new String[]{

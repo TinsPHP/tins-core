@@ -46,7 +46,6 @@ public class StandardConstraintAndVariables
 
     public final IConvertibleTypeSymbol asBoolTypeSymbol;
     public final IConvertibleTypeSymbol asIntTypeSymbol;
-    public final IConvertibleTypeSymbol asFloatTypeSymbol;
     public final IConvertibleTypeSymbol asNumTypeSymbol;
     public final IConvertibleTypeSymbol asStringTypeSymbol;
 
@@ -88,10 +87,6 @@ public class StandardConstraintAndVariables
         asIntTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
         asIntTypeSymbol.addLowerTypeBound(intTypeSymbol);
         asIntTypeSymbol.addUpperTypeBound(intTypeSymbol);
-
-        asFloatTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
-        asFloatTypeSymbol.addLowerTypeBound(floatTypeSymbol);
-        asFloatTypeSymbol.addUpperTypeBound(floatTypeSymbol);
 
         asNumTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
         asNumTypeSymbol.addLowerTypeBound(numTypeSymbol);
