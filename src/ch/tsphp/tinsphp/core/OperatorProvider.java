@@ -644,10 +644,16 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         for (Pair<String, Integer> operator : incrDecrOperators) {
             //T -> T \ int <: T <: int
             createIncrDecrOverload(operator, std.intTypeSymbol);
+
             //T -> T \ float <: T <: float
             createIncrDecrOverload(operator, std.floatTypeSymbol);
+
+            //T -> T \ (int | float) <: T <: (int | float)
+            createIncrDecrOverload(operator, std.numTypeSymbol);
+
             //T -> T \ (string | int | float) <: T <: (string | int | float)
             createIncrDecrOverload(operator, stringOrIntOrFloat);
+
             //T -> T
             IOverloadBindings overloadBindings = createUnaryTBindings();
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.unaryParameterId);

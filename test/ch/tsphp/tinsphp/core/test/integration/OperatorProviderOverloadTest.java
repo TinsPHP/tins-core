@@ -242,6 +242,7 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"preIncr", TokenTypes.PRE_INCREMENT, new String[]{
                         "T -> T \\ int <: T <: int",
                         "T -> T \\ float <: T <: float",
+                        "T -> T \\ (float | int) <: T <: (float | int)",
                         "T -> T \\ (float | int | string) <: T <: (float | int | string)",
                         "T -> T \\ (int | nullType) <: T <: (int | nullType)",
                         "T -> T"
@@ -249,6 +250,7 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"preDecr", TokenTypes.PRE_DECREMENT, new String[]{
                         "T -> T \\ int <: T <: int",
                         "T -> T \\ float <: T <: float",
+                        "T -> T \\ (float | int) <: T <: (float | int)",
                         "T -> T \\ (float | int | string) <: T <: (float | int | string)",
                         "T -> T"
                 }},
@@ -271,6 +273,7 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"postIncr", TokenTypes.POST_INCREMENT, new String[]{
                         "T -> T \\ int <: T <: int",
                         "T -> T \\ float <: T <: float",
+                        "T -> T \\ (float | int) <: T <: (float | int)",
                         "T -> T \\ (float | int | string) <: T <: (float | int | string)",
                         "T -> T \\ (int | nullType) <: T <: (int | nullType)",
                         "T -> T"
@@ -278,6 +281,7 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"postDecr", TokenTypes.POST_DECREMENT, new String[]{
                         "T -> T \\ int <: T <: int",
                         "T -> T \\ float <: T <: float",
+                        "T -> T \\ (float | int) <: T <: (float | int)",
                         "T -> T \\ (float | int | string) <: T <: (float | int | string)",
                         "T -> T"
                 }},
