@@ -21,6 +21,7 @@ import ch.tsphp.tinsphp.core.IGeneratorHelper;
 import ch.tsphp.tinsphp.core.ISymbolProvider;
 import ch.tsphp.tinsphp.core.StandardConstraintAndVariables;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,6 +67,7 @@ public class BuiltInSymbolsProvider extends AProvider implements ISymbolProvider
         collection.addUpperTypeBound(T_RHS, std.stringTypeSymbol);
         collection.addLowerTypeBound(T_RETURN, std.intOrFalse);
         function = symbolFactory.createFunctionType("strpos", collection, std.binaryParameterIds);
+        function.manuallySimplified(Collections.<String>emptySet(), 0, false);
         methodSymbol = symbolFactory.createMinimalMethodSymbol("strpos");
         methodSymbol.addOverload(function);
         symbols.put("\\strpos()", methodSymbol);
