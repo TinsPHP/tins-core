@@ -68,6 +68,7 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
         return Arrays.asList(new Object[][]{
                 {"or", TokenTypes.LogicOrWeak, new String[]{
                         "falseType x falseType -> falseType",
+                        "trueType x trueType -> trueType",
                         "trueType x (falseType | trueType) -> trueType",
                         "trueType x {as (falseType | trueType)} -> trueType",
                         "(falseType | trueType) x trueType -> trueType",
@@ -85,6 +86,7 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                         "{as (falseType | trueType)} x {as (falseType | trueType)} -> (falseType | trueType)",
                 }},
                 {"and", TokenTypes.LogicAndWeak, new String[]{
+                        "falseType x falseType -> falseType",
                         "falseType x (falseType | trueType) -> falseType",
                         "falseType x {as (falseType | trueType)} -> falseType",
                         "(falseType | trueType) x falseType -> falseType",
@@ -160,6 +162,7 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 }},
                 {"||", TokenTypes.LogicOr, new String[]{
                         "falseType x falseType -> falseType",
+                        "trueType x trueType -> trueType",
                         "trueType x (falseType | trueType) -> trueType",
                         "trueType x {as (falseType | trueType)} -> trueType",
                         "(falseType | trueType) x trueType -> trueType",
@@ -168,6 +171,7 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                         "{as (falseType | trueType)} x {as (falseType | trueType)} -> (falseType | trueType)",
                 }},
                 {"&&", TokenTypes.LogicAnd, new String[]{
+                        "falseType x falseType -> falseType",
                         "falseType x (falseType | trueType) -> falseType",
                         "falseType x {as (falseType | trueType)} -> falseType",
                         "(falseType | trueType) x falseType -> falseType",

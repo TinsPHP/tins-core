@@ -140,6 +140,8 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         for (Pair<String, Integer> operator : orOperators) {
             //false x false -> false
             addToBinaryOperators(operator, std.falseTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol);
+            //true x true -> true
+            addToBinaryOperators(operator, std.trueTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol);
 
             //true x bool -> true
             addToBinaryOperators(operator, std.trueTypeSymbol, std.boolTypeSymbol, std.trueTypeSymbol);
@@ -177,6 +179,9 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
                 pair("&&", TokenTypes.LogicAnd)
         };
         for (Pair<String, Integer> operator : andOperators) {
+            //false x false -> false
+            addToBinaryOperators(operator, std.falseTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol);
+
             //false x bool -> false
             addToBinaryOperators(operator, std.falseTypeSymbol, std.boolTypeSymbol, std.falseTypeSymbol);
             //false x {as bool} -> false
