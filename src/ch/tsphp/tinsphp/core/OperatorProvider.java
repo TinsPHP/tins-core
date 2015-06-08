@@ -139,39 +139,39 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         };
         for (Pair<String, Integer> operator : orOperators) {
             //false x false -> false
-            addToBinaryOperators(operator, std.falseTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol);
+            addToBinaryOperators(operator, std.falseTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol, false);
             //true x true -> true
-            addToBinaryOperators(operator, std.trueTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol);
+            addToBinaryOperators(operator, std.trueTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol, false);
 
             //true x bool -> true
-            addToBinaryOperators(operator, std.trueTypeSymbol, std.boolTypeSymbol, std.trueTypeSymbol);
+            addToBinaryOperators(operator, std.trueTypeSymbol, std.boolTypeSymbol, std.trueTypeSymbol, false);
             //true x {as bool} -> true
-            addToBinaryOperators(operator, std.trueTypeSymbol, std.asBoolTypeSymbol, std.trueTypeSymbol);
+            addToBinaryOperators(operator, std.trueTypeSymbol, std.asBoolTypeSymbol, std.trueTypeSymbol, true);
 
             //bool x true -> true
-            addToBinaryOperators(operator, std.boolTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol);
+            addToBinaryOperators(operator, std.boolTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol, false);
             //{as bool} x true -> true
-            addToBinaryOperators(operator, std.asBoolTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol);
+            addToBinaryOperators(operator, std.asBoolTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol, true);
 
             //bool x bool -> bool
-            addToBinaryOperators(operator, std.boolTypeSymbol, std.boolTypeSymbol, std.boolTypeSymbol);
+            addToBinaryOperators(operator, std.boolTypeSymbol, std.boolTypeSymbol, std.boolTypeSymbol, false);
             //{as bool} x {as bool} -> bool
-            addToBinaryOperators(operator, std.asBoolTypeSymbol, std.asBoolTypeSymbol, std.boolTypeSymbol);
+            addToBinaryOperators(operator, std.asBoolTypeSymbol, std.asBoolTypeSymbol, std.boolTypeSymbol, true);
         }
 
         Pair<String, Integer> xorWeak = pair("xor", TokenTypes.LogicXorWeak);
         //false x true -> true
-        addToBinaryOperators(xorWeak, std.falseTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol);
+        addToBinaryOperators(xorWeak, std.falseTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol, false);
         //true x false -> true
-        addToBinaryOperators(xorWeak, std.trueTypeSymbol, std.falseTypeSymbol, std.trueTypeSymbol);
+        addToBinaryOperators(xorWeak, std.trueTypeSymbol, std.falseTypeSymbol, std.trueTypeSymbol, false);
         //false x false -> false
-        addToBinaryOperators(xorWeak, std.falseTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol);
+        addToBinaryOperators(xorWeak, std.falseTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol, false);
         //true x true -> false
-        addToBinaryOperators(xorWeak, std.trueTypeSymbol, std.trueTypeSymbol, std.falseTypeSymbol);
+        addToBinaryOperators(xorWeak, std.trueTypeSymbol, std.trueTypeSymbol, std.falseTypeSymbol, false);
         //bool x bool -> bool
-        addToBinaryOperators(xorWeak, std.boolTypeSymbol, std.boolTypeSymbol, std.boolTypeSymbol);
+        addToBinaryOperators(xorWeak, std.boolTypeSymbol, std.boolTypeSymbol, std.boolTypeSymbol, false);
         //{as bool} x {as bool} -> bool
-        addToBinaryOperators(xorWeak, std.asBoolTypeSymbol, std.asBoolTypeSymbol, std.boolTypeSymbol);
+        addToBinaryOperators(xorWeak, std.asBoolTypeSymbol, std.asBoolTypeSymbol, std.boolTypeSymbol, true);
 
         @SuppressWarnings("unchecked")
         Pair<String, Integer>[] andOperators = new Pair[]{
@@ -180,31 +180,31 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         };
         for (Pair<String, Integer> operator : andOperators) {
             //false x false -> false
-            addToBinaryOperators(operator, std.falseTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol);
+            addToBinaryOperators(operator, std.falseTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol, false);
 
             //false x bool -> false
-            addToBinaryOperators(operator, std.falseTypeSymbol, std.boolTypeSymbol, std.falseTypeSymbol);
+            addToBinaryOperators(operator, std.falseTypeSymbol, std.boolTypeSymbol, std.falseTypeSymbol, false);
             //false x {as bool} -> false
-            addToBinaryOperators(operator, std.falseTypeSymbol, std.asBoolTypeSymbol, std.falseTypeSymbol);
+            addToBinaryOperators(operator, std.falseTypeSymbol, std.asBoolTypeSymbol, std.falseTypeSymbol, true);
 
             //bool x false -> false
-            addToBinaryOperators(operator, std.boolTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol);
+            addToBinaryOperators(operator, std.boolTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol, false);
             //{as bool} x false -> false
-            addToBinaryOperators(operator, std.asBoolTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol);
+            addToBinaryOperators(operator, std.asBoolTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol, true);
 
             //true x true -> true
-            addToBinaryOperators(operator, std.trueTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol);
+            addToBinaryOperators(operator, std.trueTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol, false);
             //bool x bool -> bool
-            addToBinaryOperators(operator, std.boolTypeSymbol, std.boolTypeSymbol, std.boolTypeSymbol);
+            addToBinaryOperators(operator, std.boolTypeSymbol, std.boolTypeSymbol, std.boolTypeSymbol, false);
             //{as bool} x {as bool} -> bool
-            addToBinaryOperators(operator, std.asBoolTypeSymbol, std.asBoolTypeSymbol, std.boolTypeSymbol);
+            addToBinaryOperators(operator, std.asBoolTypeSymbol, std.asBoolTypeSymbol, std.boolTypeSymbol, true);
         }
 
         Pair<String, Integer> logicNot = new Pair<>("!", TokenTypes.LogicNot);
-        addToUnaryOperators(logicNot, std.falseTypeSymbol, std.trueTypeSymbol);
-        addToUnaryOperators(logicNot, std.trueTypeSymbol, std.falseTypeSymbol);
-        addToUnaryOperators(logicNot, std.boolTypeSymbol, std.boolTypeSymbol);
-        addToUnaryOperators(logicNot, std.asBoolTypeSymbol, std.boolTypeSymbol);
+        addToUnaryOperators(logicNot, std.falseTypeSymbol, std.trueTypeSymbol, false);
+        addToUnaryOperators(logicNot, std.trueTypeSymbol, std.falseTypeSymbol, false);
+        addToUnaryOperators(logicNot, std.boolTypeSymbol, std.boolTypeSymbol, false);
+        addToUnaryOperators(logicNot, std.asBoolTypeSymbol, std.boolTypeSymbol, true);
     }
 
     private void defineAssignmentOperators() {
@@ -214,7 +214,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         IOverloadBindings overloadBindings = createAssignOverloadBindings();
         overloadBindings.addLowerRefBound(T_LHS, new TypeVariableReference(T_RHS));
         function = symbolFactory.createFunctionType("=", overloadBindings, std.binaryParameterIds);
-        function.simplified(set(T_LHS, T_RHS));
+        function.manuallySimplified(set(T_LHS, T_RHS), 0, false);
         addToOperators(TokenTypes.Assign, function);
 
         //Other assignment operators can be found in the corresponding sections.
@@ -237,9 +237,9 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         };
         for (Pair<String, Integer> operator : intResultingNonAssignOperators) {
             //int x int -> int
-            addToBinaryOperators(operator, std.intTypeSymbol, std.intTypeSymbol, std.intTypeSymbol);
+            addToBinaryOperators(operator, std.intTypeSymbol, std.intTypeSymbol, std.intTypeSymbol, false);
             //{as num} x {as num} -> int
-            addToBinaryOperators(operator, std.asNumTypeSymbol, std.asNumTypeSymbol, std.intTypeSymbol);
+            addToBinaryOperators(operator, std.asNumTypeSymbol, std.asNumTypeSymbol, std.intTypeSymbol, true);
         }
 
         @SuppressWarnings("unchecked")
@@ -250,16 +250,16 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         };
         for (Pair<String, Integer> operator : stringResultingOperators) {
             //string x string -> string
-            addToBinaryOperators(operator, std.stringTypeSymbol, std.stringTypeSymbol, std.stringTypeSymbol);
+            addToBinaryOperators(operator, std.stringTypeSymbol, std.stringTypeSymbol, std.stringTypeSymbol, false);
         }
 
         Pair<String, Integer> bitwiseNot = pair("~", TokenTypes.BitwiseNot);
         //int -> int
-        addToUnaryOperators(bitwiseNot, std.intTypeSymbol, std.intTypeSymbol);
+        addToUnaryOperators(bitwiseNot, std.intTypeSymbol, std.intTypeSymbol, false);
         //float -> int
-        addToUnaryOperators(bitwiseNot, std.floatTypeSymbol, std.intTypeSymbol);
+        addToUnaryOperators(bitwiseNot, std.floatTypeSymbol, std.intTypeSymbol, false);
         //string -> string
-        addToUnaryOperators(bitwiseNot, std.stringTypeSymbol, std.stringTypeSymbol);
+        addToUnaryOperators(bitwiseNot, std.stringTypeSymbol, std.stringTypeSymbol, false);
     }
 
     private void createBitLevelAssignOperators() {
@@ -280,7 +280,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound(T_LHS, std.intTypeSymbol);
             overloadBindings.addUpperTypeBound(T_RHS, std.intTypeSymbol);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            function.simplified(set(T_LHS));
+            function.manuallySimplified(set(T_LHS), 0, false);
             addToOperators(operator.second, function);
 
             //Tlhs x {as num} -> Tlhs \ int <: Tlhs <: {as int}
@@ -289,7 +289,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
             overloadBindings.addUpperTypeBound(T_RHS, std.asNumTypeSymbol);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            function.simplified(set(T_LHS));
+            function.manuallySimplified(set(T_LHS), 0, true);
             addToOperators(operator.second, function);
         }
 
@@ -306,7 +306,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound(T_LHS, std.stringTypeSymbol);
             overloadBindings.addUpperTypeBound(T_RHS, std.stringTypeSymbol);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            function.simplified(set(T_LHS));
+            function.manuallySimplified(set(T_LHS), 0, false);
             addToOperators(operator.second, function);
         }
     }
@@ -325,7 +325,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
                 pair(">=", TokenTypes.GreaterEqualThan),
         };
         for (Pair<String, Integer> operator : operators) {
-            addToBinaryOperators(operator, std.mixedTypeSymbol, std.mixedTypeSymbol, std.boolTypeSymbol);
+            addToBinaryOperators(operator, std.mixedTypeSymbol, std.mixedTypeSymbol, std.boolTypeSymbol, false);
         }
     }
 
@@ -352,7 +352,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(tIf, std.mixedTypeSymbol);
         overloadBindings.addLowerRefBound(T_RETURN, reference(tElse));
         IFunctionType function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
-        function.simplified(set(tElse, T_RETURN));
+        function.manuallySimplified(set(tElse, T_RETURN), 0, false);
         addToOperators(TokenTypes.QuestionMark, function);
 
 
@@ -367,7 +367,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(tElse, std.mixedTypeSymbol);
         overloadBindings.addLowerRefBound(T_RETURN, reference(tIf));
         function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
-        function.simplified(set(tIf, T_RETURN));
+        function.manuallySimplified(set(tIf, T_RETURN), 0, false);
         addToOperators(TokenTypes.QuestionMark, function);
 
 
@@ -382,7 +382,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addLowerRefBound(T_RETURN, reference(tIf));
         overloadBindings.addLowerRefBound(T_RETURN, reference(tElse));
         function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
-        function.simplified(set(tIf, tElse, T_RETURN));
+        function.manuallySimplified(set(tIf, tElse, T_RETURN), 0, false);
         addToOperators(TokenTypes.QuestionMark, function);
 
 
@@ -397,7 +397,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addLowerRefBound(T_RETURN, reference(tIf));
         overloadBindings.addLowerRefBound(T_RETURN, reference(tElse));
         function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
-        function.simplified(set(tIf, tElse, T_RETURN));
+        function.manuallySimplified(set(tIf, tElse, T_RETURN), 0, true);
         addToOperators(TokenTypes.QuestionMark, function);
     }
 
@@ -420,16 +420,16 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
         for (Pair<String, Integer> operator : nonAssignOperators) {
             //int x int -> int
-            addToBinaryOperators(operator, std.intTypeSymbol, std.intTypeSymbol, std.intTypeSymbol);
+            addToBinaryOperators(operator, std.intTypeSymbol, std.intTypeSymbol, std.intTypeSymbol, false);
 
             //float x float -> float
-            addToBinaryOperators(operator, std.floatTypeSymbol, std.floatTypeSymbol, std.floatTypeSymbol);
+            addToBinaryOperators(operator, std.floatTypeSymbol, std.floatTypeSymbol, std.floatTypeSymbol, false);
 
             //float x {as num} -> float
-            addToBinaryOperators(operator, std.floatTypeSymbol, std.asNumTypeSymbol, std.floatTypeSymbol);
+            addToBinaryOperators(operator, std.floatTypeSymbol, std.asNumTypeSymbol, std.floatTypeSymbol, true);
 
             //{as num} x float -> float
-            addToBinaryOperators(operator, std.asNumTypeSymbol, std.floatTypeSymbol, std.floatTypeSymbol);
+            addToBinaryOperators(operator, std.asNumTypeSymbol, std.floatTypeSymbol, std.floatTypeSymbol, true);
 
             //{as T} x {as T} -> T \ T <: num
             IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
@@ -443,30 +443,33 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound(T_RHS, asT);
             overloadBindings.addUpperTypeBound("T", std.numTypeSymbol);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            function.simplified(set("T"));
+            function.manuallySimplified(set("T"), 0, true);
             addToOperators(operator.second, function);
         }
 
         //array x array -> array
-        addToBinaryOperators(pair("+", TokenTypes.Plus), std.arrayTypeSymbol, std.arrayTypeSymbol, std.arrayTypeSymbol);
+        addToBinaryOperators(pair("+", TokenTypes.Plus),
+                std.arrayTypeSymbol, std.arrayTypeSymbol, std.arrayTypeSymbol, false);
 
         createDivOperator();
     }
 
     private void createDivOperator() {
         //float x float -> (float | falseType)
-        addToBinaryOperators(pair("/", TokenTypes.Divide), std.floatTypeSymbol, std.floatTypeSymbol, std.floatOrFalse);
+        addToBinaryOperators(pair("/", TokenTypes.Divide),
+                std.floatTypeSymbol, std.floatTypeSymbol, std.floatOrFalse, false);
 
         //float x {as num} -> (float | falseType)
         addToBinaryOperators(pair("/", TokenTypes.Divide),
-                std.floatTypeSymbol, std.asNumTypeSymbol, std.floatOrFalse);
+                std.floatTypeSymbol, std.asNumTypeSymbol, std.floatOrFalse, true);
 
         //{as num} x float -> (float | falseType)
         addToBinaryOperators(pair("/", TokenTypes.Divide),
-                std.asNumTypeSymbol, std.floatTypeSymbol, std.floatOrFalse);
+                std.asNumTypeSymbol, std.floatTypeSymbol, std.floatOrFalse, true);
 
         //{as num} x {as num} -> (num | falseType)
-        addToBinaryOperators(pair("/", TokenTypes.Divide), std.asNumTypeSymbol, std.asNumTypeSymbol, std.numOrFalse);
+        addToBinaryOperators(pair("/", TokenTypes.Divide),
+                std.asNumTypeSymbol, std.asNumTypeSymbol, std.numOrFalse, true);
     }
 
     private void createArithmeticAssignOperators() {
@@ -484,7 +487,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound(T_LHS, std.intTypeSymbol);
             overloadBindings.addUpperTypeBound(T_RHS, std.intTypeSymbol);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            function.simplified(set(T_LHS));
+            function.manuallySimplified(set(T_LHS), 0, false);
             addToOperators(operator.second, function);
 
             //Tlhs x float -> Tlhs \ float <: Tlhs <: float
@@ -493,7 +496,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound(T_LHS, std.floatTypeSymbol);
             overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            function.simplified(set(T_LHS));
+            function.manuallySimplified(set(T_LHS), 0, false);
             addToOperators(operator.second, function);
 
             //Tlhs x {as num} -> Tlhs \ float <: Tlhs <: float
@@ -502,16 +505,16 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound(T_LHS, std.floatTypeSymbol);
             overloadBindings.addUpperTypeBound(T_RHS, std.asNumTypeSymbol);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            function.simplified(set(T_LHS));
+            function.manuallySimplified(set(T_LHS), 0, true);
             addToOperators(operator.second, function);
 
-            //Tlhs x float -> Tlhs \ float <: Tlhs <: float
+            //Tlhs x float -> Tlhs \ float <: Tlhs <: {as num}
             overloadBindings = createAssignOverloadBindings();
             overloadBindings.addLowerTypeBound(T_LHS, std.floatTypeSymbol);
             overloadBindings.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
             overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            function.simplified(set(T_LHS));
+            function.manuallySimplified(set(T_LHS), 0, true);
             addToOperators(operator.second, function);
 
             //Tlhs x {as T} -> Tlhs \ T <: Tlhs <: {as T}, T <: num
@@ -527,7 +530,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             overloadBindings.addUpperTypeBound("T", std.numTypeSymbol);
 
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
-            function.simplified(set(T_LHS, "T"));
+            function.manuallySimplified(set(T_LHS, "T"), 0, true);
             addToOperators(operator.second, function);
         }
 
@@ -537,7 +540,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_LHS, std.arrayTypeSymbol);
         overloadBindings.addUpperTypeBound(T_RHS, std.arrayTypeSymbol);
         function = symbolFactory.createFunctionType("+=", overloadBindings, std.binaryParameterIds);
-        function.simplified(set(T_LHS));
+        function.manuallySimplified(set(T_LHS), 0, false);
         addToOperators(TokenTypes.PlusAssign, function);
 
         createDivAssignOperator();
@@ -552,7 +555,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_LHS, std.floatOrFalse);
         overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
         function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
-        function.simplified(set(T_LHS));
+        function.manuallySimplified(set(T_LHS), 0, false);
         addToOperators(TokenTypes.DivideAssign, function);
 
         //Tlhs x float -> Tlhs \ (float | falseType) <: Tlhs <: {as num}
@@ -561,7 +564,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
         overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
         function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
-        function.simplified(set(T_LHS));
+        function.manuallySimplified(set(T_LHS), 0, true);
         addToOperators(TokenTypes.DivideAssign, function);
 
         //Tlhs x {as num} -> Tlhs \ (num | falseType) <: Tlhs <: {as num}
@@ -570,7 +573,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
         overloadBindings.addUpperTypeBound(T_RHS, std.asNumTypeSymbol);
         function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
-        function.simplified(set(T_LHS));
+        function.manuallySimplified(set(T_LHS), 0, true);
         addToOperators(TokenTypes.DivideAssign, function);
     }
 
@@ -578,10 +581,11 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         IFunctionType function;
 
         //int x int -> (int | false)
-        addToBinaryOperators(pair("%", TokenTypes.Modulo), std.intTypeSymbol, std.intTypeSymbol, std.intOrFalse);
+        addToBinaryOperators(pair("%", TokenTypes.Modulo), std.intTypeSymbol, std.intTypeSymbol, std.intOrFalse, false);
 
         //{as num} x {as num} -> (int | false)
-        addToBinaryOperators(pair("%", TokenTypes.Modulo), std.asNumTypeSymbol, std.asNumTypeSymbol, std.intOrFalse);
+        addToBinaryOperators(pair("%", TokenTypes.Modulo),
+                std.asNumTypeSymbol, std.asNumTypeSymbol, std.intOrFalse, true);
 
 
         //Tlhs x int -> Tlhs \ (int | falseType) <: Tlhs <: (int | falseType)
@@ -590,7 +594,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_LHS, std.intOrFalse);
         overloadBindings.addUpperTypeBound(T_RHS, std.intTypeSymbol);
         function = symbolFactory.createFunctionType("%=", overloadBindings, std.binaryParameterIds);
-        function.simplified(set(T_LHS));
+        function.manuallySimplified(set(T_LHS), 0, false);
         addToOperators(TokenTypes.ModuloAssign, function);
 
         //Tlhs x {as num} -> Tlhs \ (int | falseType) <: Tlhs <: {as num}
@@ -599,7 +603,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
         overloadBindings.addUpperTypeBound(T_RHS, std.asNumTypeSymbol);
         function = symbolFactory.createFunctionType("%=", overloadBindings, std.binaryParameterIds);
-        function.simplified(set(T_LHS));
+        function.manuallySimplified(set(T_LHS), 0, true);
         addToOperators(TokenTypes.ModuloAssign, function);
     }
 
@@ -638,7 +642,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             //T -> T
             IOverloadBindings overloadBindings = createUnaryTBindings();
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.unaryParameterId);
-            function.simplified(set("T"));
+            function.manuallySimplified(set("T"), 0, false);
             addToOperators(operator.second, function);
         }
 
@@ -661,7 +665,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             IOverloadBindings overloadBindings = createUnaryTBindings();
             overloadBindings.addUpperTypeBound("T", scalarOrNullOrObject);
             function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.unaryParameterId);
-            function.simplified(set("T"));
+            function.manuallySimplified(set("T"), 0, false);
             addToOperators(operator.second, function);
         }
     }
@@ -672,17 +676,17 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addLowerTypeBound("T", typeSymbol);
         overloadBindings.addUpperTypeBound("T", typeSymbol);
         function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.unaryParameterId);
-        function.simplified(set("T"));
+        function.manuallySimplified(set("T"), 0, false);
         addToOperators(operator.second, function);
     }
 
     private void defineDotOperator() {
         //string x string -> string
-        addToBinaryOperators(
-                pair(".", TokenTypes.Dot), std.stringTypeSymbol, std.stringTypeSymbol, std.stringTypeSymbol);
+        addToBinaryOperators(pair(".", TokenTypes.Dot),
+                std.stringTypeSymbol, std.stringTypeSymbol, std.stringTypeSymbol, false);
         //{as string} x {as string} -> string
-        addToBinaryOperators(
-                pair(".", TokenTypes.Dot), std.asStringTypeSymbol, std.asStringTypeSymbol, std.stringTypeSymbol);
+        addToBinaryOperators(pair(".", TokenTypes.Dot),
+                std.asStringTypeSymbol, std.asStringTypeSymbol, std.stringTypeSymbol, true);
 
         //Tlhs x string -> Tlhs \ string <: Tlhs <: string
         IOverloadBindings overloadBindings = createAssignOverloadBindings();
@@ -690,7 +694,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_LHS, std.stringTypeSymbol);
         overloadBindings.addUpperTypeBound(T_RHS, std.stringTypeSymbol);
         IFunctionType function = symbolFactory.createFunctionType(".=", overloadBindings, std.binaryParameterIds);
-        function.simplified(set(T_LHS));
+        function.manuallySimplified(set(T_LHS), 0, false);
         addToOperators(TokenTypes.DotAssign, function);
 
         //Tlhs x {as string} -> Tlhs \ string <: Tlhs <: {as string}
@@ -699,7 +703,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_LHS, std.asStringTypeSymbol);
         overloadBindings.addUpperTypeBound(T_RHS, std.asStringTypeSymbol);
         function = symbolFactory.createFunctionType(".=", overloadBindings, std.binaryParameterIds);
-        function.simplified(set(T_LHS));
+        function.manuallySimplified(set(T_LHS), 0, true);
         addToOperators(TokenTypes.DotAssign, function);
     }
 
@@ -708,7 +712,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //more precise would be: object x mixed -> bool
         //mixed x (object | string) -> bool
         Pair<String, Integer> instanceOf = pair("instanceof", TokenTypes.Instanceof);
-        addToBinaryOperators(instanceOf, std.mixedTypeSymbol, std.mixedTypeSymbol, std.boolTypeSymbol);
+        addToBinaryOperators(instanceOf, std.mixedTypeSymbol, std.mixedTypeSymbol, std.boolTypeSymbol, false);
     }
 
     private void defineCloneAndNewOperator() {
@@ -717,7 +721,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //T -> T
         IOverloadBindings collection = createUnaryTBindings();
         IFunctionType function = symbolFactory.createFunctionType("clone", collection, std.unaryParameterId);
-        function.simplified(set("T"));
+        function.manuallySimplified(set("T"), 0, false);
         addToOperators(TokenTypes.Clone, function);
 
         //TODO TINS-349 structural constraints
@@ -726,7 +730,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //T -> T
         collection = createUnaryTBindings();
         function = symbolFactory.createFunctionType("new", collection, std.unaryParameterId);
-        function.simplified(set("T"));
+        function.manuallySimplified(set("T"), 0, false);
         addToOperators(TokenTypes.New, function);
     }
 
@@ -734,7 +738,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //T -> T
         IOverloadBindings overloadBindings = createUnaryTBindings();
         IFunctionType function = symbolFactory.createFunctionType("@", overloadBindings, std.unaryParameterId);
-        function.simplified(set("T"));
+        function.manuallySimplified(set("T"), 0, false);
         addToOperators(TokenTypes.At, function);
 
         //TODO TINS-481 - rewrite casts in AST to function calls - remove the cast operator entirely
@@ -749,34 +753,34 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.bind(asT, Arrays.asList("T"));
         overloadBindings.addUpperTypeBound(T_RHS, asT);
         function = symbolFactory.createFunctionType("cast", overloadBindings, std.binaryParameterIds);
-        function.simplified(set("T"));
+        function.manuallySimplified(set("T"), 0, true);
         addToOperators(TokenTypes.CAST, function);
     }
 
     private void defineControlFlowOperators() {
         //TODO rstoll TINS-391 - Introduce void as own type
         //bool -> mixed
-        addToUnaryOperators(pair("if", TokenTypes.If), std.boolTypeSymbol, std.mixedTypeSymbol);
+        addToUnaryOperators(pair("if", TokenTypes.If), std.boolTypeSymbol, std.mixedTypeSymbol, false);
         //{as bool} -> void
-        addToUnaryOperators(pair("if", TokenTypes.If), std.asBoolTypeSymbol, std.mixedTypeSymbol);
+        addToUnaryOperators(pair("if", TokenTypes.If), std.asBoolTypeSymbol, std.mixedTypeSymbol, true);
 
         //TODO rstoll TINS-391 - Introduce void as own type
         //bool -> mixed
-        addToUnaryOperators(pair("while", TokenTypes.While), std.boolTypeSymbol, std.mixedTypeSymbol);
+        addToUnaryOperators(pair("while", TokenTypes.While), std.boolTypeSymbol, std.mixedTypeSymbol, false);
         //{as bool} -> void
-        addToUnaryOperators(pair("while", TokenTypes.While), std.asBoolTypeSymbol, std.mixedTypeSymbol);
+        addToUnaryOperators(pair("while", TokenTypes.While), std.asBoolTypeSymbol, std.mixedTypeSymbol, true);
 
         //TODO rstoll TINS-391 - Introduce void as own type
         //bool -> mixed
-        addToUnaryOperators(pair("do", TokenTypes.Do), std.boolTypeSymbol, std.mixedTypeSymbol);
+        addToUnaryOperators(pair("do", TokenTypes.Do), std.boolTypeSymbol, std.mixedTypeSymbol, false);
         //{as bool} -> void
-        addToUnaryOperators(pair("do", TokenTypes.Do), std.asBoolTypeSymbol, std.mixedTypeSymbol);
+        addToUnaryOperators(pair("do", TokenTypes.Do), std.asBoolTypeSymbol, std.mixedTypeSymbol, true);
 
         //TODO rstoll TINS-391 - Introduce void as own type
         //bool -> mixed
-        addToUnaryOperators(pair("for", TokenTypes.For), std.boolTypeSymbol, std.mixedTypeSymbol);
-        //~{as bool} -> void
-        addToUnaryOperators(pair("for", TokenTypes.For), std.asBoolTypeSymbol, std.mixedTypeSymbol);
+        addToUnaryOperators(pair("for", TokenTypes.For), std.boolTypeSymbol, std.mixedTypeSymbol, false);
+        //{as bool} -> void
+        addToUnaryOperators(pair("for", TokenTypes.For), std.asBoolTypeSymbol, std.mixedTypeSymbol, true);
 
         //key and value are switched
         //array x mixed x (int|string) -> mixed
@@ -810,17 +814,17 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addUpperTypeBound(T_RETURN, std.mixedTypeSymbol);
         IFunctionType function
                 = symbolFactory.createFunctionType("foreach", overloadBindings, Arrays.asList(arr, value, key));
-        function.simplified(emptySet);
+        function.manuallySimplified(emptySet, 0, false);
         addToOperators(TokenTypes.Foreach, function);
 
         //TODO rstoll TINS-391 - Introduce void as own type
         //scalar -> mixed
-        addToUnaryOperators(pair("switch", TokenTypes.Switch), std.scalarTypeSymbol, std.mixedTypeSymbol);
+        addToUnaryOperators(pair("switch", TokenTypes.Switch), std.scalarTypeSymbol, std.mixedTypeSymbol, false);
 
         //TODO rstoll TINS-394 introduce nothing as own type
         // Exception -> mixed
         ITypeSymbol exception = (ITypeSymbol) builtInSymbols.get("\\Exception");
-        addToUnaryOperators(pair("throw", TokenTypes.Throw), exception, std.mixedTypeSymbol);
+        addToUnaryOperators(pair("throw", TokenTypes.Throw), exception, std.mixedTypeSymbol, false);
 
         //Tlhs x Trhs -> Trhs \ Trhs :> Tlhs
         overloadBindings = symbolFactory.createOverloadBindings();
@@ -830,32 +834,33 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
         overloadBindings.addLowerRefBound(T_RHS, reference(T_LHS));
         function = symbolFactory.createFunctionType("catch", overloadBindings, std.binaryParameterIds);
-        function.simplified(set(T_LHS, T_RHS));
+        function.manuallySimplified(set(T_LHS, T_RHS), 0, false);
         addToOperators(TokenTypes.Catch, function);
     }
 
     private void defineGlobalFunctions() {
         //TODO rstoll TINS-391 - Introduce void as own type
         //string -> mixed
-        addToUnaryOperators(pair("echo", TokenTypes.Echo), std.stringTypeSymbol, std.mixedTypeSymbol);
+        addToUnaryOperators(pair("echo", TokenTypes.Echo), std.stringTypeSymbol, std.mixedTypeSymbol, false);
         //{as string} -> void
-        addToUnaryOperators(pair("echo", TokenTypes.Echo), std.asStringTypeSymbol, std.mixedTypeSymbol);
+        addToUnaryOperators(pair("echo", TokenTypes.Echo), std.asStringTypeSymbol, std.mixedTypeSymbol, true);
 
         //TODO rstoll TINS-391 - Introduce void as own type
         //int -> void
-        addToUnaryOperators(pair("exit", TokenTypes.Exit), std.intTypeSymbol, std.mixedTypeSymbol);
+        addToUnaryOperators(pair("exit", TokenTypes.Exit), std.intTypeSymbol, std.mixedTypeSymbol, false);
         //TODO rstoll TINS-391 - Introduce void as own type
         //string -> void
-        addToUnaryOperators(pair("exit", TokenTypes.Exit), std.stringTypeSymbol, std.mixedTypeSymbol);
+        addToUnaryOperators(pair("exit", TokenTypes.Exit), std.stringTypeSymbol, std.mixedTypeSymbol, false);
         //{as string} -> void
-        addToUnaryOperators(pair("exit", TokenTypes.Exit), std.asStringTypeSymbol, std.mixedTypeSymbol);
+        addToUnaryOperators(pair("exit", TokenTypes.Exit), std.asStringTypeSymbol, std.mixedTypeSymbol, true);
     }
 
     private void addToBinaryOperators(
             Pair<String, Integer> operator,
             ITypeSymbol leftBound,
             ITypeSymbol rightBound,
-            ITypeSymbol returnBound) {
+            ITypeSymbol returnBound,
+            boolean hasConvertibleParameterTypes) {
 
         IOverloadBindings collection = createFixBinaryBindings();
         collection.addUpperTypeBound(T_LHS, leftBound);
@@ -863,19 +868,22 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         collection.addLowerTypeBound(T_RETURN, returnBound);
 
         IFunctionType function = symbolFactory.createFunctionType(operator.first, collection, std.binaryParameterIds);
-        function.simplified(emptySet);
+        function.manuallySimplified(emptySet, 0, hasConvertibleParameterTypes);
         addToOperators(operator.second, function);
     }
 
     private void addToUnaryOperators(
-            Pair<String, Integer> operator, ITypeSymbol formalBound, ITypeSymbol returnBound) {
+            Pair<String, Integer> operator,
+            ITypeSymbol formalBound,
+            ITypeSymbol returnBound,
+            boolean hasConvertibleParameterTypes) {
 
         IOverloadBindings collection = createFixUnaryBindings();
         collection.addUpperTypeBound(T_EXPR, formalBound);
         collection.addLowerTypeBound(T_RETURN, returnBound);
 
         IFunctionType function = symbolFactory.createFunctionType(operator.first, collection, std.unaryParameterId);
-        function.simplified(emptySet);
+        function.manuallySimplified(emptySet, 0, hasConvertibleParameterTypes);
         addToOperators(operator.second, function);
     }
 
