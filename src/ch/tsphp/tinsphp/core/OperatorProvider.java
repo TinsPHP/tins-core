@@ -749,7 +749,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addLowerRefBound(T_RETURN, new TypeVariableReference(T_LHS));
         overloadBindings.addUpperTypeBound(T_RHS, std.mixedTypeSymbol);
         function = symbolFactory.createFunctionType("cast", overloadBindings, std.binaryParameterIds);
-        function.manuallySimplified(set("T"), 0, true);
+        function.manuallySimplified(set(T_LHS), 0, false);
         addToOperators(TokenTypes.CAST, function);
     }
 

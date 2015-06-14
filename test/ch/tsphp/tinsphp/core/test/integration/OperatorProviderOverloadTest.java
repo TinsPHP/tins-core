@@ -285,7 +285,7 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                         {"T -> T \\ (float | int | string) <: T <: (float | int | string)", false},
                         {"T -> T", false},
                 }},
-                {"cast", TokenTypes.CAST, new Object[][]{{"T x {as T} -> T", true}}},
+                {"cast", TokenTypes.CAST, new Object[][]{{"Tlhs x mixed -> Tlhs", false}}},
                 {"@", TokenTypes.At, new Object[][]{{"T -> T", false}}},
                 {"~", TokenTypes.BitwiseNot, new Object[][]{
                         {"int -> int", false},
