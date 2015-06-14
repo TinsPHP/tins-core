@@ -112,6 +112,7 @@ public class ConversionsProvider implements IConversionsProvider
                 {resourceTypeSymbol, stringTypeSymbol},
                 //array
                 {arrayTypeSymbol, boolTypeSymbol},
+                {arrayTypeSymbol, stringTypeSymbol},
                 //TODO rstoll TINS-332 introduce object pseudo type - change to object
                 {mixedTypeSymbol, boolTypeSymbol},
                 {mixedTypeSymbol, arrayTypeSymbol}

@@ -68,6 +68,7 @@ public class ConversionsProviderExplicitTest extends AConversionsProviderTest
                 {PrimitiveTypeNames.RESOURCE, PrimitiveTypeNames.STRING, ERelation.HAS_RELATION},
                 //array
                 {PrimitiveTypeNames.ARRAY, PrimitiveTypeNames.BOOL, ERelation.HAS_RELATION},
+                {PrimitiveTypeNames.ARRAY, PrimitiveTypeNames.STRING, ERelation.HAS_RELATION},
                 //TODO rstoll TINS-332 introduce object pseudo type - change to object
                 {PrimitiveTypeNames.MIXED, PrimitiveTypeNames.BOOL, ERelation.HAS_RELATION},
                 {PrimitiveTypeNames.MIXED, PrimitiveTypeNames.ARRAY, ERelation.HAS_RELATION},
