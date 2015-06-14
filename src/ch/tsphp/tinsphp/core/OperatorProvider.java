@@ -741,17 +741,13 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         function.manuallySimplified(set("T"), 0, false);
         addToOperators(TokenTypes.At, function);
 
-        //TODO TINS-481 - rewrite casts in AST to function calls - remove the cast operator entirely
-
-        //T x {as T} -> T
+        //Tlhs x mixed -> Treturn \ Treturn > Tlhs
         overloadBindings = symbolFactory.createOverloadBindings();
-        overloadBindings.addVariable(VAR_LHS, reference("T"));
+        overloadBindings.addVariable(VAR_LHS, reference(T_LHS));
         overloadBindings.addVariable(VAR_RHS, fixReference(T_RHS));
-        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference("T"));
-        //bind convertible type to T
-        IConvertibleTypeSymbol asT = symbolFactory.createConvertibleTypeSymbol();
-        overloadBindings.bind(asT, Arrays.asList("T"));
-        overloadBindings.addUpperTypeBound(T_RHS, asT);
+        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
+        overloadBindings.addLowerRefBound(T_RETURN, new TypeVariableReference(T_LHS));
+        overloadBindings.addUpperTypeBound(T_RHS, std.mixedTypeSymbol);
         function = symbolFactory.createFunctionType("cast", overloadBindings, std.binaryParameterIds);
         function.manuallySimplified(set("T"), 0, true);
         addToOperators(TokenTypes.CAST, function);
