@@ -61,6 +61,8 @@ public class ConversionsProviderExplicitTest extends AConversionsProviderTest
                 {PrimitiveTypeNames.FLOAT, PrimitiveTypeNames.STRING, ERelation.HAS_RELATION},
                 //string
                 {PrimitiveTypeNames.STRING, PrimitiveTypeNames.BOOL, ERelation.HAS_RELATION},
+                {PrimitiveTypeNames.STRING, PrimitiveTypeNames.INT, ERelation.HAS_RELATION},
+                {PrimitiveTypeNames.STRING, PrimitiveTypeNames.FLOAT, ERelation.HAS_RELATION},
                 {PrimitiveTypeNames.STRING, PrimitiveTypeNames.NUM, ERelation.HAS_RELATION},
                 //resource
                 {PrimitiveTypeNames.RESOURCE, PrimitiveTypeNames.BOOL, ERelation.HAS_RELATION},
@@ -72,10 +74,6 @@ public class ConversionsProviderExplicitTest extends AConversionsProviderTest
                 //TODO rstoll TINS-332 introduce object pseudo type - change to object
                 {PrimitiveTypeNames.MIXED, PrimitiveTypeNames.BOOL, ERelation.HAS_RELATION},
                 {PrimitiveTypeNames.MIXED, PrimitiveTypeNames.ARRAY, ERelation.HAS_RELATION},
-
-                //string to int and float are no longer supported
-                {PrimitiveTypeNames.STRING, PrimitiveTypeNames.INT, ERelation.HAS_NO_RELATION},
-                {PrimitiveTypeNames.STRING, PrimitiveTypeNames.FLOAT, ERelation.HAS_NO_RELATION},
 
                 //explicit conversions to float are no longer supported
                 {PrimitiveTypeNames.NULL_TYPE, PrimitiveTypeNames.FLOAT, ERelation.HAS_NO_RELATION},

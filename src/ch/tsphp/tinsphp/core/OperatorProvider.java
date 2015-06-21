@@ -425,12 +425,6 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             //float x float -> float
             addToBinaryOperators(operator, std.floatTypeSymbol, std.floatTypeSymbol, std.floatTypeSymbol, false);
 
-            //float x {as num} -> float
-            addToBinaryOperators(operator, std.floatTypeSymbol, std.asNumTypeSymbol, std.floatTypeSymbol, true);
-
-            //{as num} x float -> float
-            addToBinaryOperators(operator, std.asNumTypeSymbol, std.floatTypeSymbol, std.floatTypeSymbol, true);
-
             //{as T} x {as T} -> T \ T <: num
             IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
             overloadBindings.addVariable(VAR_LHS, fixReference(T_LHS));
@@ -455,15 +449,19 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
     }
 
     private void createDivOperator() {
+        //int x int -> (int | float | falseType)
+        addToBinaryOperators(pair("/", TokenTypes.Divide),
+                std.intTypeSymbol, std.intTypeSymbol, std.numOrFalse, false);
+
         //float x float -> (float | falseType)
         addToBinaryOperators(pair("/", TokenTypes.Divide),
                 std.floatTypeSymbol, std.floatTypeSymbol, std.floatOrFalse, false);
 
-        //float x {as num} -> (float | falseType)
+        //float x {as float} -> (float | falseType)
         addToBinaryOperators(pair("/", TokenTypes.Divide),
                 std.floatTypeSymbol, std.asNumTypeSymbol, std.floatOrFalse, true);
 
-        //{as num} x float -> (float | falseType)
+        //{as float} x float -> (float | falseType)
         addToBinaryOperators(pair("/", TokenTypes.Divide),
                 std.asNumTypeSymbol, std.floatTypeSymbol, std.floatOrFalse, true);
 
@@ -554,6 +552,15 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         overloadBindings.addLowerTypeBound(T_LHS, std.floatOrFalse);
         overloadBindings.addUpperTypeBound(T_LHS, std.floatOrFalse);
         overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
+        function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
+        function.manuallySimplified(set(T_LHS), 0, false);
+        addToOperators(TokenTypes.DivideAssign, function);
+
+        //Tlhs x num -> Tlhs \ (num | falseType) <: Tlhs <: (num | falseType)
+        overloadBindings = createAssignOverloadBindings();
+        overloadBindings.addLowerTypeBound(T_LHS, std.numOrFalse);
+        overloadBindings.addUpperTypeBound(T_LHS, std.numOrFalse);
+        overloadBindings.addUpperTypeBound(T_RHS, std.numTypeSymbol);
         function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
         function.manuallySimplified(set(T_LHS), 0, false);
         addToOperators(TokenTypes.DivideAssign, function);

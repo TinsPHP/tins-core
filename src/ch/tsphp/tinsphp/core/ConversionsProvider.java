@@ -105,6 +105,8 @@ public class ConversionsProvider implements IConversionsProvider
                 {floatTypeSymbol, stringTypeSymbol},
                 //string
                 {stringTypeSymbol, boolTypeSymbol},
+                {stringTypeSymbol, intTypeSymbol},
+                {stringTypeSymbol, floatTypeSymbol},
                 {stringTypeSymbol, numTypeSymbol},
                 //resource
                 {resourceTypeSymbol, boolTypeSymbol},

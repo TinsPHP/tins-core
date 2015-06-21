@@ -64,11 +64,13 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
         try {
             assertThat(overloadSignatures, containsInAnyOrder(signatures));
         } catch (AssertionError ex) {
-            System.err.println(operatorName + " failed. Overloads where:");
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(operatorName).append(" failed. Overloads where:\n");
             for (String overloadSignature : overloadSignatures) {
-                System.err.println(overloadSignature);
+                stringBuilder.append(overloadSignature).append("\n");
             }
-            throw ex;
+            stringBuilder.append(ex.getMessage());
+            Assert.fail(stringBuilder.toString());
         }
         for (Object[] signatureAndFlag : signaturesAndFlag) {
             if (overloadSignaturesWithFlag.get((String) signatureAndFlag[0]) != (Boolean) signatureAndFlag[1]) {
@@ -139,6 +141,8 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 }},
                 {"/=", TokenTypes.DivideAssign, new Object[][]{
                         {"Tlhs x float -> Tlhs \\ (falseType | float) <: Tlhs <: (falseType | float)", false},
+                        {"Tlhs x (float | int) -> Tlhs "
+                                + "\\ (falseType | float | int) <: Tlhs <: (falseType | float | int)", false},
                         {"Tlhs x float -> Tlhs \\ (falseType | float) <: Tlhs <: {as (float | int)}", true},
                         {"Tlhs x {as (float | int)} -> Tlhs "
                                 + "\\ (falseType | float | int) <: Tlhs <: {as (float | int)}", true},
@@ -234,16 +238,12 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"+", TokenTypes.Plus, new Object[][]{
                         {"int x int -> int", false},
                         {"float x float -> float", false},
-                        {"float x {as (float | int)} -> float", true},
-                        {"{as (float | int)} x float -> float", true},
                         {"{as T} x {as T} -> T \\ T <: (float | int)", true},
                         {"array x array -> array", false},
                 }},
                 {"-", TokenTypes.Minus, new Object[][]{
                         {"int x int -> int", false},
                         {"float x float -> float", false},
-                        {"float x {as (float | int)} -> float", true},
-                        {"{as (float | int)} x float -> float", true},
                         {"{as T} x {as T} -> T \\ T <: (float | int)", true},
                 }},
                 {".", TokenTypes.Dot, new Object[][]{
@@ -253,11 +253,10 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"*", TokenTypes.Multiply, new Object[][]{
                         {"int x int -> int", false},
                         {"float x float -> float", false},
-                        {"float x {as (float | int)} -> float", true},
-                        {"{as (float | int)} x float -> float", true},
                         {"{as T} x {as T} -> T \\ T <: (float | int)", true},
                 }},
                 {"/", TokenTypes.Divide, new Object[][]{
+                        {"int x int -> (falseType | float | int)", false},
                         {"float x float -> (falseType | float)", false},
                         {"float x {as (float | int)} -> (falseType | float)", true},
                         {"{as (float | int)} x float -> (falseType | float)", true},
