@@ -51,6 +51,9 @@ public abstract class ATest
         typeHelper = symbolsInitialiser.getTypeHelper();
         symbolFactory = symbolsInitialiser.getSymbolFactory();
         primitiveTypes = getPrimitiveTypes(symbolFactory);
+        conversionsProvider = createConversionsProvider(primitiveTypes);
+        typeHelper.setConversionsProvider(conversionsProvider);
+
         std = createStandardConstraintAndVariables();
         BuiltInSymbolsProvider provider = new BuiltInSymbolsProvider(
                 new GeneratorHelper(astHelper, symbolFactory, primitiveTypes),
@@ -58,9 +61,6 @@ public abstract class ATest
                 typeHelper,
                 std);
         builtInSymbols = provider.getSymbols();
-
-        conversionsProvider = createConversionsProvider(primitiveTypes);
-        typeHelper.setConversionsProvider(conversionsProvider);
     }
 
     private HardCodedSymbolsInitialiser createSymbolsInitialiser() {

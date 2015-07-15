@@ -44,6 +44,9 @@ public class HardCodedCoreInitialiser implements ICoreInitialiser
         Map<String, ITypeSymbol> primitiveTypes = new PrimitiveTypesProvider(symbolFactory).getTypes();
         symbolFactory.setMixedTypeSymbol(primitiveTypes.get(PrimitiveTypeNames.MIXED));
 
+        IConversionsProvider conversionsProvider = new ConversionsProvider(primitiveTypes);
+        typeHelper.setConversionsProvider(conversionsProvider);
+
         IGeneratorHelper generatorHelper = new GeneratorHelper(astHelper, symbolFactory, primitiveTypes);
         StandardConstraintAndVariables std = new StandardConstraintAndVariables(symbolFactory, primitiveTypes);
 
@@ -55,11 +58,8 @@ public class HardCodedCoreInitialiser implements ICoreInitialiser
         coreSymbolResolver = new CoreSymbolResolver(
                 builtInSymbolProvider.getSymbols(), superGlobalSymbolResolver.getSymbols());
 
-        IConversionsProvider conversionsProvider = new ConversionsProvider(primitiveTypes);
-        typeHelper.setConversionsProvider(conversionsProvider);
         IOperatorsProvider operatorsProvider = new OperatorProvider(
                 symbolFactory, typeHelper, std, builtInSymbolProvider.getSymbols());
-
         core = new Core(primitiveTypes, operatorsProvider.getOperators());
     }
 

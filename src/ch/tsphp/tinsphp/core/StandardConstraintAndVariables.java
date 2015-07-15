@@ -40,13 +40,16 @@ public class StandardConstraintAndVariables
     public final ITypeSymbol arrayTypeSymbol;
     public final ITypeSymbol mixedTypeSymbol;
 
+    public final IConvertibleTypeSymbol asBoolTypeSymbol;
+    public final IConvertibleTypeSymbol asNumTypeSymbol;
+    public final IConvertibleTypeSymbol asIntTypeSymbol;
+    public final IConvertibleTypeSymbol asFloatTypeSymbol;
+    public final IConvertibleTypeSymbol asStringTypeSymbol;
+
     public final IUnionTypeSymbol intOrFalse;
     public final IUnionTypeSymbol floatOrFalse;
     public final IUnionTypeSymbol numOrFalse;
-
-    public final IConvertibleTypeSymbol asBoolTypeSymbol;
-    public final IConvertibleTypeSymbol asNumTypeSymbol;
-    public final IConvertibleTypeSymbol asStringTypeSymbol;
+    public final IUnionTypeSymbol arrayOrAsInt;
 
     public final List<IVariable> binaryParameterIds;
     public final List<IVariable> unaryParameterId;
@@ -67,6 +70,30 @@ public class StandardConstraintAndVariables
         arrayTypeSymbol = primitiveType.get(PrimitiveTypeNames.ARRAY);
         mixedTypeSymbol = primitiveType.get(PrimitiveTypeNames.MIXED);
 
+        asBoolTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
+        asBoolTypeSymbol.addLowerTypeBound(boolTypeSymbol);
+        asBoolTypeSymbol.addUpperTypeBound(boolTypeSymbol);
+
+        asIntTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
+        asIntTypeSymbol.addLowerTypeBound(intTypeSymbol);
+        asIntTypeSymbol.addUpperTypeBound(intTypeSymbol);
+
+        asFloatTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
+        asFloatTypeSymbol.addLowerTypeBound(floatTypeSymbol);
+        asFloatTypeSymbol.addUpperTypeBound(floatTypeSymbol);
+
+        asNumTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
+        asNumTypeSymbol.addLowerTypeBound(numTypeSymbol);
+        asNumTypeSymbol.addUpperTypeBound(numTypeSymbol);
+
+        asStringTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
+        asStringTypeSymbol.addLowerTypeBound(stringTypeSymbol);
+        asStringTypeSymbol.addUpperTypeBound(stringTypeSymbol);
+
+        arrayOrAsInt = symbolFactory.createUnionTypeSymbol();
+        arrayOrAsInt.addTypeSymbol(arrayTypeSymbol);
+        arrayOrAsInt.addTypeSymbol(asIntTypeSymbol);
+
         intOrFalse = symbolFactory.createUnionTypeSymbol();
         intOrFalse.addTypeSymbol(intTypeSymbol);
         intOrFalse.addTypeSymbol(falseTypeSymbol);
@@ -78,18 +105,6 @@ public class StandardConstraintAndVariables
         numOrFalse = symbolFactory.createUnionTypeSymbol();
         numOrFalse.addTypeSymbol(numTypeSymbol);
         numOrFalse.addTypeSymbol(falseTypeSymbol);
-
-        asBoolTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
-        asBoolTypeSymbol.addLowerTypeBound(boolTypeSymbol);
-        asBoolTypeSymbol.addUpperTypeBound(boolTypeSymbol);
-
-        asNumTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
-        asNumTypeSymbol.addLowerTypeBound(numTypeSymbol);
-        asNumTypeSymbol.addUpperTypeBound(numTypeSymbol);
-
-        asStringTypeSymbol = symbolFactory.createConvertibleTypeSymbol();
-        asStringTypeSymbol.addLowerTypeBound(stringTypeSymbol);
-        asStringTypeSymbol.addUpperTypeBound(stringTypeSymbol);
 
         lhs = symbolFactory.createVariable(VAR_LHS);
         rhs = symbolFactory.createVariable(VAR_RHS);

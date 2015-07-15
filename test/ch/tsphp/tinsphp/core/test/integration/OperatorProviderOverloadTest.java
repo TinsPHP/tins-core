@@ -120,59 +120,59 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {"+=", TokenTypes.PlusAssign, new Object[][]{
                         {"Tlhs x int -> Tlhs \\ int <: Tlhs <: int", false},
                         {"Tlhs x float -> Tlhs \\ float <: Tlhs <: float", false},
-                        {"Tlhs x {as (float | int)} -> Tlhs \\ float <: Tlhs <: float", true},
-                        {"Tlhs x float -> Tlhs \\ float <: Tlhs <: {as (float | int)}", true},
+//                        {"Tlhs x {as (float | int)} -> Tlhs \\ float <: Tlhs <: float", true},
+//                        {"Tlhs x float -> Tlhs \\ float <: Tlhs <: {as (float | int)}", true},
                         {"Tlhs x {as T} -> Tlhs \\ T <: Tlhs <: {as T}, T <: (float | int)", true},
                         {"Tlhs x array -> Tlhs \\ array <: Tlhs <: array", false},
                 }},
                 {"-=", TokenTypes.MinusAssign, new Object[][]{
                         {"Tlhs x int -> Tlhs \\ int <: Tlhs <: int", false},
                         {"Tlhs x float -> Tlhs \\ float <: Tlhs <: float", false},
-                        {"Tlhs x {as (float | int)} -> Tlhs \\ float <: Tlhs <: float", true},
-                        {"Tlhs x float -> Tlhs \\ float <: Tlhs <: {as (float | int)}", true},
+//                        {"Tlhs x {as (float | int)} -> Tlhs \\ float <: Tlhs <: float", true},
+//                        {"Tlhs x float -> Tlhs \\ float <: Tlhs <: {as (float | int)}", true},
                         {"Tlhs x {as T} -> Tlhs \\ T <: Tlhs <: {as T}, T <: (float | int)", true},
                 }},
                 {"*=", TokenTypes.MultiplyAssign, new Object[][]{
                         {"Tlhs x int -> Tlhs \\ int <: Tlhs <: int", false},
                         {"Tlhs x float -> Tlhs \\ float <: Tlhs <: float", false},
-                        {"Tlhs x {as (float | int)} -> Tlhs \\ float <: Tlhs <: float", true},
-                        {"Tlhs x float -> Tlhs \\ float <: Tlhs <: {as (float | int)}", true},
+//                        {"Tlhs x {as (float | int)} -> Tlhs \\ float <: Tlhs <: float", true},
+//                        {"Tlhs x float -> Tlhs \\ float <: Tlhs <: {as (float | int)}", true},
                         {"Tlhs x {as T} -> Tlhs \\ T <: Tlhs <: {as T}, T <: (float | int)", true},
                 }},
                 {"/=", TokenTypes.DivideAssign, new Object[][]{
                         {"Tlhs x float -> Tlhs \\ (falseType | float) <: Tlhs <: (falseType | float)", false},
-                        {"Tlhs x (float | int) -> Tlhs "
-                                + "\\ (falseType | float | int) <: Tlhs <: (falseType | float | int)", false},
+//                        {"Tlhs x (float | int) -> Tlhs "
+//                                + "\\ (falseType | float | int) <: Tlhs <: (falseType | float | int)", false},
                         {"Tlhs x float -> Tlhs \\ (falseType | float) <: Tlhs <: {as (float | int)}", true},
                         {"Tlhs x {as (float | int)} -> Tlhs "
                                 + "\\ (falseType | float | int) <: Tlhs <: {as (float | int)}", true},
                 }},
                 {"%=", TokenTypes.ModuloAssign, new Object[][]{
                         {"Tlhs x int -> Tlhs \\ (falseType | int) <: Tlhs <: (falseType | int)", false},
-                        {"Tlhs x {as (float | int)} -> Tlhs \\ (falseType | int) <: Tlhs <: {as (float | int)}", true},
+                        {"Tlhs x (array | {as int}) -> Tlhs \\ (falseType | int) <: Tlhs <: (array | {as int})", true},
                 }},
                 {"&=", TokenTypes.BitwiseAndAssign, new Object[][]{
                         {"Tlhs x int -> Tlhs \\ int <: Tlhs <: int", false},
-                        {"Tlhs x {as (float | int)} -> Tlhs \\ int <: Tlhs <: {as (float | int)}", true},
+                        {"Tlhs x (array | {as int}) -> Tlhs \\ int <: Tlhs <: (array | {as int})", true},
                         {"Tlhs x string -> Tlhs \\ string <: Tlhs <: string", false},
                 }},
                 {"^=", TokenTypes.BitwiseXorAssign, new Object[][]{
                         {"Tlhs x int -> Tlhs \\ int <: Tlhs <: int", false},
-                        {"Tlhs x {as (float | int)} -> Tlhs \\ int <: Tlhs <: {as (float | int)}", true},
+                        {"Tlhs x (array | {as int}) -> Tlhs \\ int <: Tlhs <: (array | {as int})", true},
                         {"Tlhs x string -> Tlhs \\ string <: Tlhs <: string", false},
                 }},
                 {"|=", TokenTypes.BitwiseOrAssign, new Object[][]{
                         {"Tlhs x int -> Tlhs \\ int <: Tlhs <: int", false},
-                        {"Tlhs x {as (float | int)} -> Tlhs \\ int <: Tlhs <: {as (float | int)}", true},
+                        {"Tlhs x (array | {as int}) -> Tlhs \\ int <: Tlhs <: (array | {as int})", true},
                         {"Tlhs x string -> Tlhs \\ string <: Tlhs <: string", false},
                 }},
                 {">>=", TokenTypes.ShiftLeftAssign, new Object[][]{
                         {"Tlhs x int -> Tlhs \\ int <: Tlhs <: int", false},
-                        {"Tlhs x {as (float | int)} -> Tlhs \\ int <: Tlhs <: {as (float | int)}", true},
+                        {"Tlhs x (array | {as int}) -> Tlhs \\ int <: Tlhs <: (array | {as int})", true},
                 }},
                 {"<<=", TokenTypes.ShiftRightAssign, new Object[][]{
                         {"Tlhs x int -> Tlhs \\ int <: Tlhs <: int", false},
-                        {"Tlhs x {as (float | int)} -> Tlhs \\ int <: Tlhs <: {as (float | int)}", true},
+                        {"Tlhs x (array | {as int}) -> Tlhs \\ int <: Tlhs <: (array | {as int})", true},
                 }},
                 {".=", TokenTypes.DotAssign, new Object[][]{
                         {"Tlhs x string -> Tlhs \\ string <: Tlhs <: string", false},
@@ -206,17 +206,17 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 }},
                 {"|", TokenTypes.BitwiseOr, new Object[][]{
                         {"int x int -> int", false},
-                        {"{as (float | int)} x {as (float | int)} -> int", true},
+                        {"(array | {as int}) x (array | {as int}) -> int", true},
                         {"string x string -> string", false},
                 }},
                 {"^", TokenTypes.BitwiseXor, new Object[][]{
                         {"int x int -> int", false},
-                        {"{as (float | int)} x {as (float | int)} -> int", true},
+                        {"(array | {as int}) x (array | {as int}) -> int", true},
                         {"string x string -> string", false},
                 }},
                 {"&", TokenTypes.BitwiseAnd, new Object[][]{
                         {"int x int -> int", false},
-                        {"{as (float | int)} x {as (float | int)} -> int", true},
+                        {"(array | {as int}) x (array | {as int}) -> int", true},
                         {"string x string -> string", false},
                 }},
                 {"==", TokenTypes.Equal, new Object[][]{{"mixed x mixed -> (falseType | trueType)", false}}},
@@ -229,11 +229,11 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 {">=", TokenTypes.GreaterEqualThan, new Object[][]{{"mixed x mixed -> (falseType | trueType)", false}}},
                 {"<<", TokenTypes.ShiftLeft, new Object[][]{
                         {"int x int -> int", false},
-                        {"{as (float | int)} x {as (float | int)} -> int", true}
+                        {"(array | {as int}) x (array | {as int}) -> int", true}
                 }},
                 {">>", TokenTypes.ShiftRight, new Object[][]{
                         {"int x int -> int", false},
-                        {"{as (float | int)} x {as (float | int)} -> int", true}
+                        {"(array | {as int}) x (array | {as int}) -> int", true}
                 }},
                 {"+", TokenTypes.Plus, new Object[][]{
                         {"int x int -> int", false},
@@ -264,7 +264,7 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                 }},
                 {"%", TokenTypes.Modulo, new Object[][]{
                         {"int x int -> (falseType | int)", false},
-                        {"{as (float | int)} x {as (float | int)} -> (falseType | int)", true},
+                        {"(array | {as int}) x (array | {as int}) -> (falseType | int)", true},
                 }},
                 {"instanceof", TokenTypes.Instanceof, new Object[][]{
                         {"mixed x mixed -> (falseType | trueType)", false}
