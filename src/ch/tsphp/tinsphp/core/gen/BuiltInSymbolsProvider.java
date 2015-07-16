@@ -7,8 +7,8 @@
 package ch.tsphp.tinsphp.core.gen;
 
 import ch.tsphp.common.symbols.ISymbol;
+import ch.tsphp.tinsphp.common.inference.constraints.IBindingCollection;
 import ch.tsphp.tinsphp.common.inference.constraints.IFunctionType;
-import ch.tsphp.tinsphp.common.inference.constraints.IOverloadBindings;
 import ch.tsphp.tinsphp.common.symbols.IClassTypeSymbol;
 import ch.tsphp.tinsphp.common.symbols.IMinimalMethodSymbol;
 import ch.tsphp.tinsphp.common.symbols.ISymbolFactory;
@@ -57,12 +57,12 @@ public class BuiltInSymbolsProvider extends AProvider implements ISymbolProvider
         Map<String, ISymbol> symbols = new HashMap<>();
         IUnionTypeSymbol unionTypeSymbol;
         IFunctionType function;
-        IOverloadBindings collection;
+        IBindingCollection collection;
         IVariableSymbol constant;
         IMinimalMethodSymbol methodSymbol;
 
         //string x string -> (int | false)
-        collection = createFixBinaryBindings();
+        collection = createFixBinaryBindingCollection();
         collection.addUpperTypeBound(T_LHS, std.stringTypeSymbol);
         collection.addUpperTypeBound(T_RHS, std.stringTypeSymbol);
         collection.addLowerTypeBound(T_RETURN, std.intOrFalse);

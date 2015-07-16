@@ -9,8 +9,8 @@ package ch.tsphp.tinsphp.core;
 import ch.tsphp.common.symbols.ISymbol;
 import ch.tsphp.common.symbols.ITypeSymbol;
 import ch.tsphp.tinsphp.common.gen.TokenTypes;
+import ch.tsphp.tinsphp.common.inference.constraints.IBindingCollection;
 import ch.tsphp.tinsphp.common.inference.constraints.IFunctionType;
-import ch.tsphp.tinsphp.common.inference.constraints.IOverloadBindings;
 import ch.tsphp.tinsphp.common.inference.constraints.IVariable;
 import ch.tsphp.tinsphp.common.inference.constraints.TypeVariableReference;
 import ch.tsphp.tinsphp.common.symbols.IConvertibleTypeSymbol;
@@ -211,9 +211,9 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         IFunctionType function;
 
         //Tlhs x Trhs -> Tlhs \ Trhs <: Tlhs
-        IOverloadBindings overloadBindings = createAssignOverloadBindings();
-        overloadBindings.addLowerRefBound(T_LHS, new TypeVariableReference(T_RHS));
-        function = symbolFactory.createFunctionType("=", overloadBindings, std.binaryParameterIds);
+        IBindingCollection bindingCollection = createAssignBindingCollection();
+        bindingCollection.addLowerRefBound(T_LHS, new TypeVariableReference(T_RHS));
+        function = symbolFactory.createFunctionType("=", bindingCollection, std.binaryParameterIds);
         function.manuallySimplified(set(T_LHS, T_RHS), 0, false);
         addToOperators(TokenTypes.Assign, function);
 
@@ -277,20 +277,20 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
         for (Pair<String, Integer> operator : intResultingAssignOperators) {
             //Tlhs x int -> Tlhs \ int <: Tlhs <: int
-            IOverloadBindings overloadBindings = createAssignOverloadBindings();
-            overloadBindings.addLowerTypeBound(T_LHS, std.intTypeSymbol);
-            overloadBindings.addUpperTypeBound(T_LHS, std.intTypeSymbol);
-            overloadBindings.addUpperTypeBound(T_RHS, std.intTypeSymbol);
-            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            IBindingCollection bindingCollection = createAssignBindingCollection();
+            bindingCollection.addLowerTypeBound(T_LHS, std.intTypeSymbol);
+            bindingCollection.addUpperTypeBound(T_LHS, std.intTypeSymbol);
+            bindingCollection.addUpperTypeBound(T_RHS, std.intTypeSymbol);
+            function = symbolFactory.createFunctionType(operator.first, bindingCollection, std.binaryParameterIds);
             function.manuallySimplified(set(T_LHS), 0, false);
             addToOperators(operator.second, function);
 
             //Tlhs x (array | {as int}) -> Tlhs \ int <: Tlhs <: (array | {as int})
-            overloadBindings = createAssignOverloadBindings();
-            overloadBindings.addLowerTypeBound(T_LHS, std.intTypeSymbol);
-            overloadBindings.addUpperTypeBound(T_LHS, std.arrayOrAsInt);
-            overloadBindings.addUpperTypeBound(T_RHS, std.arrayOrAsInt);
-            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            bindingCollection = createAssignBindingCollection();
+            bindingCollection.addLowerTypeBound(T_LHS, std.intTypeSymbol);
+            bindingCollection.addUpperTypeBound(T_LHS, std.arrayOrAsInt);
+            bindingCollection.addUpperTypeBound(T_RHS, std.arrayOrAsInt);
+            function = symbolFactory.createFunctionType(operator.first, bindingCollection, std.binaryParameterIds);
             function.manuallySimplified(set(T_LHS), 0, true);
             addToOperators(operator.second, function);
         }
@@ -303,11 +303,11 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         };
         for (Pair<String, Integer> operator : stringResultingAssignOperators) {
             //Tlhs x string -> Tlhs \ string <: Tlhs <: string
-            IOverloadBindings overloadBindings = createAssignOverloadBindings();
-            overloadBindings.addLowerTypeBound(T_LHS, std.stringTypeSymbol);
-            overloadBindings.addUpperTypeBound(T_LHS, std.stringTypeSymbol);
-            overloadBindings.addUpperTypeBound(T_RHS, std.stringTypeSymbol);
-            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            IBindingCollection bindingCollection = createAssignBindingCollection();
+            bindingCollection.addLowerTypeBound(T_LHS, std.stringTypeSymbol);
+            bindingCollection.addUpperTypeBound(T_LHS, std.stringTypeSymbol);
+            bindingCollection.addUpperTypeBound(T_RHS, std.stringTypeSymbol);
+            function = symbolFactory.createFunctionType(operator.first, bindingCollection, std.binaryParameterIds);
             function.manuallySimplified(set(T_LHS), 0, false);
             addToOperators(operator.second, function);
         }
@@ -345,60 +345,60 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
         //false x mixed x Telse -> Telse
         //expanded: false x mixed x Telse -> Treturn \ Treturn :> Telse
-        IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
-        overloadBindings.addVariable(varCondition, fixReference(tCondition));
-        overloadBindings.addVariable(varIf, fixReference(tIf));
-        overloadBindings.addVariable(varElse, reference(tElse));
-        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
-        overloadBindings.addUpperTypeBound(tCondition, std.falseTypeSymbol);
-        overloadBindings.addUpperTypeBound(tIf, std.mixedTypeSymbol);
-        overloadBindings.addLowerRefBound(T_RETURN, reference(tElse));
-        IFunctionType function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
+        IBindingCollection bindingCollection = symbolFactory.createBindingCollection();
+        bindingCollection.addVariable(varCondition, fixReference(tCondition));
+        bindingCollection.addVariable(varIf, fixReference(tIf));
+        bindingCollection.addVariable(varElse, reference(tElse));
+        bindingCollection.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
+        bindingCollection.addUpperTypeBound(tCondition, std.falseTypeSymbol);
+        bindingCollection.addUpperTypeBound(tIf, std.mixedTypeSymbol);
+        bindingCollection.addLowerRefBound(T_RETURN, reference(tElse));
+        IFunctionType function = symbolFactory.createFunctionType("?", bindingCollection, parameters);
         function.manuallySimplified(set(tElse, T_RETURN), 0, false);
         addToOperators(TokenTypes.QuestionMark, function);
 
 
         //true x Tif x mixed -> Tif
         //expanded: true x Tif x mixed -> Treturn \ Treturn :> Tif
-        overloadBindings = symbolFactory.createOverloadBindings();
-        overloadBindings.addVariable(varCondition, fixReference(tCondition));
-        overloadBindings.addVariable(varIf, reference(tIf));
-        overloadBindings.addVariable(varElse, fixReference(tElse));
-        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
-        overloadBindings.addUpperTypeBound(tCondition, std.trueTypeSymbol);
-        overloadBindings.addUpperTypeBound(tElse, std.mixedTypeSymbol);
-        overloadBindings.addLowerRefBound(T_RETURN, reference(tIf));
-        function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
+        bindingCollection = symbolFactory.createBindingCollection();
+        bindingCollection.addVariable(varCondition, fixReference(tCondition));
+        bindingCollection.addVariable(varIf, reference(tIf));
+        bindingCollection.addVariable(varElse, fixReference(tElse));
+        bindingCollection.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
+        bindingCollection.addUpperTypeBound(tCondition, std.trueTypeSymbol);
+        bindingCollection.addUpperTypeBound(tElse, std.mixedTypeSymbol);
+        bindingCollection.addLowerRefBound(T_RETURN, reference(tIf));
+        function = symbolFactory.createFunctionType("?", bindingCollection, parameters);
         function.manuallySimplified(set(tIf, T_RETURN), 0, false);
         addToOperators(TokenTypes.QuestionMark, function);
 
 
         //bool x Tif x Telse -> (Tif | Telse)
         //expanded: bool x Tif x Telse -> Treturn \ Treturn :> Tif, Treturn :> Telse
-        overloadBindings = symbolFactory.createOverloadBindings();
-        overloadBindings.addVariable(varCondition, fixReference(tCondition));
-        overloadBindings.addVariable(varIf, reference(tIf));
-        overloadBindings.addVariable(varElse, reference(tElse));
-        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
-        overloadBindings.addUpperTypeBound(tCondition, std.boolTypeSymbol);
-        overloadBindings.addLowerRefBound(T_RETURN, reference(tIf));
-        overloadBindings.addLowerRefBound(T_RETURN, reference(tElse));
-        function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
+        bindingCollection = symbolFactory.createBindingCollection();
+        bindingCollection.addVariable(varCondition, fixReference(tCondition));
+        bindingCollection.addVariable(varIf, reference(tIf));
+        bindingCollection.addVariable(varElse, reference(tElse));
+        bindingCollection.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
+        bindingCollection.addUpperTypeBound(tCondition, std.boolTypeSymbol);
+        bindingCollection.addLowerRefBound(T_RETURN, reference(tIf));
+        bindingCollection.addLowerRefBound(T_RETURN, reference(tElse));
+        function = symbolFactory.createFunctionType("?", bindingCollection, parameters);
         function.manuallySimplified(set(tIf, tElse, T_RETURN), 0, false);
         addToOperators(TokenTypes.QuestionMark, function);
 
 
         //{as bool} x Tif x Telse -> (Tif | Telse)
         //expanded: {as bool} x Tif x Telse -> Treturn \ Treturn :> Tif, Treturn :> Telse
-        overloadBindings = symbolFactory.createOverloadBindings();
-        overloadBindings.addVariable(varCondition, fixReference(tCondition));
-        overloadBindings.addVariable(varIf, reference(tIf));
-        overloadBindings.addVariable(varElse, reference(tElse));
-        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
-        overloadBindings.addUpperTypeBound(tCondition, std.asBoolTypeSymbol);
-        overloadBindings.addLowerRefBound(T_RETURN, reference(tIf));
-        overloadBindings.addLowerRefBound(T_RETURN, reference(tElse));
-        function = symbolFactory.createFunctionType("?", overloadBindings, parameters);
+        bindingCollection = symbolFactory.createBindingCollection();
+        bindingCollection.addVariable(varCondition, fixReference(tCondition));
+        bindingCollection.addVariable(varIf, reference(tIf));
+        bindingCollection.addVariable(varElse, reference(tElse));
+        bindingCollection.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
+        bindingCollection.addUpperTypeBound(tCondition, std.asBoolTypeSymbol);
+        bindingCollection.addLowerRefBound(T_RETURN, reference(tIf));
+        bindingCollection.addLowerRefBound(T_RETURN, reference(tElse));
+        function = symbolFactory.createFunctionType("?", bindingCollection, parameters);
         function.manuallySimplified(set(tIf, tElse, T_RETURN), 0, true);
         addToOperators(TokenTypes.QuestionMark, function);
     }
@@ -428,17 +428,17 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             addToBinaryOperators(operator, std.floatTypeSymbol, std.floatTypeSymbol, std.floatTypeSymbol, false);
 
             //{as T} x {as T} -> T \ T <: num
-            IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
-            overloadBindings.addVariable(VAR_LHS, fixReference(T_LHS));
-            overloadBindings.addVariable(VAR_RHS, fixReference(T_RHS));
-            overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference("T"));
+            IBindingCollection bindingCollection = symbolFactory.createBindingCollection();
+            bindingCollection.addVariable(VAR_LHS, fixReference(T_LHS));
+            bindingCollection.addVariable(VAR_RHS, fixReference(T_RHS));
+            bindingCollection.addVariable(RETURN_VARIABLE_NAME, reference("T"));
             //bind convertible type to Treturn
             IConvertibleTypeSymbol asT = symbolFactory.createConvertibleTypeSymbol();
-            overloadBindings.bind(asT, Arrays.asList("T"));
-            overloadBindings.addUpperTypeBound(T_LHS, asT);
-            overloadBindings.addUpperTypeBound(T_RHS, asT);
-            overloadBindings.addUpperTypeBound("T", std.numTypeSymbol);
-            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            bindingCollection.bind(asT, Arrays.asList("T"));
+            bindingCollection.addUpperTypeBound(T_LHS, asT);
+            bindingCollection.addUpperTypeBound(T_RHS, asT);
+            bindingCollection.addUpperTypeBound("T", std.numTypeSymbol);
+            function = symbolFactory.createFunctionType(operator.first, bindingCollection, std.binaryParameterIds);
             function.manuallySimplified(set("T"), 0, true);
             addToOperators(operator.second, function);
         }
@@ -473,22 +473,22 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         addToBinaryOperators(pair("/", TokenTypes.Divide),
                 std.asNumTypeSymbol, std.asNumTypeSymbol, std.numOrFalse, true);
 
-//        IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
-//        overloadBindings.addVariable(VAR_LHS, fixReference(T_LHS));
-//        overloadBindings.addVariable(VAR_RHS, fixReference(T_RHS));
-//        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
+//        IBindingCollection bindingCollection = symbolFactory.createBindingCollection();
+//        bindingCollection.addVariable(VAR_LHS, fixReference(T_LHS));
+//        bindingCollection.addVariable(VAR_RHS, fixReference(T_RHS));
+//        bindingCollection.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
 //        TypeVariableReference tHelper = reference("T");
-//        overloadBindings.addVariable("!help0", tHelper);
+//        bindingCollection.addVariable("!help0", tHelper);
 //        //bind convertible type to Treturn
 //        IConvertibleTypeSymbol asT = symbolFactory.createConvertibleTypeSymbol();
-//        overloadBindings.bind(asT, Arrays.asList("T"));
-//        overloadBindings.addUpperTypeBound(T_LHS, asT);
-//        overloadBindings.addUpperTypeBound(T_RHS, asT);
-//        overloadBindings.addLowerTypeBound("T", std.floatTypeSymbol);
-//        overloadBindings.addUpperTypeBound("T", std.numTypeSymbol);
-//        overloadBindings.addLowerTypeBound(T_RETURN, std.falseTypeSymbol);
-//        overloadBindings.addLowerRefBound(T_RETURN, reference("T"));
-//        IFunctionType function = symbolFactory.createFunctionType("/", overloadBindings, std.binaryParameterIds);
+//        bindingCollection.bind(asT, Arrays.asList("T"));
+//        bindingCollection.addUpperTypeBound(T_LHS, asT);
+//        bindingCollection.addUpperTypeBound(T_RHS, asT);
+//        bindingCollection.addLowerTypeBound("T", std.floatTypeSymbol);
+//        bindingCollection.addUpperTypeBound("T", std.numTypeSymbol);
+//        bindingCollection.addLowerTypeBound(T_RETURN, std.falseTypeSymbol);
+//        bindingCollection.addLowerRefBound(T_RETURN, reference("T"));
+//        IFunctionType function = symbolFactory.createFunctionType("/", bindingCollection, std.binaryParameterIds);
 //        function.manuallySimplified(set("T"), 0, true);
 //        addToOperators(TokenTypes.Divide, function);
     }
@@ -503,64 +503,64 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         };
         for (Pair<String, Integer> operator : assignOperators) {
             //Tlhs x int -> Tlhs \ int <: Tlhs <: int
-            IOverloadBindings overloadBindings = createAssignOverloadBindings();
-            overloadBindings.addLowerTypeBound(T_LHS, std.intTypeSymbol);
-            overloadBindings.addUpperTypeBound(T_LHS, std.intTypeSymbol);
-            overloadBindings.addUpperTypeBound(T_RHS, std.intTypeSymbol);
-            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            IBindingCollection bindingCollection = createAssignBindingCollection();
+            bindingCollection.addLowerTypeBound(T_LHS, std.intTypeSymbol);
+            bindingCollection.addUpperTypeBound(T_LHS, std.intTypeSymbol);
+            bindingCollection.addUpperTypeBound(T_RHS, std.intTypeSymbol);
+            function = symbolFactory.createFunctionType(operator.first, bindingCollection, std.binaryParameterIds);
             function.manuallySimplified(set(T_LHS), 0, false);
             addToOperators(operator.second, function);
 
             //Tlhs x float -> Tlhs \ float <: Tlhs <: float
-            overloadBindings = createAssignOverloadBindings();
-            overloadBindings.addLowerTypeBound(T_LHS, std.floatTypeSymbol);
-            overloadBindings.addUpperTypeBound(T_LHS, std.floatTypeSymbol);
-            overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
-            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            bindingCollection = createAssignBindingCollection();
+            bindingCollection.addLowerTypeBound(T_LHS, std.floatTypeSymbol);
+            bindingCollection.addUpperTypeBound(T_LHS, std.floatTypeSymbol);
+            bindingCollection.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
+            function = symbolFactory.createFunctionType(operator.first, bindingCollection, std.binaryParameterIds);
             function.manuallySimplified(set(T_LHS), 0, false);
             addToOperators(operator.second, function);
 
 //            //Tlhs x {as num} -> Tlhs \ float <: Tlhs <: float
-//            overloadBindings = createAssignOverloadBindings();
-//            overloadBindings.addLowerTypeBound(T_LHS, std.floatTypeSymbol);
-//            overloadBindings.addUpperTypeBound(T_LHS, std.floatTypeSymbol);
-//            overloadBindings.addUpperTypeBound(T_RHS, std.asNumTypeSymbol);
-//            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+//            bindingCollection = createAssignBindingCollection();
+//            bindingCollection.addLowerTypeBound(T_LHS, std.floatTypeSymbol);
+//            bindingCollection.addUpperTypeBound(T_LHS, std.floatTypeSymbol);
+//            bindingCollection.addUpperTypeBound(T_RHS, std.asNumTypeSymbol);
+//            function = symbolFactory.createFunctionType(operator.first, bindingCollection, std.binaryParameterIds);
 //            function.manuallySimplified(set(T_LHS), 0, true);
 //            addToOperators(operator.second, function);
 //
 //            //Tlhs x float -> Tlhs \ float <: Tlhs <: {as num}
-//            overloadBindings = createAssignOverloadBindings();
-//            overloadBindings.addLowerTypeBound(T_LHS, std.floatTypeSymbol);
-//            overloadBindings.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
-//            overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
-//            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+//            bindingCollection = createAssignBindingCollection();
+//            bindingCollection.addLowerTypeBound(T_LHS, std.floatTypeSymbol);
+//            bindingCollection.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
+//            bindingCollection.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
+//            function = symbolFactory.createFunctionType(operator.first, bindingCollection, std.binaryParameterIds);
 //            function.manuallySimplified(set(T_LHS), 0, true);
 //            addToOperators(operator.second, function);
 
             //Tlhs x {as T} -> Tlhs \ T <: Tlhs <: {as T}, T <: num
-            overloadBindings = createAssignOverloadBindings();
+            bindingCollection = createAssignBindingCollection();
             TypeVariableReference tHelper = reference("T");
-            overloadBindings.addVariable("!help0", tHelper);
+            bindingCollection.addVariable("!help0", tHelper);
             //bind convertible type to T
             IConvertibleTypeSymbol asT = symbolFactory.createConvertibleTypeSymbol();
-            overloadBindings.bind(asT, Arrays.asList("T"));
-            overloadBindings.addLowerRefBound(T_LHS, tHelper);
-            overloadBindings.addUpperTypeBound(T_LHS, asT);
-            overloadBindings.addUpperTypeBound(T_RHS, asT);
-            overloadBindings.addUpperTypeBound("T", std.numTypeSymbol);
+            bindingCollection.bind(asT, Arrays.asList("T"));
+            bindingCollection.addLowerRefBound(T_LHS, tHelper);
+            bindingCollection.addUpperTypeBound(T_LHS, asT);
+            bindingCollection.addUpperTypeBound(T_RHS, asT);
+            bindingCollection.addUpperTypeBound("T", std.numTypeSymbol);
 
-            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.binaryParameterIds);
+            function = symbolFactory.createFunctionType(operator.first, bindingCollection, std.binaryParameterIds);
             function.manuallySimplified(set(T_LHS, "T"), 0, true);
             addToOperators(operator.second, function);
         }
 
         //Tlhs x array -> Tlhs \ array <: Tlhs <: array
-        IOverloadBindings overloadBindings = createAssignOverloadBindings();
-        overloadBindings.addLowerTypeBound(T_LHS, std.arrayTypeSymbol);
-        overloadBindings.addUpperTypeBound(T_LHS, std.arrayTypeSymbol);
-        overloadBindings.addUpperTypeBound(T_RHS, std.arrayTypeSymbol);
-        function = symbolFactory.createFunctionType("+=", overloadBindings, std.binaryParameterIds);
+        IBindingCollection bindingCollection = createAssignBindingCollection();
+        bindingCollection.addLowerTypeBound(T_LHS, std.arrayTypeSymbol);
+        bindingCollection.addUpperTypeBound(T_LHS, std.arrayTypeSymbol);
+        bindingCollection.addUpperTypeBound(T_RHS, std.arrayTypeSymbol);
+        function = symbolFactory.createFunctionType("+=", bindingCollection, std.binaryParameterIds);
         function.manuallySimplified(set(T_LHS), 0, false);
         addToOperators(TokenTypes.PlusAssign, function);
 
@@ -571,29 +571,29 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         IFunctionType function;
 
         //Tlhs x float -> Tlhs \ (float | falseType) <: Tlhs <: (float | falseType)
-        IOverloadBindings overloadBindings = createAssignOverloadBindings();
-        overloadBindings.addLowerTypeBound(T_LHS, std.floatOrFalse);
-        overloadBindings.addUpperTypeBound(T_LHS, std.floatOrFalse);
-        overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
-        function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
+        IBindingCollection bindingCollection = createAssignBindingCollection();
+        bindingCollection.addLowerTypeBound(T_LHS, std.floatOrFalse);
+        bindingCollection.addUpperTypeBound(T_LHS, std.floatOrFalse);
+        bindingCollection.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
+        function = symbolFactory.createFunctionType("/=", bindingCollection, std.binaryParameterIds);
         function.manuallySimplified(set(T_LHS), 0, false);
         addToOperators(TokenTypes.DivideAssign, function);
 
         //Tlhs x float -> Tlhs \ (float | falseType) <: Tlhs <: {as num}
-        overloadBindings = createAssignOverloadBindings();
-        overloadBindings.addLowerTypeBound(T_LHS, std.floatOrFalse);
-        overloadBindings.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
-        overloadBindings.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
-        function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
+        bindingCollection = createAssignBindingCollection();
+        bindingCollection.addLowerTypeBound(T_LHS, std.floatOrFalse);
+        bindingCollection.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
+        bindingCollection.addUpperTypeBound(T_RHS, std.floatTypeSymbol);
+        function = symbolFactory.createFunctionType("/=", bindingCollection, std.binaryParameterIds);
         function.manuallySimplified(set(T_LHS), 0, true);
         addToOperators(TokenTypes.DivideAssign, function);
 
         //Tlhs x {as num} -> Tlhs \ (num | falseType) <: Tlhs <: {as num}
-        overloadBindings = createAssignOverloadBindings();
-        overloadBindings.addLowerTypeBound(T_LHS, std.numOrFalse);
-        overloadBindings.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
-        overloadBindings.addUpperTypeBound(T_RHS, std.asNumTypeSymbol);
-        function = symbolFactory.createFunctionType("/=", overloadBindings, std.binaryParameterIds);
+        bindingCollection = createAssignBindingCollection();
+        bindingCollection.addLowerTypeBound(T_LHS, std.numOrFalse);
+        bindingCollection.addUpperTypeBound(T_LHS, std.asNumTypeSymbol);
+        bindingCollection.addUpperTypeBound(T_RHS, std.asNumTypeSymbol);
+        function = symbolFactory.createFunctionType("/=", bindingCollection, std.binaryParameterIds);
         function.manuallySimplified(set(T_LHS), 0, true);
         addToOperators(TokenTypes.DivideAssign, function);
     }
@@ -610,20 +610,20 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
 
         //Tlhs x int -> Tlhs \ (int | falseType) <: Tlhs <: (int | falseType)
-        IOverloadBindings overloadBindings = createAssignOverloadBindings();
-        overloadBindings.addLowerTypeBound(T_LHS, std.intOrFalse);
-        overloadBindings.addUpperTypeBound(T_LHS, std.intOrFalse);
-        overloadBindings.addUpperTypeBound(T_RHS, std.intTypeSymbol);
-        function = symbolFactory.createFunctionType("%=", overloadBindings, std.binaryParameterIds);
+        IBindingCollection bindingCollection = createAssignBindingCollection();
+        bindingCollection.addLowerTypeBound(T_LHS, std.intOrFalse);
+        bindingCollection.addUpperTypeBound(T_LHS, std.intOrFalse);
+        bindingCollection.addUpperTypeBound(T_RHS, std.intTypeSymbol);
+        function = symbolFactory.createFunctionType("%=", bindingCollection, std.binaryParameterIds);
         function.manuallySimplified(set(T_LHS), 0, false);
         addToOperators(TokenTypes.ModuloAssign, function);
 
         //Tlhs x (array | {as int}) -> Tlhs \ (int | falseType) <: Tlhs <: (array | {as int})
-        overloadBindings = createAssignOverloadBindings();
-        overloadBindings.addLowerTypeBound(T_LHS, std.intOrFalse);
-        overloadBindings.addUpperTypeBound(T_LHS, std.arrayOrAsInt);
-        overloadBindings.addUpperTypeBound(T_RHS, std.arrayOrAsInt);
-        function = symbolFactory.createFunctionType("%=", overloadBindings, std.binaryParameterIds);
+        bindingCollection = createAssignBindingCollection();
+        bindingCollection.addLowerTypeBound(T_LHS, std.intOrFalse);
+        bindingCollection.addUpperTypeBound(T_LHS, std.arrayOrAsInt);
+        bindingCollection.addUpperTypeBound(T_RHS, std.arrayOrAsInt);
+        function = symbolFactory.createFunctionType("%=", bindingCollection, std.binaryParameterIds);
         function.manuallySimplified(set(T_LHS), 0, true);
         addToOperators(TokenTypes.ModuloAssign, function);
     }
@@ -661,8 +661,8 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             createIncrDecrOverload(operator, stringOrIntOrFloat);
 
             //T -> T
-            IOverloadBindings overloadBindings = createUnaryTBindings();
-            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.unaryParameterId);
+            IBindingCollection bindingCollection = createUnaryTBindingCollection();
+            function = symbolFactory.createFunctionType(operator.first, bindingCollection, std.unaryParameterId);
             function.manuallySimplified(set("T"), 0, false);
             addToOperators(operator.second, function);
         }
@@ -683,9 +683,9 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         };
         for (Pair<String, Integer> operator : unaryPlusMinusOperators) {
             //T -> T \ T <: (scalar | nullType | object)
-            IOverloadBindings overloadBindings = createUnaryTBindings();
-            overloadBindings.addUpperTypeBound("T", scalarOrNullOrObject);
-            function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.unaryParameterId);
+            IBindingCollection bindingCollection = createUnaryTBindingCollection();
+            bindingCollection.addUpperTypeBound("T", scalarOrNullOrObject);
+            function = symbolFactory.createFunctionType(operator.first, bindingCollection, std.unaryParameterId);
             function.manuallySimplified(set("T"), 0, false);
             addToOperators(operator.second, function);
         }
@@ -693,10 +693,10 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
     private void createIncrDecrOverload(Pair<String, Integer> operator, ITypeSymbol typeSymbol) {
         IFunctionType function;
-        IOverloadBindings overloadBindings = createUnaryTBindings();
-        overloadBindings.addLowerTypeBound("T", typeSymbol);
-        overloadBindings.addUpperTypeBound("T", typeSymbol);
-        function = symbolFactory.createFunctionType(operator.first, overloadBindings, std.unaryParameterId);
+        IBindingCollection bindingCollection = createUnaryTBindingCollection();
+        bindingCollection.addLowerTypeBound("T", typeSymbol);
+        bindingCollection.addUpperTypeBound("T", typeSymbol);
+        function = symbolFactory.createFunctionType(operator.first, bindingCollection, std.unaryParameterId);
         function.manuallySimplified(set("T"), 0, false);
         addToOperators(operator.second, function);
     }
@@ -710,20 +710,20 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
                 std.asStringTypeSymbol, std.asStringTypeSymbol, std.stringTypeSymbol, true);
 
         //Tlhs x string -> Tlhs \ string <: Tlhs <: string
-        IOverloadBindings overloadBindings = createAssignOverloadBindings();
-        overloadBindings.addLowerTypeBound(T_LHS, std.stringTypeSymbol);
-        overloadBindings.addUpperTypeBound(T_LHS, std.stringTypeSymbol);
-        overloadBindings.addUpperTypeBound(T_RHS, std.stringTypeSymbol);
-        IFunctionType function = symbolFactory.createFunctionType(".=", overloadBindings, std.binaryParameterIds);
+        IBindingCollection bindingCollection = createAssignBindingCollection();
+        bindingCollection.addLowerTypeBound(T_LHS, std.stringTypeSymbol);
+        bindingCollection.addUpperTypeBound(T_LHS, std.stringTypeSymbol);
+        bindingCollection.addUpperTypeBound(T_RHS, std.stringTypeSymbol);
+        IFunctionType function = symbolFactory.createFunctionType(".=", bindingCollection, std.binaryParameterIds);
         function.manuallySimplified(set(T_LHS), 0, false);
         addToOperators(TokenTypes.DotAssign, function);
 
         //Tlhs x {as string} -> Tlhs \ string <: Tlhs <: {as string}
-        overloadBindings = createAssignOverloadBindings();
-        overloadBindings.addLowerTypeBound(T_LHS, std.stringTypeSymbol);
-        overloadBindings.addUpperTypeBound(T_LHS, std.asStringTypeSymbol);
-        overloadBindings.addUpperTypeBound(T_RHS, std.asStringTypeSymbol);
-        function = symbolFactory.createFunctionType(".=", overloadBindings, std.binaryParameterIds);
+        bindingCollection = createAssignBindingCollection();
+        bindingCollection.addLowerTypeBound(T_LHS, std.stringTypeSymbol);
+        bindingCollection.addUpperTypeBound(T_LHS, std.asStringTypeSymbol);
+        bindingCollection.addUpperTypeBound(T_RHS, std.asStringTypeSymbol);
+        function = symbolFactory.createFunctionType(".=", bindingCollection, std.binaryParameterIds);
         function.manuallySimplified(set(T_LHS), 0, true);
         addToOperators(TokenTypes.DotAssign, function);
     }
@@ -740,7 +740,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //TODO rstoll TINS-332 introduce object pseudo type
         //more precise would be: T -> T \ T <: object
         //T -> T
-        IOverloadBindings collection = createUnaryTBindings();
+        IBindingCollection collection = createUnaryTBindingCollection();
         IFunctionType function = symbolFactory.createFunctionType("clone", collection, std.unaryParameterId);
         function.manuallySimplified(set("T"), 0, false);
         addToOperators(TokenTypes.Clone, function);
@@ -749,7 +749,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         //not all classes return itself, some return null as well in error cases
         //see https://wiki.php.net/rfc/internal_constructor_behaviour
         //T -> T
-        collection = createUnaryTBindings();
+        collection = createUnaryTBindingCollection();
         function = symbolFactory.createFunctionType("new", collection, std.unaryParameterId);
         function.manuallySimplified(set("T"), 0, false);
         addToOperators(TokenTypes.New, function);
@@ -757,19 +757,19 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
     private void defineAtAndCastOperator() {
         //T -> T
-        IOverloadBindings overloadBindings = createUnaryTBindings();
-        IFunctionType function = symbolFactory.createFunctionType("@", overloadBindings, std.unaryParameterId);
+        IBindingCollection bindingCollection = createUnaryTBindingCollection();
+        IFunctionType function = symbolFactory.createFunctionType("@", bindingCollection, std.unaryParameterId);
         function.manuallySimplified(set("T"), 0, false);
         addToOperators(TokenTypes.At, function);
 
         //Tlhs x mixed -> Treturn \ Treturn > Tlhs
-        overloadBindings = symbolFactory.createOverloadBindings();
-        overloadBindings.addVariable(VAR_LHS, reference(T_LHS));
-        overloadBindings.addVariable(VAR_RHS, fixReference(T_RHS));
-        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
-        overloadBindings.addLowerRefBound(T_RETURN, new TypeVariableReference(T_LHS));
-        overloadBindings.addUpperTypeBound(T_RHS, std.mixedTypeSymbol);
-        function = symbolFactory.createFunctionType("cast", overloadBindings, std.binaryParameterIds);
+        bindingCollection = symbolFactory.createBindingCollection();
+        bindingCollection.addVariable(VAR_LHS, reference(T_LHS));
+        bindingCollection.addVariable(VAR_RHS, fixReference(T_RHS));
+        bindingCollection.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
+        bindingCollection.addLowerRefBound(T_RETURN, new TypeVariableReference(T_LHS));
+        bindingCollection.addUpperTypeBound(T_RHS, std.mixedTypeSymbol);
+        function = symbolFactory.createFunctionType("cast", bindingCollection, std.binaryParameterIds);
         function.manuallySimplified(set(T_LHS), 0, false);
         addToOperators(TokenTypes.CAST, function);
     }
@@ -815,22 +815,22 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         IVariable value = symbolFactory.createVariable(varValue);
         IVariable key = symbolFactory.createVariable(varKey);
 
-        IOverloadBindings overloadBindings = symbolFactory.createOverloadBindings();
-        overloadBindings.addVariable(varArr, fixReference(tArr));
-        overloadBindings.addVariable(varValue, fixReference(tValue));
-        overloadBindings.addVariable(varKey, fixReference(tKey));
-        overloadBindings.addVariable(RETURN_VARIABLE_NAME, fixReference(T_RETURN));
+        IBindingCollection bindingCollection = symbolFactory.createBindingCollection();
+        bindingCollection.addVariable(varArr, fixReference(tArr));
+        bindingCollection.addVariable(varValue, fixReference(tValue));
+        bindingCollection.addVariable(varKey, fixReference(tKey));
+        bindingCollection.addVariable(RETURN_VARIABLE_NAME, fixReference(T_RETURN));
 
-        overloadBindings.addLowerTypeBound(tArr, std.arrayTypeSymbol);
-        overloadBindings.addUpperTypeBound(tArr, std.arrayTypeSymbol);
-        overloadBindings.addLowerTypeBound(tValue, std.mixedTypeSymbol);
-        overloadBindings.addUpperTypeBound(tValue, std.mixedTypeSymbol);
-        overloadBindings.addLowerTypeBound(tKey, intOrString);
-        overloadBindings.addUpperTypeBound(tKey, intOrString);
-        overloadBindings.addLowerTypeBound(T_RETURN, std.mixedTypeSymbol);
-        overloadBindings.addUpperTypeBound(T_RETURN, std.mixedTypeSymbol);
+        bindingCollection.addLowerTypeBound(tArr, std.arrayTypeSymbol);
+        bindingCollection.addUpperTypeBound(tArr, std.arrayTypeSymbol);
+        bindingCollection.addLowerTypeBound(tValue, std.mixedTypeSymbol);
+        bindingCollection.addUpperTypeBound(tValue, std.mixedTypeSymbol);
+        bindingCollection.addLowerTypeBound(tKey, intOrString);
+        bindingCollection.addUpperTypeBound(tKey, intOrString);
+        bindingCollection.addLowerTypeBound(T_RETURN, std.mixedTypeSymbol);
+        bindingCollection.addUpperTypeBound(T_RETURN, std.mixedTypeSymbol);
         IFunctionType function
-                = symbolFactory.createFunctionType("foreach", overloadBindings, Arrays.asList(arr, value, key));
+                = symbolFactory.createFunctionType("foreach", bindingCollection, Arrays.asList(arr, value, key));
         function.manuallySimplified(emptySet, 0, false);
         addToOperators(TokenTypes.Foreach, function);
 
@@ -844,13 +844,13 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         addToUnaryOperators(pair("throw", TokenTypes.Throw), exception, std.mixedTypeSymbol, false);
 
         //Tlhs x Trhs -> Trhs \ Trhs :> Tlhs
-        overloadBindings = symbolFactory.createOverloadBindings();
-        overloadBindings.addVariable(VAR_LHS, reference(T_LHS));
-        overloadBindings.addVariable(VAR_RHS, reference(T_RHS));
-        overloadBindings.addVariable(RETURN_VARIABLE_NAME, reference(T_RHS));
+        bindingCollection = symbolFactory.createBindingCollection();
+        bindingCollection.addVariable(VAR_LHS, reference(T_LHS));
+        bindingCollection.addVariable(VAR_RHS, reference(T_RHS));
+        bindingCollection.addVariable(RETURN_VARIABLE_NAME, reference(T_RHS));
 
-        overloadBindings.addLowerRefBound(T_RHS, reference(T_LHS));
-        function = symbolFactory.createFunctionType("catch", overloadBindings, std.binaryParameterIds);
+        bindingCollection.addLowerRefBound(T_RHS, reference(T_LHS));
+        function = symbolFactory.createFunctionType("catch", bindingCollection, std.binaryParameterIds);
         function.manuallySimplified(set(T_LHS, T_RHS), 0, false);
         addToOperators(TokenTypes.Catch, function);
     }
@@ -879,7 +879,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             ITypeSymbol returnBound,
             boolean hasConvertibleParameterTypes) {
 
-        IOverloadBindings collection = createFixBinaryBindings();
+        IBindingCollection collection = createFixBinaryBindingCollection();
         collection.addUpperTypeBound(T_LHS, leftBound);
         collection.addUpperTypeBound(T_RHS, rightBound);
         collection.addLowerTypeBound(T_RETURN, returnBound);
@@ -895,7 +895,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
             ITypeSymbol returnBound,
             boolean hasConvertibleParameterTypes) {
 
-        IOverloadBindings collection = createFixUnaryBindings();
+        IBindingCollection collection = createFixUnaryBindingCollection();
         collection.addUpperTypeBound(T_EXPR, formalBound);
         collection.addLowerTypeBound(T_RETURN, returnBound);
 
