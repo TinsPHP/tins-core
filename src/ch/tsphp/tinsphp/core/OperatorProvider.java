@@ -671,6 +671,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         createIncrDecrOverload(pair("preIcnr", TokenTypes.PRE_INCREMENT), nullOrInt);
         createIncrDecrOverload(pair("postIncr", TokenTypes.POST_INCREMENT), nullOrInt);
 
+
         //TODO rstoll TINS-332 introduce object pseudo type
         IUnionTypeSymbol scalarOrNullOrObject = symbolFactory.createUnionTypeSymbol();
         scalarOrNullOrObject.addTypeSymbol(std.scalarTypeSymbol);
@@ -682,12 +683,11 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
                 pair("uPlus", TokenTypes.UNARY_PLUS)
         };
         for (Pair<String, Integer> operator : unaryPlusMinusOperators) {
-            //T -> T \ T <: (scalar | nullType | object)
-            IBindingCollection bindingCollection = createUnaryTBindingCollection();
-            bindingCollection.addUpperTypeBound("T", scalarOrNullOrObject);
-            function = symbolFactory.createFunctionType(operator.first, bindingCollection, std.unaryParameterId);
-            function.manuallySimplified(set("T"), 0, false);
-            addToOperators(operator.second, function);
+            //float -> float
+            addToUnaryOperators(operator, std.floatTypeSymbol, std.floatTypeSymbol, false);
+
+            //(scalar | nullType | object) -> int
+            addToUnaryOperators(operator, scalarOrNullOrObject, std.intTypeSymbol, false);
         }
     }
 

@@ -298,10 +298,12 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                         {"{as (falseType | trueType)} -> (falseType | trueType)", true},
                 }},
                 {"uMinus", TokenTypes.UNARY_MINUS, new Object[][]{
-                        {"T -> T \\ T <: (falseType | float | int | nullType | string | trueType)", false}
+                        {"float -> float", false},
+                        {"(falseType | float | int | nullType | string | trueType) -> int", false}
                 }},
                 {"uPlus", TokenTypes.UNARY_PLUS, new Object[][]{
-                        {"T -> T \\ T <: (falseType | float | int | nullType | string | trueType)", false}
+                        {"float -> float", false},
+                        {"(falseType | float | int | nullType | string | trueType) -> int", false}
                 }},
                 {"clone", TokenTypes.Clone, new Object[][]{{"T -> T", false}}},
                 {"new", TokenTypes.New, new Object[][]{{"T -> T", false}}},
