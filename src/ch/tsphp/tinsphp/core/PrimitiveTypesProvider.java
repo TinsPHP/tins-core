@@ -78,8 +78,11 @@ public class PrimitiveTypesProvider implements ITypeSymbolProvider
         types.put(PrimitiveTypeNames.NUM, numTypeSymbol);
         types.put(PrimitiveTypeNames.SCALAR, scalarTypeSymbol);
 
+        IUnionTypeSymbol intOrString = symbolFactory.createUnionTypeSymbol();
+        intOrString.addTypeSymbol(intTypeSymbol);
+        intOrString.addTypeSymbol(stringTypeSymbol);
         IArrayTypeSymbol arrayTypeSymbol = symbolFactory.createArrayTypeSymbol(
-                "array", scalarTypeSymbol, mixedTypeSymbol);
+                "array", intOrString, mixedTypeSymbol);
         IPseudoTypeSymbol resourceTypeSymbol = symbolFactory.createPseudoTypeSymbol("resource");
 
         types.put(PrimitiveTypeNames.ARRAY, arrayTypeSymbol);
