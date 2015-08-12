@@ -138,20 +138,20 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
                 pair("||", TokenTypes.LogicOr)
         };
         for (Pair<String, Integer> operator : orOperators) {
-            //false x false -> false
-            addToBinaryOperators(operator, std.falseTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol, false);
-            //true x true -> true
-            addToBinaryOperators(operator, std.trueTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol, false);
-
-            //true x bool -> true
-            addToBinaryOperators(operator, std.trueTypeSymbol, std.boolTypeSymbol, std.trueTypeSymbol, false);
-            //true x {as bool} -> true
-            addToBinaryOperators(operator, std.trueTypeSymbol, std.asBoolTypeSymbol, std.trueTypeSymbol, true);
-
-            //bool x true -> true
-            addToBinaryOperators(operator, std.boolTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol, false);
-            //{as bool} x true -> true
-            addToBinaryOperators(operator, std.asBoolTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol, true);
+//            //false x false -> false
+//            addToBinaryOperators(operator, std.falseTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol, false);
+//            //true x true -> true
+//            addToBinaryOperators(operator, std.trueTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol, false);
+//
+//            //true x bool -> true
+//            addToBinaryOperators(operator, std.trueTypeSymbol, std.boolTypeSymbol, std.trueTypeSymbol, false);
+//            //true x {as bool} -> true
+//            addToBinaryOperators(operator, std.trueTypeSymbol, std.asBoolTypeSymbol, std.trueTypeSymbol, true);
+//
+//            //bool x true -> true
+//            addToBinaryOperators(operator, std.boolTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol, false);
+//            //{as bool} x true -> true
+//            addToBinaryOperators(operator, std.asBoolTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol, true);
 
             //bool x bool -> bool
             addToBinaryOperators(operator, std.boolTypeSymbol, std.boolTypeSymbol, std.boolTypeSymbol, false);
@@ -160,14 +160,14 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         }
 
         Pair<String, Integer> xorWeak = pair("xor", TokenTypes.LogicXorWeak);
-        //false x true -> true
-        addToBinaryOperators(xorWeak, std.falseTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol, false);
-        //true x false -> true
-        addToBinaryOperators(xorWeak, std.trueTypeSymbol, std.falseTypeSymbol, std.trueTypeSymbol, false);
-        //false x false -> false
-        addToBinaryOperators(xorWeak, std.falseTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol, false);
-        //true x true -> false
-        addToBinaryOperators(xorWeak, std.trueTypeSymbol, std.trueTypeSymbol, std.falseTypeSymbol, false);
+//        //false x true -> true
+//        addToBinaryOperators(xorWeak, std.falseTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol, false);
+//        //true x false -> true
+//        addToBinaryOperators(xorWeak, std.trueTypeSymbol, std.falseTypeSymbol, std.trueTypeSymbol, false);
+//        //false x false -> false
+//        addToBinaryOperators(xorWeak, std.falseTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol, false);
+//        //true x true -> false
+//        addToBinaryOperators(xorWeak, std.trueTypeSymbol, std.trueTypeSymbol, std.falseTypeSymbol, false);
         //bool x bool -> bool
         addToBinaryOperators(xorWeak, std.boolTypeSymbol, std.boolTypeSymbol, std.boolTypeSymbol, false);
         //{as bool} x {as bool} -> bool
@@ -179,21 +179,22 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
                 pair("&&", TokenTypes.LogicAnd)
         };
         for (Pair<String, Integer> operator : andOperators) {
-            //false x false -> false
-            addToBinaryOperators(operator, std.falseTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol, false);
+//            //false x false -> false
+//            addToBinaryOperators(operator, std.falseTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol, false);
+//
+//            //false x bool -> false
+//            addToBinaryOperators(operator, std.falseTypeSymbol, std.boolTypeSymbol, std.falseTypeSymbol, false);
+//            //false x {as bool} -> false
+//            addToBinaryOperators(operator, std.falseTypeSymbol, std.asBoolTypeSymbol, std.falseTypeSymbol, true);
+//
+//            //bool x false -> false
+//            addToBinaryOperators(operator, std.boolTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol, false);
+//            //{as bool} x false -> false
+//            addToBinaryOperators(operator, std.asBoolTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol, true);
+//
+//            //true x true -> true
+//            addToBinaryOperators(operator, std.trueTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol, false);
 
-            //false x bool -> false
-            addToBinaryOperators(operator, std.falseTypeSymbol, std.boolTypeSymbol, std.falseTypeSymbol, false);
-            //false x {as bool} -> false
-            addToBinaryOperators(operator, std.falseTypeSymbol, std.asBoolTypeSymbol, std.falseTypeSymbol, true);
-
-            //bool x false -> false
-            addToBinaryOperators(operator, std.boolTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol, false);
-            //{as bool} x false -> false
-            addToBinaryOperators(operator, std.asBoolTypeSymbol, std.falseTypeSymbol, std.falseTypeSymbol, true);
-
-            //true x true -> true
-            addToBinaryOperators(operator, std.trueTypeSymbol, std.trueTypeSymbol, std.trueTypeSymbol, false);
             //bool x bool -> bool
             addToBinaryOperators(operator, std.boolTypeSymbol, std.boolTypeSymbol, std.boolTypeSymbol, false);
             //{as bool} x {as bool} -> bool
@@ -343,39 +344,39 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         IVariable elseVariable = symbolFactory.createVariable(varElse);
         List<IVariable> parameters = Arrays.asList(conditionVariable, ifVariable, elseVariable);
 
-        //false x mixed x Telse -> Telse
-        //expanded: false x mixed x Telse -> Treturn \ Treturn :> Telse
-        IBindingCollection bindingCollection = symbolFactory.createBindingCollection();
-        bindingCollection.addVariable(varCondition, fixReference(tCondition));
-        bindingCollection.addVariable(varIf, fixReference(tIf));
-        bindingCollection.addVariable(varElse, reference(tElse));
-        bindingCollection.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
-        bindingCollection.addUpperTypeBound(tCondition, std.falseTypeSymbol);
-        bindingCollection.addUpperTypeBound(tIf, std.mixedTypeSymbol);
-        bindingCollection.addLowerRefBound(T_RETURN, reference(tElse));
-        IFunctionType function = symbolFactory.createFunctionType("?", bindingCollection, parameters);
-        function.manuallySimplified(set(tElse, T_RETURN), 0, false);
-        addToOperators(TokenTypes.QuestionMark, function);
-
-
-        //true x Tif x mixed -> Tif
-        //expanded: true x Tif x mixed -> Treturn \ Treturn :> Tif
-        bindingCollection = symbolFactory.createBindingCollection();
-        bindingCollection.addVariable(varCondition, fixReference(tCondition));
-        bindingCollection.addVariable(varIf, reference(tIf));
-        bindingCollection.addVariable(varElse, fixReference(tElse));
-        bindingCollection.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
-        bindingCollection.addUpperTypeBound(tCondition, std.trueTypeSymbol);
-        bindingCollection.addUpperTypeBound(tElse, std.mixedTypeSymbol);
-        bindingCollection.addLowerRefBound(T_RETURN, reference(tIf));
-        function = symbolFactory.createFunctionType("?", bindingCollection, parameters);
-        function.manuallySimplified(set(tIf, T_RETURN), 0, false);
-        addToOperators(TokenTypes.QuestionMark, function);
+//        //false x mixed x Telse -> Telse
+//        //expanded: false x mixed x Telse -> Treturn \ Treturn :> Telse
+//        IBindingCollection bindingCollection = symbolFactory.createBindingCollection();
+//        bindingCollection.addVariable(varCondition, fixReference(tCondition));
+//        bindingCollection.addVariable(varIf, fixReference(tIf));
+//        bindingCollection.addVariable(varElse, reference(tElse));
+//        bindingCollection.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
+//        bindingCollection.addUpperTypeBound(tCondition, std.falseTypeSymbol);
+//        bindingCollection.addUpperTypeBound(tIf, std.mixedTypeSymbol);
+//        bindingCollection.addLowerRefBound(T_RETURN, reference(tElse));
+//        IFunctionType function = symbolFactory.createFunctionType("?", bindingCollection, parameters);
+//        function.manuallySimplified(set(tElse, T_RETURN), 0, false);
+//        addToOperators(TokenTypes.QuestionMark, function);
+//
+//
+//        //true x Tif x mixed -> Tif
+//        //expanded: true x Tif x mixed -> Treturn \ Treturn :> Tif
+//        bindingCollection = symbolFactory.createBindingCollection();
+//        bindingCollection.addVariable(varCondition, fixReference(tCondition));
+//        bindingCollection.addVariable(varIf, reference(tIf));
+//        bindingCollection.addVariable(varElse, fixReference(tElse));
+//        bindingCollection.addVariable(RETURN_VARIABLE_NAME, reference(T_RETURN));
+//        bindingCollection.addUpperTypeBound(tCondition, std.trueTypeSymbol);
+//        bindingCollection.addUpperTypeBound(tElse, std.mixedTypeSymbol);
+//        bindingCollection.addLowerRefBound(T_RETURN, reference(tIf));
+//        function = symbolFactory.createFunctionType("?", bindingCollection, parameters);
+//        function.manuallySimplified(set(tIf, T_RETURN), 0, false);
+//        addToOperators(TokenTypes.QuestionMark, function);
 
 
         //bool x Tif x Telse -> (Tif | Telse)
         //expanded: bool x Tif x Telse -> Treturn \ Treturn :> Tif, Treturn :> Telse
-        bindingCollection = symbolFactory.createBindingCollection();
+        IBindingCollection bindingCollection = symbolFactory.createBindingCollection();
         bindingCollection.addVariable(varCondition, fixReference(tCondition));
         bindingCollection.addVariable(varIf, reference(tIf));
         bindingCollection.addVariable(varElse, reference(tElse));
@@ -383,7 +384,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         bindingCollection.addUpperTypeBound(tCondition, std.boolTypeSymbol);
         bindingCollection.addLowerRefBound(T_RETURN, reference(tIf));
         bindingCollection.addLowerRefBound(T_RETURN, reference(tElse));
-        function = symbolFactory.createFunctionType("?", bindingCollection, parameters);
+        IFunctionType function = symbolFactory.createFunctionType("?", bindingCollection, parameters);
         function.manuallySimplified(set(tIf, tElse, T_RETURN), 0, false);
         addToOperators(TokenTypes.QuestionMark, function);
 
