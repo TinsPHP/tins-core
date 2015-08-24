@@ -322,6 +322,10 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                         {"T -> T \\ (float | int | string) <: T <: (float | int | string)", false},
                         {"T -> T", false},
                 }},
+                {"arrAccess", TokenTypes.ARRAY_ACCESS, new Object[][]{
+                        {"array x (int | string) -> mixed", false},
+                        {"array x {as int} -> mixed", true}
+                }},
                 {"if", TokenTypes.If, new Object[][]{
                         {"(falseType | trueType) -> mixed", false},
                         {"{as (falseType | trueType)} -> mixed", true},
