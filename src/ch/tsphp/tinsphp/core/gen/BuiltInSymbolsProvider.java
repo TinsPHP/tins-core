@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_EXPR;
 import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_LHS;
 import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_RETURN;
 import static ch.tsphp.tinsphp.core.StandardConstraintAndVariables.T_RHS;
@@ -62,15 +63,81 @@ public class BuiltInSymbolsProvider extends AProvider implements ISymbolProvider
         IMinimalMethodSymbol methodSymbol;
 
         //string x string -> (int | false)
+        methodSymbol = symbolFactory.createMinimalMethodSymbol("strpos");
         collection = createFixBinaryBindingCollection();
         collection.addUpperTypeBound(T_LHS, std.stringTypeSymbol);
         collection.addUpperTypeBound(T_RHS, std.stringTypeSymbol);
         collection.addLowerTypeBound(T_RETURN, std.intOrFalse);
         function = symbolFactory.createFunctionType("strpos", collection, std.binaryParameterIds);
         function.manuallySimplified(Collections.<String>emptySet(), 0, false);
-        methodSymbol = symbolFactory.createMinimalMethodSymbol("strpos");
         methodSymbol.addOverload(function);
         symbols.put("\\strpos()", methodSymbol);
+
+        methodSymbol = symbolFactory.createMinimalMethodSymbol("strpos");
+        collection = createFixUnaryBindingCollection();
+        collection.addUpperTypeBound(T_EXPR, std.intTypeSymbol);
+        collection.addLowerTypeBound(T_RETURN, std.intTypeSymbol);
+        function = symbolFactory.createFunctionType("abs", collection, std.unaryParameterId);
+        function.manuallySimplified(Collections.<String>emptySet(), 0, false);
+        methodSymbol.addOverload(function);
+        collection = createFixUnaryBindingCollection();
+        collection.addUpperTypeBound(T_EXPR, std.floatTypeSymbol);
+        collection.addLowerTypeBound(T_RETURN, std.floatTypeSymbol);
+        function = symbolFactory.createFunctionType("abs", collection, std.unaryParameterId);
+        function.manuallySimplified(Collections.<String>emptySet(), 0, false);
+        methodSymbol.addOverload(function);
+        collection = createFixUnaryBindingCollection();
+        collection.addUpperTypeBound(T_EXPR, std.asIntTypeSymbol);
+        collection.addLowerTypeBound(T_RETURN, std.intTypeSymbol);
+        function = symbolFactory.createFunctionType("abs", collection, std.unaryParameterId);
+        function.manuallySimplified(Collections.<String>emptySet(), 0, false);
+        methodSymbol.addOverload(function);
+        symbols.put("\\abs()", methodSymbol);
+
+        methodSymbol = symbolFactory.createMinimalMethodSymbol("is_array");
+        collection = createFixUnaryBindingCollection();
+        collection.addUpperTypeBound(T_EXPR, std.mixedTypeSymbol);
+        collection.addLowerTypeBound(T_RETURN, std.boolTypeSymbol);
+        function = symbolFactory.createFunctionType("is_array", collection, std.unaryParameterId);
+        function.manuallySimplified(Collections.<String>emptySet(), 0, false);
+        methodSymbol.addOverload(function);
+        symbols.put("\\is_array()", methodSymbol);
+
+        methodSymbol = symbolFactory.createMinimalMethodSymbol("is_bool");
+        collection = createFixUnaryBindingCollection();
+        collection.addUpperTypeBound(T_EXPR, std.mixedTypeSymbol);
+        collection.addLowerTypeBound(T_RETURN, std.boolTypeSymbol);
+        function = symbolFactory.createFunctionType("is_bool", collection, std.unaryParameterId);
+        function.manuallySimplified(Collections.<String>emptySet(), 0, false);
+        methodSymbol.addOverload(function);
+        symbols.put("\\is_bool()", methodSymbol);
+
+        methodSymbol = symbolFactory.createMinimalMethodSymbol("is_float");
+        collection = createFixUnaryBindingCollection();
+        collection.addUpperTypeBound(T_EXPR, std.mixedTypeSymbol);
+        collection.addLowerTypeBound(T_RETURN, std.boolTypeSymbol);
+        function = symbolFactory.createFunctionType("is_float", collection, std.unaryParameterId);
+        function.manuallySimplified(Collections.<String>emptySet(), 0, false);
+        methodSymbol.addOverload(function);
+        symbols.put("\\is_float()", methodSymbol);
+
+        methodSymbol = symbolFactory.createMinimalMethodSymbol("is_int");
+        collection = createFixUnaryBindingCollection();
+        collection.addUpperTypeBound(T_EXPR, std.mixedTypeSymbol);
+        collection.addLowerTypeBound(T_RETURN, std.boolTypeSymbol);
+        function = symbolFactory.createFunctionType("is_int", collection, std.unaryParameterId);
+        function.manuallySimplified(Collections.<String>emptySet(), 0, false);
+        methodSymbol.addOverload(function);
+        symbols.put("\\is_int()", methodSymbol);
+
+        methodSymbol = symbolFactory.createMinimalMethodSymbol("is_string");
+        collection = createFixUnaryBindingCollection();
+        collection.addUpperTypeBound(T_EXPR, std.mixedTypeSymbol);
+        collection.addLowerTypeBound(T_RETURN, std.boolTypeSymbol);
+        function = symbolFactory.createFunctionType("is_string", collection, std.unaryParameterId);
+        function.manuallySimplified(Collections.<String>emptySet(), 0, false);
+        methodSymbol.addOverload(function);
+        symbols.put("\\is_string()", methodSymbol);
 
         constant = generatorHelper.createConstant("E_ALL#", std.intTypeSymbol);
         symbols.put("\\E_ALL#", constant);
