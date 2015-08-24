@@ -76,6 +76,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         defineInstanceOfOperator();
         defineCloneAndNewOperator();
         defineAtAndCastOperator();
+        defineArrayAccessOperator();
 
         defineControlFlowOperators();
         defineGlobalFunctions();
@@ -103,6 +104,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
                 pair("+", TokenTypes.Plus), pair("-", TokenTypes.Minus), pair("*", TokenTypes.Multiply),
                 pair("/", TokenTypes.Divide), pair("%", TokenTypes.Modulo), pair(".", TokenTypes.Dot),
                 pair("instanceof", TokenTypes.Instanceof),
+                pair("[]", TokenTypes.ARRAY_ACCESS),
                 //unary operators
                 pair("cast", TokenTypes.CAST),
                 pair("++", TokenTypes.PRE_INCREMENT), pair("--", TokenTypes.PRE_DECREMENT),
@@ -773,6 +775,29 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         function = symbolFactory.createFunctionType("cast", bindingCollection, std.binaryParameterIds);
         function.manuallySimplified(set(T_LHS), 0, false);
         addToOperators(TokenTypes.CAST, function);
+    }
+
+    private void defineArrayAccessOperator() {
+        //array x (string | int) -> mixed
+        IUnionTypeSymbol stringOrInt = symbolFactory.createUnionTypeSymbol();
+        stringOrInt.addTypeSymbol(std.stringTypeSymbol);
+        stringOrInt.addTypeSymbol(std.intTypeSymbol);
+        IBindingCollection bindingCollection = createFixBinaryBindingCollection();
+        bindingCollection.addUpperTypeBound(T_LHS, std.arrayTypeSymbol);
+        bindingCollection.addUpperTypeBound(T_RHS, stringOrInt);
+        bindingCollection.addLowerTypeBound(T_RETURN, std.mixedTypeSymbol);
+        IFunctionType function = symbolFactory.createFunctionType("[]", bindingCollection, std.binaryParameterIds);
+        function.manuallySimplified(emptySet, 0, false);
+        addToOperators(TokenTypes.ARRAY_ACCESS, function);
+
+        //array x {as int} -> mixed
+        bindingCollection = createFixBinaryBindingCollection();
+        bindingCollection.addUpperTypeBound(T_LHS, std.arrayTypeSymbol);
+        bindingCollection.addUpperTypeBound(T_RHS, std.asIntTypeSymbol);
+        bindingCollection.addLowerTypeBound(T_RETURN, std.mixedTypeSymbol);
+        function = symbolFactory.createFunctionType("[]", bindingCollection, std.binaryParameterIds);
+        function.manuallySimplified(emptySet, 0, true);
+        addToOperators(TokenTypes.ARRAY_ACCESS, function);
     }
 
     private void defineControlFlowOperators() {
