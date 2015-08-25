@@ -843,21 +843,20 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
         IBindingCollection bindingCollection = symbolFactory.createBindingCollection();
         bindingCollection.addVariable(varArr, fixReference(tArr));
-        bindingCollection.addVariable(varValue, fixReference(tValue));
-        bindingCollection.addVariable(varKey, fixReference(tKey));
+        bindingCollection.addVariable(varValue, reference(tValue));
+        bindingCollection.addVariable(varKey, reference(tKey));
         bindingCollection.addVariable(RETURN_VARIABLE_NAME, fixReference(T_RETURN));
 
-        bindingCollection.addLowerTypeBound(tArr, std.arrayTypeSymbol);
         bindingCollection.addUpperTypeBound(tArr, std.arrayTypeSymbol);
         bindingCollection.addLowerTypeBound(tValue, std.mixedTypeSymbol);
-        bindingCollection.addUpperTypeBound(tValue, std.mixedTypeSymbol);
         bindingCollection.addLowerTypeBound(tKey, intOrString);
-        bindingCollection.addUpperTypeBound(tKey, intOrString);
         bindingCollection.addLowerTypeBound(T_RETURN, std.mixedTypeSymbol);
-        bindingCollection.addUpperTypeBound(T_RETURN, std.mixedTypeSymbol);
         IFunctionType function
                 = symbolFactory.createFunctionType("foreach", bindingCollection, Arrays.asList(arr, value, key));
-        function.manuallySimplified(emptySet, 0, false);
+        Set<String> nonFixedTypeParameters = new HashSet<>(2);
+        nonFixedTypeParameters.add(tValue);
+        nonFixedTypeParameters.add(tKey);
+        function.manuallySimplified(nonFixedTypeParameters, 0, false);
         addToOperators(TokenTypes.Foreach, function);
 
         //TODO rstoll TINS-391 - Introduce void as own type

@@ -342,7 +342,11 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                         {"(falseType | trueType) -> mixed", false},
                         {"{as (falseType | trueType)} -> mixed", true},
                 }},
-                {"foreach", TokenTypes.Foreach, new Object[][]{{"array x mixed x (int | string) -> mixed", false}}},
+                {
+                        "foreach", TokenTypes.Foreach,
+                        new Object[][]{{"array x Tvalue x Tkey -> mixed "
+                                + "\\ mixed <: Tvalue, (int | string) <: Tkey", false}}
+                },
                 {"switch", TokenTypes.Switch, new Object[][]{
                         {"(falseType | float | int | string | trueType) -> mixed", false}
                 }},
