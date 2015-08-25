@@ -204,8 +204,8 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
         }
 
         Pair<String, Integer> logicNot = new Pair<>("!", TokenTypes.LogicNot);
-        addToUnaryOperators(logicNot, std.falseTypeSymbol, std.trueTypeSymbol, false);
-        addToUnaryOperators(logicNot, std.trueTypeSymbol, std.falseTypeSymbol, false);
+//        addToUnaryOperators(logicNot, std.falseTypeSymbol, std.trueTypeSymbol, false);
+//        addToUnaryOperators(logicNot, std.trueTypeSymbol, std.falseTypeSymbol, false);
         addToUnaryOperators(logicNot, std.boolTypeSymbol, std.boolTypeSymbol, false);
         addToUnaryOperators(logicNot, std.asBoolTypeSymbol, std.boolTypeSymbol, true);
     }

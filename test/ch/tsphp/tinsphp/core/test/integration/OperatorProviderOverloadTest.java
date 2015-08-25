@@ -292,8 +292,8 @@ public class OperatorProviderOverloadTest extends AOperatorProviderTest
                         {"string -> string", false}
                 }},
                 {"!", TokenTypes.LogicNot, new Object[][]{
-                        {"falseType -> trueType", false},
-                        {"trueType -> falseType", false},
+//                        {"falseType -> trueType", false},
+//                        {"trueType -> falseType", false},
                         {"(falseType | trueType) -> (falseType | trueType)", false},
                         {"{as (falseType | trueType)} -> (falseType | trueType)", true},
                 }},
