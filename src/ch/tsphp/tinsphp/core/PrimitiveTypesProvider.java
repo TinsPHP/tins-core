@@ -35,7 +35,7 @@ public class PrimitiveTypesProvider implements ITypeSymbolProvider
         symbolFactory.setMixedTypeSymbol(mixedTypeSymbol);
 
         IPseudoTypeSymbol nothingTypeSymbol = symbolFactory.createPseudoTypeSymbol("nothing");
-        IPseudoTypeSymbol nullTypeTypeSymbol = symbolFactory.createPseudoTypeSymbol("nullType");
+        IPseudoTypeSymbol nullTypeTypeSymbol = symbolFactory.createPseudoTypeSymbol("nullType", true);
 
         types.put(PrimitiveTypeNames.MIXED, mixedTypeSymbol);
         types.put(PrimitiveTypeNames.NULL_TYPE, nullTypeTypeSymbol);

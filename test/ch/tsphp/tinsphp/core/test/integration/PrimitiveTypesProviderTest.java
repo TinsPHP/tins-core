@@ -36,6 +36,67 @@ public class PrimitiveTypesProviderTest extends ATest
         assertThat(arrayTypeSymbol.getKeyTypeSymbol().getAbsoluteName(), is("(int | string)"));
     }
 
+
+    @Test
+    public void getTypes_Standard_NullTypeIsFinal() {
+        //no arrange necessary
+
+        ITypeSymbolProvider typeSymbolProvider = createPrimitiveTypesProvider(symbolFactory);
+        ITypeSymbol result = typeSymbolProvider.getTypes().get(PrimitiveTypeNames.NULL_TYPE);
+
+        assertThat(result.isFinal(), is(true));
+    }
+
+    @Test
+    public void getTypes_Standard_FalseTypeIsFinal() {
+        //no arrange necessary
+
+        ITypeSymbolProvider typeSymbolProvider = createPrimitiveTypesProvider(symbolFactory);
+        ITypeSymbol result = typeSymbolProvider.getTypes().get(PrimitiveTypeNames.FALSE_TYPE);
+
+        assertThat(result.isFinal(), is(true));
+    }
+
+    @Test
+    public void getTypes_Standard_TrueTypeIsFinal() {
+        //no arrange necessary
+
+        ITypeSymbolProvider typeSymbolProvider = createPrimitiveTypesProvider(symbolFactory);
+        ITypeSymbol result = typeSymbolProvider.getTypes().get(PrimitiveTypeNames.TRUE_TYPE);
+
+        assertThat(result.isFinal(), is(true));
+    }
+
+    @Test
+    public void getTypes_Standard_IntIsFinal() {
+        //no arrange necessary
+
+        ITypeSymbolProvider typeSymbolProvider = createPrimitiveTypesProvider(symbolFactory);
+        ITypeSymbol result = typeSymbolProvider.getTypes().get(PrimitiveTypeNames.INT);
+
+        assertThat(result.isFinal(), is(true));
+    }
+
+    @Test
+    public void getTypes_Standard_FloatIsFinal() {
+        //no arrange necessary
+
+        ITypeSymbolProvider typeSymbolProvider = createPrimitiveTypesProvider(symbolFactory);
+        ITypeSymbol result = typeSymbolProvider.getTypes().get(PrimitiveTypeNames.FLOAT);
+
+        assertThat(result.isFinal(), is(true));
+    }
+
+    @Test
+    public void getTypes_Standard_StringTypeIsFinal() {
+        //no arrange necessary
+
+        ITypeSymbolProvider typeSymbolProvider = createPrimitiveTypesProvider(symbolFactory);
+        ITypeSymbol result = typeSymbolProvider.getTypes().get(PrimitiveTypeNames.STRING);
+
+        assertThat(result.isFinal(), is(true));
+    }
+
     protected PrimitiveTypesProvider createPrimitiveTypesProvider(ISymbolFactory symbolFactory) {
         return new PrimitiveTypesProvider(symbolFactory);
     }
