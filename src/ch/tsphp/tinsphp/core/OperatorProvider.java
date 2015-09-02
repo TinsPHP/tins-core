@@ -931,7 +931,7 @@ public class OperatorProvider extends AProvider implements IOperatorsProvider
 
     private void addToOperators(int operatorType, IFunctionType functionTypeSymbol) {
         IMinimalMethodSymbol methodSymbol = builtInOperators.get(operatorType);
-        methodSymbol.addOverload(functionTypeSymbol);
+        methodSymbol.getOverloads().add(functionTypeSymbol);
     }
 
     private Set<String> set(String... typeVariables) {
